@@ -260,9 +260,9 @@ WHILE @i <= 3
 BEGIN
     SET @maPhong = @i;
 
-    -- Tạo 12 hàng (A → L) x 10 cột = 120 ghế
+    -- Tạo 10 hàng (A → J) x 12 cột = 120 ghế
     SET @hang = 'A';
-    WHILE @hang <= 'L'
+    WHILE @hang <= 'J'
     BEGIN
         SET @cot = 1;
         WHILE @cot <= 10

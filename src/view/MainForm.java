@@ -27,7 +27,7 @@ public class MainForm extends JFrame {
         mainPanel.setLayout(card);
 
         // Thêm panel vào main
-        mainPanel.add(new PanelBanHang(), "ve");
+        mainPanel.add(new PanelBanHang(), "banhang");
         mainPanel.add(new PanelPhim(), "phim");
         mainPanel.add(new PanelSuatChieu(), "suatchieu");
         mainPanel.add(new PanelSanPham(), "sanpham");
@@ -100,7 +100,7 @@ public class MainForm extends JFrame {
 
         // Danh sách nút
         String[][] buttons = {
-            {"Bán Vé", "ticket.png", "ve"},
+            {"Bán Hàng", "ticket.png", "banhang"},
             {"Phim", "film.png", "phim"},
             {"Phòng Chiếu", "room.png", "phongchieu"},
             {"Suất Chiếu", "calendar.png", "suatchieu"},
