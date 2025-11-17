@@ -1,0 +1,20 @@
+# NetBeans
+nbproject/private/
+nbproject/
+dist/
+nbbuild/
+build/
+*.jar
+
+# Java compiled
+*.class
+build/classes/
+
+# IDE khác
+.idea/
+*.iml
+out/
+
+# OS
+Thumbs.db
+.DS_Store

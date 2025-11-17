@@ -1,0 +1,36 @@
+package model;
+
+public class PhongChieu {
+    private int maPhongChieu;
+    private String tenPhongChieu;
+    private int soGheNgoi;
+    private String trangThaiPhong;
+    private String loaiManHinh;
+    private String heThongAmThanh;
+
+    public PhongChieu() {}
+
+    // Getters and Setters
+    public int getMaPhongChieu() { return maPhongChieu; }
+    public void setMaPhongChieu(int maPhongChieu) { this.maPhongChieu = maPhongChieu; }
+
+    public String getTenPhongChieu() { return tenPhongChieu; }
+    public void setTenPhongChieu(String tenPhongChieu) { this.tenPhongChieu = tenPhongChieu; }
+
+    public int getSoGheNgoi() { return soGheNgoi; }
+    public void setSoGheNgoi(int soGheNgoi) { this.soGheNgoi = soGheNgoi; }
+
+    public String getTrangThaiPhong() { return trangThaiPhong; }
+    public void setTrangThaiPhong(String trangThaiPhong) { this.trangThaiPhong = trangThaiPhong; }
+
+    public String getLoaiManHinh() { return loaiManHinh; }
+    public void setLoaiManHinh(String loaiManHinh) { this.loaiManHinh = loaiManHinh; }
+
+    public String getHeThongAmThanh() { return heThongAmThanh; }
+    public void setHeThongAmThanh(String heThongAmThanh) { this.heThongAmThanh = heThongAmThanh; }
+
+    @Override
+    public String toString() {
+        return tenPhongChieu + " (" + soGheNgoi + " ghế)";
+    }
+}
