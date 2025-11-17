@@ -4,7 +4,11 @@ nbproject/
 dist/
 nbbuild/
 build/
+
+# bỏ .jar, trừ jdbc
 *.jar
+!src/lib/mssql-jdbc-13.2.1.jre11.jar
+
 
 # Java compiled
 *.class
