@@ -108,7 +108,7 @@ public class MainForm extends JFrame {
             {"Nhân Viên", "employee.png", "nhanvien"},
             {"Khách Hàng", "customer.png", "khachhang"},
             {"Thống Kê", "chart.png", "thongke"},
-            {"Đăng Xuất", "logout.png", "logout"}
+            {"Đăng Xuất", "logout.png", "logout"}
         };
         
         // Tạo nút từ ds
@@ -119,7 +119,7 @@ public class MainForm extends JFrame {
             }
 
             // Nếu là nhân viên thì chỉ hiển thị nút đăng xuất
-            if (chucVu.equals("Nhân viên bán vé") && !btn[0].equals("Đăng Xuất")) {
+            if (chucVu.equals("Nhân viên bán vé") && !btn[0].equals("Đăng Xuất")) {
                 continue;
             }
 
@@ -185,7 +185,7 @@ public class MainForm extends JFrame {
     // Hàm log out
     private void dangXuat() {
         // Tạo các nút tùy chỉnh
-        JButton btnDangXuat = new JButton("Đăng xuất");
+        JButton btnDangXuat = new JButton("Đăng Xuất");
         btnDangXuat.setBackground(new Color(220, 0, 0));
         btnDangXuat.setForeground(Color.WHITE);
         btnDangXuat.setFocusPainted(false);

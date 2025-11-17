@@ -220,12 +220,14 @@ GO
 
 -- ================== Thêm dữ liệu mẫu vào bảng   ===========================
 INSERT INTO ChucVu (tenChucVu, moTaQuyen) VALUES
-(N'Nhân viên bán vé', N'Bán hàng, đăng ký thẻ khách hàng và cộng điểm cho khách'),
+(N'Nhân viên bán vé', N'Bán hàng, đăng ký thẻ khách hàng và cộng điểm cho khách'),
 (N'Quản lý', N'Toàn quyền: nhân viên, quản lý rạp phim, báo cáo doanh thu');
 
 INSERT INTO NhanVien (hoTenNhanVien, ngaySinh, gioiTinh, soDienThoai, maChucVu) VALUES
-(N'Trương Tuấn Tú', '1999-06-03', N'Nam', '0945678901', 1),
-(N'Trần Minh Đức', '2001-07-22', N'Nam', '0912345678', 2);
+(N'Trương Tuấn Tú', '1999-06-03', N'Nam', '0945678901', 2),
+(N'Trần Minh Đức', '2001-07-22', N'Nam', '0912345678', 1);
+
+
 
 
 INSERT INTO TaiKhoan (tenDangNhap, matKhau, email, maNhanVien) VALUES
@@ -265,7 +267,7 @@ BEGIN
     WHILE @hang <= 'J'
     BEGIN
         SET @cot = 1;
-        WHILE @cot <= 10
+        WHILE @cot <= 12
         BEGIN
             INSERT INTO GheNgoi (maPhongChieu, hangGhe, soGhe)
             VALUES (@maPhong, @hang, CAST(@cot AS NVARCHAR(2)));
@@ -360,8 +362,9 @@ INSERT INTO ChiTietDonHang (maDonHang, maSanPham, maVe, soLuong, donGiaLucBan, t
 -- ========================================
 INSERT INTO ThanhToan (maDonHang, soTien, maNhanVien, phuongThucThanhToan, thoiGianThanhToan)
 VALUES
-(1, 305000, 1, 'Tiền mặt', '2025-11-15 12:00:00'),
+(1, 305000, 1, N'Tiền mặt', '2025-11-15 12:00:00'),
 (2, 110000, 2, N'Chuyển khoản', '2025-11-15 12:15:00'),  -- Đơn 2: NV2, chuyển khoản
 (3,  85000, 1, N'Thẻ tín dụng','2025-11-15 12:20:00');  -- Đơn 3: NV1, thẻ
 GO
+
 
