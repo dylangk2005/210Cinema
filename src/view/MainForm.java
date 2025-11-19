@@ -37,7 +37,8 @@ public class MainForm extends JFrame {
         mainPanel.add(new PanelPhongChieu(), "phongchieu");
 
         // Trang mặc định
-        card.show(mainPanel, "ve");
+//        card.show(mainPanel, "ve");
+        card.show(mainPanel, "banhang");
 
         // gộp
         add(menu, BorderLayout.WEST);
@@ -51,7 +52,7 @@ public class MainForm extends JFrame {
         menu.setBackground(Color.BLACK);
 
         // logo
-       JPanel headerPanel = new JPanel();
+        JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setPreferredSize(new Dimension(250, 100));
         headerPanel.setBackground(new Color(139, 0, 0));
@@ -113,10 +114,10 @@ public class MainForm extends JFrame {
         
         // Tạo nút từ ds
         for (String[] btn : buttons) {
-            if (btn[0].isEmpty()) {
-                menuButtons.add(Box.createVerticalStrut(20));
-                continue;
-            }
+//            if (btn[0].isEmpty()) {
+//                menuButtons.add(Box.createVerticalStrut(20));
+//                continue;
+//            }
 
             // Nếu là nhân viên thì chỉ hiển thị nút đăng xuất
             if (chucVu.equals("Nhân viên bán vé") && !btn[0].equals("Đăng Xuất")) {
@@ -229,7 +230,7 @@ public class MainForm extends JFrame {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnDangXuat.setBackground(new Color(220, 0, 0));
             }
-    });
+        });
         btnHuy.addMouseListener( new java.awt.event.MouseAdapter(){
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnHuy.setBackground(new Color(100, 100, 100));
@@ -239,7 +240,7 @@ public class MainForm extends JFrame {
             }
         });
 
-    dialog.setVisible(true);
-}
+        dialog.setVisible(true);
+    }
     
 }

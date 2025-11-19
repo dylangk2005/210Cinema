@@ -21,7 +21,7 @@ public class PanelChonGhe extends JDialog {
     // ====== CONSTRUCTOR ======
     public PanelChonGhe(JFrame parent, SeatSelectionListener listener) {
         super(parent, "Chọn Ghế", true);
-        setSize(800, 600);
+        setSize(1400, 800);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(15, 15));
         getContentPane().setBackground(Color.WHITE);
@@ -44,13 +44,13 @@ public class PanelChonGhe extends JDialog {
         add(screenPanel, BorderLayout.NORTH);
 
         // ====== GHẾ ======
-        JPanel seatPanel = new JPanel(new GridLayout(5, 10, 10, 10));
+        JPanel seatPanel = new JPanel(new GridLayout(10, 12, 10, 10));
         seatPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         seatPanel.setBackground(Color.WHITE);
 
-        char[] rows = {'A', 'B', 'C', 'D', 'E'};
+        char[] rows = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
         for (char row : rows) {
-            for (int col = 1; col <= 10; col++) {
+            for (int col = 1; col <= 12; col++) {
                 String seatCode = String.format("%c%02d", row, col);
                 JButton seatBtn = new JButton(seatCode);
                 seatBtn.setFocusPainted(false);
@@ -75,8 +75,6 @@ public class PanelChonGhe extends JDialog {
         legendPanel.add(createLegend(Color.LIGHT_GRAY, "Ghế trống"));
         legendPanel.add(createLegend(new Color(0, 180, 0), "Ghế đang chọn"));
         legendPanel.add(createLegend(Color.RED, "Ghế đã đặt"));
-
-        add(legendPanel, BorderLayout.SOUTH);
 
         // ====== PANEL DƯỚI ======
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
@@ -103,7 +101,15 @@ public class PanelChonGhe extends JDialog {
         btnPanel.add(btnCancel);
         btnPanel.add(btnConfirm);
         bottomPanel.add(btnPanel, BorderLayout.EAST);
-        add(bottomPanel, BorderLayout.PAGE_END);
+        
+        // fix legendPanel ko hien thi
+        JPanel bottomContainer = new JPanel();
+        bottomContainer.setLayout(new BoxLayout(bottomContainer, BoxLayout.Y_AXIS));
+        bottomContainer.setBackground(Color.WHITE);
+        bottomContainer.add(legendPanel);
+        bottomContainer.add(Box.createVerticalStrut(8));
+        bottomContainer.add(bottomPanel);
+        add(bottomContainer, BorderLayout.SOUTH);
 
         // ====== EVENT ======
         btnCancel.addActionListener(e -> dispose());

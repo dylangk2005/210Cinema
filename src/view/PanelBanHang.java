@@ -49,16 +49,93 @@ public class PanelBanHang extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // ====== PHẦN DƯỚI: Thông tin vé ======
-        JPanel infoPanel = new JPanel(new GridBagLayout());
-        infoPanel.setBorder(BorderFactory.createTitledBorder(
+        // Khoi boc ngoai
+        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        centerPanel.setBackground(Color.WHITE);
+        
+        // titleborder boc ngoai listpanel (left-panel)
+        JPanel leftPanelWrapper = new JPanel(new BorderLayout());
+        leftPanelWrapper.setBackground(Color.WHITE);
+        leftPanelWrapper.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1, true),
-                "THÔNG TIN VÉ",
+                "Lựa chọn sản phẩm",
                 0, 0,
-                new Font("Arial", Font.BOLD, 16),
-                new Color(150, 0, 0)
-        ));
-        infoPanel.setBackground(Color.WHITE);
+                new Font("Arial", Font.BOLD, 14),
+                new Color(120, 0, 0)
+        ), BorderFactory.createEmptyBorder(20, 20, 20, 20)));
+        
+        // panel header: tieu de cot
+        JPanel header = new JPanel(new GridLayout(1, 2));
+        header.setBackground(Color.WHITE);
+        JLabel h1 = new JLabel("Sản phẩm");
+        h1.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel h2 = new JLabel("Số lượng", JLabel.CENTER);
+        h2.setFont(new Font("Arial", Font.BOLD, 14));
+        header.add(h1);
+        header.add(h2);
+        leftPanelWrapper.add(header, BorderLayout.NORTH);
+        
+        // listpanel: moi san pham la 1 panel, gom vao listpanel
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setBackground(Color.WHITE);
 
+        // them listpanel vao scroolpanel
+        JScrollPane scroll = new JScrollPane(listPanel);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setBorder(null);       
+        
+        String[] products = {
+            "Bắp rang bơ",
+            "Nước ngọt Cocacola",
+            "siêu thị cũ",
+            "Kẹo sữa mikita",
+            "Tương ớt Chin-su",
+            "con cho",
+            "con meo",
+            "crush",
+            "banh mi Sai Gon",
+            "con heo",
+            "banh mi Ha Noi",
+            "36"
+        };
+        
+//        Map<String, JTextField> soLuongMap = new HashMap<>();  // dung sau
+
+        for (String p : products) {
+            JPanel productPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+            productPanel.setPreferredSize(new Dimension(10, 30)); // Fixed: h30
+            productPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+            productPanel.setBackground(Color.WHITE);
+                  
+            JLabel lb = new JLabel(p);
+            lb.setFont(new Font("Arial", Font.PLAIN, 14));
+            
+            JTextField tf = new JTextField("0");
+            tf.setHorizontalAlignment(JTextField.CENTER);
+            tf.setPreferredSize(new Dimension(10, 10));
+//            soLuongMap.put(p, tf);  // dung sau
+            productPanel.add(lb);
+            productPanel.add(tf);
+            listPanel.add(productPanel);
+        }
+        leftPanelWrapper.add(scroll, BorderLayout.CENTER);
+
+        // titleborder boc ngoai infopanel (right-panel)
+        JPanel rightPanelWrapper = new JPanel(new BorderLayout());
+        rightPanelWrapper.setBackground(Color.WHITE);
+        rightPanelWrapper.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1, true),
+                "Thông tin vé",
+                0, 0,
+                new Font("Arial", Font.BOLD, 14),
+                new Color(120, 0, 0)
+        ));        
+        
+        // infopanel
+        JPanel infoPanel = new JPanel(new GridBagLayout());
+        infoPanel.setBackground(Color.WHITE);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 15, 10, 15);
         gbc.anchor = GridBagConstraints.WEST;
@@ -120,17 +197,36 @@ public class PanelBanHang extends JPanel {
 
         gbc.gridx = 0; gbc.gridy = 5; infoPanel.add(lb6, gbc);
         gbc.gridx = 1; infoPanel.add(lbGheDaChon, gbc);
-
-        add(infoPanel, BorderLayout.CENTER);
-
+        
+        rightPanelWrapper.add(infoPanel, BorderLayout.CENTER);
+        
+        centerPanel.add(rightPanelWrapper);
+        centerPanel.add(leftPanelWrapper);
+        add(centerPanel, BorderLayout.CENTER);
+        
+        JButton btnGioHang = new JButton("GIỎ HÀNG");
+        ImageIcon logoIcon = loadIcon("/view/icons/cart-shopping.png", 28, 28);
+        if (logoIcon != null) {
+            btnGioHang.setIcon(logoIcon);
+        }
+        btnGioHang.setPreferredSize(new Dimension(120, 36));
+        btnGioHang.setMaximumSize(new Dimension(120, 36));
+        btnGioHang.setMargin(new Insets(0, 2, 0, 2));
+        btnGioHang.setBackground(new Color(200, 0, 0));
+        btnGioHang.setForeground(Color.WHITE);
+        btnGioHang.setFont(new Font("Arial", Font.BOLD, 13));
+        
         // ====== Nút xác nhận ======
         JButton btnXacNhan = new JButton("XÁC NHẬN ĐẶT VÉ");
+        btnXacNhan.setPreferredSize(new Dimension(160, 36));
+        btnXacNhan.setMaximumSize(new Dimension(160, 36));
         btnXacNhan.setBackground(new Color(200, 0, 0));
         btnXacNhan.setForeground(Color.WHITE);
-        btnXacNhan.setFont(new Font("Arial", Font.BOLD, 14));
+        btnXacNhan.setFont(new Font("Arial", Font.BOLD, 13));
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.add(btnGioHang);
         bottomPanel.add(btnXacNhan);
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -163,6 +259,8 @@ public class PanelBanHang extends JPanel {
             );
             dialog.setVisible(true);
         });
+        
+        btnGioHang.addActionListener(e -> openGioHangDialog()); 
 
 
         btnXacNhan.addActionListener(e -> {
@@ -172,5 +270,50 @@ public class PanelBanHang extends JPanel {
                             "\nSuất: " + cbSuatChieu.getSelectedItem(),
                     "Xác nhận", JOptionPane.INFORMATION_MESSAGE);
         });
+    }
+    
+    // Hàm load icon
+    private ImageIcon loadIcon(String path, int w, int h) {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            ImageIcon icon = new ImageIcon(imgURL);
+            Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        }
+        System.err.println("Icon không tìm thấy: " + path);
+        return null;
+    }
+    
+    private void openGioHangDialog() {
+        // Lấy Frame cha (nếu PanelBanHang nằm trong một JFrame)
+        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+
+        PanelGioHang dialog = new PanelGioHang(parent);
+
+        // Set listener để nhận kết quả từ dialog
+        dialog.setCartListener(new PanelGioHang.CartListener() {
+            @Override
+            public void onCartConfirmed() {
+                System.out.println("Giỏ hàng được xác nhận!");
+                // xử lý confirm ở đây (ví dụ: tạo hóa đơn)
+            }
+
+            @Override
+            public void onCartCanceled() {
+                System.out.println("Giỏ hàng bị hủy");
+            }
+        });
+
+        // Thêm các sản phẩm đang có trong giỏ tại PanelBanHang
+//        for (SanPham sp : danhSachSanPhamTrongGio) {
+//            dialog.addItem(
+//                sp.getTen(),
+//                sp.getLoai(),
+//                sp.getSoLuong(),
+//                sp.getGia()
+//            );
+//        }
+
+        dialog.setVisible(true);
     }
 }

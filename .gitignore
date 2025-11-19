@@ -1,3 +1,8 @@
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+
 # bỏ .jar, trừ jdbc
 *.jar
 !src/lib/mssql-jdbc-13.2.1.jre11.jar
