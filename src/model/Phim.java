@@ -1,5 +1,7 @@
 package model;
 
+import java.sql.Date;
+
 public class Phim {
     private int maPhim;
     private String tenPhim;
@@ -11,6 +13,16 @@ public class Phim {
 
     public Phim() {}
 
+    public Phim(int maPhim, String tenPhim, int thoiLuong, String theLoai, String gioiHanTuoi, Date ngayKhoiChieu, String moTa) {
+        this.maPhim = maPhim;
+        this.tenPhim = tenPhim;
+        this.thoiLuong = thoiLuong;
+        this.theLoai = theLoai;
+        this.gioiHanTuoi = gioiHanTuoi;
+        this.ngayKhoiChieu = ngayKhoiChieu;
+        this.moTa = moTa;
+    }
+
     // Getters and Setters
     public int getMaPhim() { return maPhim; }
     public void setMaPhim(int maPhim) { this.maPhim = maPhim; }
@@ -21,8 +33,8 @@ public class Phim {
     public int getThoiLuong() { return thoiLuong; }
     public void setThoiLuong(int thoiLuong) { this.thoiLuong = thoiLuong; }
 
-    public String gettheLoai() { return theLoai; }
-    public void setTheLoai(String dinhDang) { this.theLoai = theLoai; }
+    public String getTheLoai() { return theLoai; }
+    public void setTheLoai(String theLoai) { this.theLoai = theLoai; }
 
     public String getGioiHanTuoi() { return gioiHanTuoi; }
     public void setGioiHanTuoi(String gioiHanTuoi) { this.gioiHanTuoi = gioiHanTuoi; }

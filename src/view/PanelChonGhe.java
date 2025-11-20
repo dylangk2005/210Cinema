@@ -2,14 +2,15 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
+import dao.GheNgoiDAO;
 
 public class PanelChonGhe extends JDialog {
 
     private Map<JButton, String> seatMap = new HashMap<>();
+    private Map<String, Integer> seatCode_maGhe;
     private Set<String> selectedSeats = new LinkedHashSet<>();
-    private Set<String> bookedSeats = new HashSet<>();
+    private Set<Integer> bookedSeats = new HashSet<>();
     private JLabel lbSelected;
     private JButton btnConfirm, btnCancel;
 
@@ -19,7 +20,7 @@ public class PanelChonGhe extends JDialog {
     }
 
     // ====== CONSTRUCTOR ======
-    public PanelChonGhe(JFrame parent, SeatSelectionListener listener) {
+    public PanelChonGhe(int maPhongDaChon, int maSuatChieuDaChon, JFrame parent, SeatSelectionListener listener) {
         super(parent, "Chọn Ghế", true);
         setSize(1400, 800);
         setLocationRelativeTo(parent);
@@ -47,25 +48,23 @@ public class PanelChonGhe extends JDialog {
         JPanel seatPanel = new JPanel(new GridLayout(10, 12, 10, 10));
         seatPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         seatPanel.setBackground(Color.WHITE);
+        
+        seatCode_maGhe = new GheNgoiDAO().getAllSeats(maPhongDaChon);
+        for (var entry : seatCode_maGhe.entrySet()) {
+            String seatCode = entry.getKey();
+            JButton seatBtn = new JButton(seatCode);
+            seatBtn.setFocusPainted(false);
+            seatBtn.setBackground(Color.LIGHT_GRAY);
+            seatBtn.setFont(new Font("Arial", Font.BOLD, 13));
+            seatBtn.setForeground(Color.BLACK);
+            seatBtn.setPreferredSize(new Dimension(55, 45));
+            seatBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        char[] rows = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
-        for (char row : rows) {
-            for (int col = 1; col <= 12; col++) {
-                String seatCode = String.format("%c%02d", row, col);
-                JButton seatBtn = new JButton(seatCode);
-                seatBtn.setFocusPainted(false);
-                seatBtn.setBackground(Color.LIGHT_GRAY);
-                seatBtn.setFont(new Font("Arial", Font.BOLD, 13));
-                seatBtn.setForeground(Color.BLACK);
-                seatBtn.setPreferredSize(new Dimension(55, 45));
-                seatBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                seatBtn.addActionListener(e -> toggleSeat(seatBtn));
-                seatPanel.add(seatBtn);
-                seatMap.put(seatBtn, seatCode);
-            }
+            seatBtn.addActionListener(e -> toggleSeat(seatBtn));
+            seatPanel.add(seatBtn);
+            seatMap.put(seatBtn, entry.getKey());
         }
-
+        
         add(seatPanel, BorderLayout.CENTER);
 
         // ====== CHÚ THÍCH ======
@@ -124,17 +123,17 @@ public class PanelChonGhe extends JDialog {
         });
 
         // ====== GHẾ ĐÃ ĐẶT (GIẢ LẬP) ======
-        bookedSeats.addAll(Arrays.asList("A03", "B05", "C07", "D10"));
+        bookedSeats = new GheNgoiDAO().getAllBookedSeats(maSuatChieuDaChon);
         markBookedSeats();
     }
 
     // ====== HANDLE CHỌN GHẾ ======
     private void toggleSeat(JButton seatBtn) {
         String code = seatMap.get(seatBtn);
-        if (bookedSeats.contains(code)) {
-            Toolkit.getDefaultToolkit().beep();
-            return;
-        }
+//        if (bookedSeats.contains(code)) {
+//            Toolkit.getDefaultToolkit().beep();
+//            return;
+//        }
 
         if (selectedSeats.contains(code)) {
             selectedSeats.remove(code);
@@ -155,11 +154,20 @@ public class PanelChonGhe extends JDialog {
         }
     }
 
+//    private void markBookedSeats() {
+//        for (var entry : seatMap.entrySet()) {
+//            if (bookedSeats.contains(entry.getValue())) {
+//                entry.getKey().setBackground(Color.RED);
+//                entry.getKey().setEnabled(false);
+//            }
+//        }
+//    }
+    
     private void markBookedSeats() {
         for (var entry : seatMap.entrySet()) {
-            if (bookedSeats.contains(entry.getValue())) {
+            if (bookedSeats.contains(seatCode_maGhe.get(entry.getValue()))) {
                 entry.getKey().setBackground(Color.RED);
-                entry.getKey().setEnabled(false);
+                entry.getKey().setEnabled(false); 
             }
         }
     }

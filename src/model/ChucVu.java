@@ -1,5 +1,5 @@
 package model;
-    public class ChucVu {
+public class ChucVu {
         private int maChucVu;
         private String tenChucVu;
         private String moTaQuyen;
