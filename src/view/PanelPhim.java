@@ -11,7 +11,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class panelphim extends JPanel {
+public class PanelPhim extends JPanel {
 
     private JTextField txtMa, txtTen, txtThoiLuong, txtSearchName;
     private JComboBox<String> cbTheLoai, cbQuocGia, cbSearchGenre;
@@ -21,7 +21,7 @@ public class panelphim extends JPanel {
     private phimdao phimDAO;
     private Connection connection;
 
-    public panelphim(Connection connection) {
+    public PanelPhim(Connection connection) {
         this.connection = connection;
         this.phimDAO = new phimdao(connection);
 
