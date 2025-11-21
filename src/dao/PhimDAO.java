@@ -27,7 +27,7 @@ public class PhimDAO {
             
             pstmt.setString(1, phim.getTenPhim());
             pstmt.setInt(2, phim.getThoiLuong());
-            pstmt.setString(3, phim.getTheLoai());
+            pstmt.setString(3, phim.gettheLoai());
             pstmt.setString(4, phim.getGioiHanTuoi());
             pstmt.setDate(5, phim.getNgayKhoiChieu());
             pstmt.setString(6, phim.getMoTa());
@@ -87,7 +87,7 @@ public class PhimDAO {
             
             pstmt.setString(1, phim.getTenPhim());
             pstmt.setInt(2, phim.getThoiLuong());
-            pstmt.setString(3, phim.getTheLoai());
+            pstmt.setString(3, phim.gettheLoai());
             pstmt.setString(4, phim.getGioiHanTuoi());
             pstmt.setDate(5, phim.getNgayKhoiChieu());
             pstmt.setString(6, phim.getMoTa());
