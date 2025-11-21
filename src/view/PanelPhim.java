@@ -249,7 +249,7 @@ public class PanelPhim extends JPanel {
             model.addRow(new Object[]{
                 phim.getMaPhim(),
                 phim.getTenPhim(),
-                phim.getTheLoai(),
+                phim.gettheLoai(),
                 phim.getGioiHanTuoi(),
                 phim.getThoiLuong()
             });
@@ -263,7 +263,7 @@ public class PanelPhim extends JPanel {
         if (phim != null) {
             txtMa.setText(String.valueOf(phim.getMaPhim()));
             txtTen.setText(phim.getTenPhim());
-            cbTheLoai.setSelectedItem(phim.getTheLoai());
+            cbTheLoai.setSelectedItem(phim.gettgettheLoai());
             cbQuocGia.setSelectedItem(phim.getGioiHanTuoi());
             txtThoiLuong.setText(String.valueOf(phim.getThoiLuong()));
         }
@@ -390,7 +390,7 @@ public class PanelPhim extends JPanel {
             int row = 0;
             addDetailRow(panel, gbc, row++, "Mã phim:", String.valueOf(phim.getMaPhim()));
             addDetailRow(panel, gbc, row++, "Tên phim:", phim.getTenPhim());
-            addDetailRow(panel, gbc, row++, "Thể loại:", phim.getTheLoai());
+            addDetailRow(panel, gbc, row++, "Thể loại:", phim.gettheLoai());
             addDetailRow(panel, gbc, row++, "Quốc gia:", phim.getGioiHanTuoi());
             addDetailRow(panel, gbc, row++, "Thời lượng:", phim.getThoiLuong() + " phút");
             addDetailRow(panel, gbc, row++, "Ngày khởi chiếu:", ngayChieu);
@@ -437,7 +437,7 @@ public class PanelPhim extends JPanel {
             model.addRow(new Object[]{
                 phim.getMaPhim(),
                 phim.getTenPhim(),
-                phim.getTheLoai(),
+                phim.gettgettheLoai(),
                 phim.getGioiHanTuoi(),
                 phim.getThoiLuong()
             });
