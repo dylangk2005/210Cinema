@@ -263,7 +263,7 @@ public class PanelPhim extends JPanel {
         if (phim != null) {
             txtMa.setText(String.valueOf(phim.getMaPhim()));
             txtTen.setText(phim.getTenPhim());
-            cbTheLoai.setSelectedItem(phim.gettgettheLoai());
+            cbTheLoai.setSelectedItem(phim.gettheLoai());
             cbQuocGia.setSelectedItem(phim.getGioiHanTuoi());
             txtThoiLuong.setText(String.valueOf(phim.getThoiLuong()));
         }
@@ -437,7 +437,7 @@ public class PanelPhim extends JPanel {
             model.addRow(new Object[]{
                 phim.getMaPhim(),
                 phim.getTenPhim(),
-                phim.gettgettheLoai(),
+                phim.gettheLoai(),
                 phim.getGioiHanTuoi(),
                 phim.getThoiLuong()
             });
