@@ -15,10 +15,16 @@ public class KhachHang {
 
     public KhachHang() {}
 
-    public KhachHang(int maKhachHang, String hoTenKhachHang, String soDienThoai) {
+    public KhachHang(int maKhachHang, String hoTenKhachHang, Date ngaySinh, String gioiTinh, String soDienThoai, String email, String hangThanhVien, int diemTichLuy, Date ngayDangKy) {
         this.maKhachHang = maKhachHang;
         this.hoTenKhachHang = hoTenKhachHang;
+        this.ngaySinh = ngaySinh;
+        this.gioiTinh = gioiTinh;
         this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.hangThanhVien = hangThanhVien;
+        this.diemTichLuy = diemTichLuy;
+        this.ngayDangKy = ngayDangKy;
     }
 
     // Getters and Setters

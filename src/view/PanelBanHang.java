@@ -5,6 +5,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import dao.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import model.*;
 
 public class PanelBanHang extends JPanel {
@@ -14,9 +17,6 @@ public class PanelBanHang extends JPanel {
     private JComboBox<SuatChieu> cbSuatChieu;
     private JLabel lbTenPhim, lbTenPhong, lbThoiLuong, lbTheLoai, lbThoiGianBD, lbGheDaChon, lbGiaVe;
     private int maPhongChieuDaChon, maPhimDaChon, maSuatChieuDaChon;
-    private List<Phim> danhSachPhim;
-    private List<PhongChieu> danhSachPhongChieu;
-    private List<SuatChieu> danhSachSuatChieu;
 
     public PanelBanHang() {
         maPhongChieuDaChon = maPhimDaChon = maSuatChieuDaChon = -1;
@@ -36,7 +36,7 @@ public class PanelBanHang extends JPanel {
         JLabel lbPhong = new JLabel("Phòng:");
         JLabel lbSuat = new JLabel("Suất chiếu:");
         
-        danhSachPhim = new PhimDAO().getAllPhim();
+        List<Phim> danhSachPhim = new PhimDAO().getAllPhim();
         
         cbPhim = new JComboBox<>();
         cbPhim.addItem(null);
@@ -59,7 +59,7 @@ public class PanelBanHang extends JPanel {
             }
         });
         
-        danhSachPhongChieu = new PhongChieuDAO().getAllPhongChieu();
+        List<PhongChieu> danhSachPhongChieu = new PhongChieuDAO().getAllPhongChieu();
         cbPhong = new JComboBox<>();
         cbPhong.addItem(null);
         
@@ -153,7 +153,7 @@ public class PanelBanHang extends JPanel {
 
         // them listpanel vao scroolpanel
         JScrollPane scroll = new JScrollPane(listPanel);
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll.setBorder(null);       
         
         List<SanPham> products = new SanPhamDAO().getAllSanPham();
@@ -173,7 +173,7 @@ public class PanelBanHang extends JPanel {
             tf.setHorizontalAlignment(JTextField.CENTER);
             tf.setPreferredSize(new Dimension(10, 10));
             
-            JLabel dg = new JLabel(sp.getDonGia().toPlainString());
+            JLabel dg = new JLabel(formatMoney(sp.getDonGia())); 
             dg.setHorizontalAlignment(JLabel.CENTER); 
             dg.setFont(new Font("Arial", Font.PLAIN, 14));
 //            soLuongMap.put(p, tf);  // dung sau
@@ -239,7 +239,7 @@ public class PanelBanHang extends JPanel {
         JLabel lb6 = new JLabel("Ghế đã chọn:");
         lb6.setFont(labelFont);
         lb6.setForeground(labelColor);
-        lbGheDaChon = new JLabel("Chưa chọn ghế");
+        lbGheDaChon = new JLabel("-");
         lbGheDaChon.setFont(valueFont);
         
         JLabel lb7 = new JLabel("Giá vé:");
@@ -319,7 +319,7 @@ public class PanelBanHang extends JPanel {
             if (maPhimDaChon != -1 && maPhongChieuDaChon != -1) {
                 cbSuatChieu.removeAllItems();
                 cbSuatChieu.addItem(null); 
-                danhSachSuatChieu = new SuatChieuDAO().getSuatChieuByPhimAndPhong(maPhimDaChon, maPhongChieuDaChon);
+                List<SuatChieu> danhSachSuatChieu = new SuatChieuDAO().getSuatChieuByPhimAndPhong(maPhimDaChon, maPhongChieuDaChon);
                 for (SuatChieu sc : danhSachSuatChieu) {
                     cbSuatChieu.addItem(sc);
                 }       
@@ -341,7 +341,7 @@ public class PanelBanHang extends JPanel {
             if (maPhimDaChon != -1 && maPhongChieuDaChon != -1) {
                 cbSuatChieu.removeAllItems();
                 cbSuatChieu.addItem(null); 
-                danhSachSuatChieu = new SuatChieuDAO().getSuatChieuByPhimAndPhong(maPhimDaChon, maPhongChieuDaChon);
+                List<SuatChieu> danhSachSuatChieu = new SuatChieuDAO().getSuatChieuByPhimAndPhong(maPhimDaChon, maPhongChieuDaChon);
                 for (SuatChieu sc : danhSachSuatChieu) {
                     cbSuatChieu.addItem(sc);
                 }       
@@ -355,7 +355,7 @@ public class PanelBanHang extends JPanel {
             SuatChieu p = (SuatChieu) cbSuatChieu.getSelectedItem();
             if (p != null) {
                 lbThoiGianBD.setText(p.toString());
-                lbGiaVe.setText(p.getGiaVeCoBan().toString() + " vnđ / ghế");
+                lbGiaVe.setText(formatMoney(p.getGiaVeCoBan())); 
                 maSuatChieuDaChon = p.getMaSuatChieu();
             } else {
                 lbThoiGianBD.setText("-");
@@ -373,16 +373,32 @@ public class PanelBanHang extends JPanel {
                 seats -> lbGheDaChon.setText(String.join(", ", seats))
             );
             dialog.setVisible(true);
-        });
+        });        
         
-        btnGioHang.addActionListener(e -> openGioHangDialog(listPanel)); 
-
         btnXacNhan.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                    "Đặt vé thành công!\nPhim: " + cbPhim.getSelectedItem() +
-                            "\nPhòng: " + cbPhong.getSelectedItem() +
-                            "\nSuất: " + cbSuatChieu.getSelectedItem(),
-                    "Xác nhận", JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                                         "Thanh toán", true);
+            dialog.setLayout(new BorderLayout());
+            dialog.setSize(600, 600);
+            dialog.setLocationRelativeTo(this);
+
+            // TẠO panel để đưa vào dialog
+            PanelThanhToan panelThanhToan = new PanelThanhToan(
+                    lbTenPhim,
+                    lbTenPhong,
+                    lbThoiGianBD,
+                    lbGheDaChon,
+                    lbGiaVe,
+                    listPanel
+            );
+
+            panelThanhToan.setPaymentListener(() -> {
+                MainForm main = (MainForm) SwingUtilities.getWindowAncestor(this);
+                main.showPanelKhachHang();
+            });
+
+            dialog.add(panelThanhToan);
+            dialog.setVisible(true);
         });
     }
     
@@ -441,11 +457,17 @@ public class PanelBanHang extends JPanel {
         dialog.setVisible(true);
     }
     
+    private String formatMoney(BigDecimal amount) {
+        if (amount == null) return "0 đ";
+        DecimalFormat df = new DecimalFormat("#,###");
+        df.setRoundingMode(RoundingMode.DOWN);
+        return df.format(amount) + " đ";
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MainForm mainForm = new MainForm("Trương Tuấn Tú", "Quản lý");
             mainForm.setVisible(true);
         });
-    }
-    
+    }   
 }

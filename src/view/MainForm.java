@@ -37,7 +37,6 @@ public class MainForm extends JFrame {
         mainPanel.add(new PanelPhongChieu(), "phongchieu");
 
         // Trang mặc định
-//        card.show(mainPanel, "ve");
         card.show(mainPanel, "banhang");
 
         // gộp
@@ -241,6 +240,10 @@ public class MainForm extends JFrame {
         });
 
         dialog.setVisible(true);
+    }
+    
+    public void showPanelKhachHang() {
+        card.show(mainPanel, "khachhang");
     }
     
 }
