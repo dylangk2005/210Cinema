@@ -1,4 +1,7 @@
-# bỏ .jar, trừ jdbc
+# NetBeans
+nbproject/private/private.xml
+
+# bo .jar, tru jdbc
 *.jar
 !src/lib/mssql-jdbc-13.2.1.jre11.jar
 
