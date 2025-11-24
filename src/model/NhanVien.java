@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class NhanVien {
     private int maNhanVien;
@@ -8,10 +8,10 @@ public class NhanVien {
     private Date ngaySinh;
     private String gioiTinh;
     private String soDienThoai;
-    private Integer maChucVu;
+    private int maChucVu;
 
     public NhanVien(){}
-    public NhanVien(int maNhanVien, String hoTenNhanVien, Date ngaySinh, String gioiTinh, String soDienThoai, Integer maChucVu) {
+    public NhanVien(int maNhanVien, String hoTenNhanVien, Date ngaySinh, String gioiTinh, String soDienThoai, int maChucVu) {
         this.maNhanVien = maNhanVien;
         this.hoTenNhanVien = hoTenNhanVien;
         this.ngaySinh = ngaySinh;
@@ -35,7 +35,7 @@ public class NhanVien {
     public String getSoDienThoai() { return soDienThoai; }
     public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
 
-    public Integer getMaChucVu() { return maChucVu; }
+    public int getMaChucVu() { return maChucVu; }
     public void setMaChucVu(Integer maChucVu) { this.maChucVu = maChucVu; }
 
 }

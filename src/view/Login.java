@@ -165,10 +165,10 @@ public class Login extends JFrame {
         
     private void thongBao(String msg, String title, int type) {
         // Tạo nút OK 
-        JButton btnOK = new JButton("Đồng ý");
+        JButton btnOK = new JButton("OK");
         btnOK.setBackground(new Color(139, 0, 0));
         btnOK.setForeground(Color.WHITE);
-        btnOK.setFont(new Font("Arial", Font.BOLD, 14));
+        btnOK.setFont(new Font("SegoeUI", Font.BOLD, 15));
         btnOK.setFocusPainted(false);
         btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnOK.setPreferredSize(new Dimension(110, 30));
