@@ -5,7 +5,8 @@ nbproject/private/private.properties
 # bo .jar, tru jdbc
 *.jar
 !src/lib/mssql-jdbc-13.2.1.jre11.jar
-
+!src/lib/jcalendar-1.4.jar
+!src/lib/poi-4.0.1.jar
 
 # Java compiled
 *.class
