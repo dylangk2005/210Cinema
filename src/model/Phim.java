@@ -21,8 +21,8 @@ public class Phim {
     public int getThoiLuong() { return thoiLuong; }
     public void setThoiLuong(int thoiLuong) { this.thoiLuong = thoiLuong; }
 
-    public String gettheLoai() { return theLoai; }
-    public void setTheLoai(String dinhDang) { this.theLoai = theLoai; }
+    public String getTheLoai() { return theLoai; }
+    public void setTheLoai(String theLoai) { this.theLoai = theLoai; }
 
     public String getGioiHanTuoi() { return gioiHanTuoi; }
     public void setGioiHanTuoi(String gioiHanTuoi) { this.gioiHanTuoi = gioiHanTuoi; }
@@ -33,8 +33,4 @@ public class Phim {
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
 
-    @Override
-    public String toString() {
-        return tenPhim + " (" + thoiLuong + " phút)";
-    }
 }
