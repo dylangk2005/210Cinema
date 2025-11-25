@@ -16,7 +16,7 @@ public class PanelChonGhe extends JDialog {
 
     // ====== INTERFACE CALLBACK ======
     public interface SeatSelectionListener {
-        void onSeatsSelected(Set<String> selectedSeats);
+        void onSeatsSelected(Set<String> selectedSeats, Set<Integer> listMaGhe);
     }
 
     // ====== CONSTRUCTOR ======
@@ -45,7 +45,7 @@ public class PanelChonGhe extends JDialog {
         add(screenPanel, BorderLayout.NORTH);
 
         // ====== GHẾ ======
-        JPanel seatPanel = new JPanel(new GridLayout(10, 12, 10, 10));
+        JPanel seatPanel = new JPanel(new GridLayout(10, 12, 10, 10));   
         seatPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         seatPanel.setBackground(Color.WHITE);
         
@@ -118,11 +118,14 @@ public class PanelChonGhe extends JDialog {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một ghế!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            listener.onSeatsSelected(selectedSeats);
+            Set<Integer> listMaGhe = new HashSet<>();
+            for (String seat : selectedSeats) {
+                listMaGhe.add(seatCode_maGhe.get(seat));
+            }
+            listener.onSeatsSelected(selectedSeats, listMaGhe);
             dispose();
         });
 
-        // ====== GHẾ ĐÃ ĐẶT (GIẢ LẬP) ======
         bookedSeats = new GheNgoiDAO().getAllBookedSeats(maSuatChieuDaChon);
         markBookedSeats();
     }
@@ -153,15 +156,6 @@ public class PanelChonGhe extends JDialog {
             lbSelected.setText("Ghế đã chọn: " + String.join(", ", selectedSeats));
         }
     }
-
-//    private void markBookedSeats() {
-//        for (var entry : seatMap.entrySet()) {
-//            if (bookedSeats.contains(entry.getValue())) {
-//                entry.getKey().setBackground(Color.RED);
-//                entry.getKey().setEnabled(false);
-//            }
-//        }
-//    }
     
     private void markBookedSeats() {
         for (var entry : seatMap.entrySet()) {

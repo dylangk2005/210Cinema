@@ -9,7 +9,7 @@ public class MainForm extends JFrame {
     private CardLayout card;
     private String chucVu; // Lưu chức vụ
 
-    public MainForm(String hoTen, String chucVu) {
+    public MainForm(String hoTen, String chucVu, int maNhanVien) {
         this.chucVu = chucVu;
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/view/icons/meo210.png")));
         // cửa sổ chính
@@ -27,7 +27,7 @@ public class MainForm extends JFrame {
         mainPanel.setLayout(card);
 
         // Thêm panel vào main
-        mainPanel.add(new PanelBanHang(), "banhang");
+        mainPanel.add(new PanelBanHang(maNhanVien), "banhang");
         mainPanel.add(new PanelPhim(), "phim");
         mainPanel.add(new PanelSuatChieu(), "suatchieu");
         mainPanel.add(new PanelSanPham(), "sanpham");
@@ -113,10 +113,10 @@ public class MainForm extends JFrame {
         
         // Tạo nút từ ds
         for (String[] btn : buttons) {
-//            if (btn[0].isEmpty()) {
-//                menuButtons.add(Box.createVerticalStrut(20));
-//                continue;
-//            }
+            if (btn[0].isEmpty()) {
+                menuButtons.add(Box.createVerticalStrut(20));
+                continue;
+            }
 
             // Nếu là nhân viên thì chỉ hiển thị nút đăng xuất
             if (chucVu.equals("Nhân viên bán vé") && !btn[0].equals("Đăng Xuất")) {
@@ -240,10 +240,6 @@ public class MainForm extends JFrame {
         });
 
         dialog.setVisible(true);
-    }
-    
-    public void showPanelKhachHang() {
-        card.show(mainPanel, "khachhang");
     }
     
 }

@@ -13,6 +13,13 @@ public class ThanhToan {
 
     public ThanhToan() {}
 
+    public ThanhToan(Integer maDonHang, BigDecimal soTien, Integer maNhanVien, String phuongThucThanhToan) {
+        this.maDonHang = maDonHang;
+        this.soTien = soTien;
+        this.maNhanVien = maNhanVien;
+        this.phuongThucThanhToan = phuongThucThanhToan;
+    }
+
     // Getters and Setters
     public int getMaThanhToan() { return maThanhToan; }
     public void setMaThanhToan(int maThanhToan) { this.maThanhToan = maThanhToan; }

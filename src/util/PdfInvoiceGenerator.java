@@ -1,33 +1,37 @@
 package util;
 
+import java.awt.Component;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.awt.Desktop;
 import java.io.File;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 
 public class PdfInvoiceGenerator {
 
     public static void exportMovieTicketPdf(
             String filePath,
             String tenPhim,
-            String ngayChieu,
             String gioChieu,
-            String thoiLuong,
-            String rapPhim,
             String phongChieu,
-            List<String> gheList,
-            List<String> sanPhamList,
-            double tienVe,
-            double tienSanPham,
-            double tienGiam,
-            double tongTien
+            String gheList,
+            JPanel listPanelSanPham,
+            String tienVe,
+            String tienSanPham,
+            String tongTien, 
+            String tienGiam,
+            String tienSauGiamGia,
+            String khachDua,
+            String traLai
     ) throws IOException {
 
         PDDocument doc = new PDDocument();
@@ -63,27 +67,32 @@ public class PdfInvoiceGenerator {
         text(content, "Phim: " + tenPhim, left, y);    y -= 18;
 
         content.setFont(font, 7);
-        text(content, "Ngày chiếu: " + ngayChieu, left, y);     y -= 13;
-        text(content, "Giờ chiếu: " + gioChieu, left, y);       y -= 13;
-        text(content, "Thời lượng: " + thoiLuong, left, y);     y -= 18;
+        text(content, "Suất chiếu: " + gioChieu, left, y);       y -= 13;
 
 //        y -= 10;
-        text(content, "Rạp: " + rapPhim, left, y);               y -= 13;
+        text(content, "Rạp chiếu: 210Cinema", left, y);               y -= 13;
         text(content, "Phòng chiếu: " + phongChieu, left, y);    y -= 18;
 
-        String gheString = String.join(", ", gheList);
-        text(content, "Ghế: " + gheString, left, y);             y -= 20;
+        text(content, "Ghế: " + gheList, left, y);             y -= 20;
 
         text(content, "Sản phẩm:", left, y);           y -= 13;
 
-        if (sanPhamList.isEmpty()) {
-            text(content, "- Không có", left + 12, y);
-            y -= 15;
-        } else {
-            for (String sp : sanPhamList) {
-                text(content, "- " + sp, left + 12, y);
-                y -= 15;
+        Boolean check = false;
+        for (Component c : listPanelSanPham.getComponents()) {
+            if (c instanceof JPanel productPanel) {
+
+                JLabel lb = (JLabel) productPanel.getComponent(0);      
+                JTextField tf = (JTextField) productPanel.getComponent(2);
+
+                int soLuong = Integer.parseInt(tf.getText().trim());
+                if (soLuong > 0) {
+                    text(content, "- " + lb.getText() + " x" + soLuong, left + 12, y); y -= 15;
+                }
+                check = true;
             }
+        }
+        if (!check) {
+            text(content, "- Không có", left + 12, y); y -= 15;
         }
 
         y -= 10;
@@ -92,12 +101,13 @@ public class PdfInvoiceGenerator {
         text(content, "TIỀN THANH TOÁN", left, y); y -= 18;
 
         content.setFont(font, 7);
-        text(content, "Tiền vé: " + tienVe + " đ", left, y);             y -= 13;
-        text(content, "Tiền sản phẩm: " + tienSanPham + " đ", left, y);  y -= 13;
-        text(content, "Giảm giá: -" + tienGiam + " đ", left, y);         y -= 18;
-
-        content.setFont(fontBold, 9);
-        text(content, "TỔNG TIỀN: " + tongTien + " đ", left, y);
+        text(content, "Tiền vé: " + tienVe, left, y);             y -= 13;
+        text(content, "Tiền sản phẩm: " + tienSanPham, left, y);  y -= 13;
+        text(content, "Tổng tiền: " + tongTien, left, y);  y -= 13;
+        text(content, "Giảm giá: -" + tienGiam, left, y);         y -= 13;
+        text(content, "Tiền phải trả: " + tienSauGiamGia, left, y); y -= 13;
+        text(content, "Khách đưa: " + khachDua, left, y);   y -= 13;
+        text(content, "Trả lại: " + traLai, left, y);
 
         content.close();
         doc.save(filePath);
@@ -111,9 +121,7 @@ public class PdfInvoiceGenerator {
         ct.newLineAtOffset(x, y);
         ct.showText(s);
         ct.endText();
-    }
-    
-
+    }   
 
     private static void openPdf(String filePath) {
         try {
@@ -125,28 +133,6 @@ public class PdfInvoiceGenerator {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-    
-    public static void main(String[] args) {
-        try {
-            exportMovieTicketPdf(
-                    "hoadon.pdf",
-                    "Avengers: Endgame",
-                    "26/04/2019",
-                    "19:30 - 22:32",
-                    "3 giờ 2 phút",
-                    "CGV Vincom Gò Vấp",
-                    "Cinema 3",
-                    List.of("C4", "C3"),
-                    List.of("Bắp lớn", "Nước siêu lớn"),
-                    180000,
-                    90000,
-                    0,
-                    270000
-            );
-        } catch (Exception e) {
-                e.printStackTrace();
         }
     }
  

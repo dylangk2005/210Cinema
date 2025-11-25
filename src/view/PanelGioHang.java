@@ -1,100 +1,106 @@
 package view;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import model.GioHang;
 
 public class PanelGioHang extends JDialog {
 
-    private JTable tableItems;
-    private JButton btnConfirm, btnCancel;
-    private DefaultTableModel model;
+    private JPanel panelContainer;
+    private JTable tblSanPham;
 
-    private JLabel lbPhim, lbPhong, lbThoiLuong, lbTheLoai, lbThoiGianBD, lbGheDaChon;
-
-    public interface CartListener {
-        void onCartConfirmed();
-        void onCartCanceled();
-    }
-
-    private CartListener listener;
-
-    public void setCartListener(CartListener listener) {
-        this.listener = listener;
-    }
-
-    public PanelGioHang(Frame parent,
-                        String tenPhim,
-                        String tenPhong,
-                        String thoiLuong,
-                        String theLoai,
-                        String thoiGianBD,
-                        String gheDaChon,
-                        List<GioHang> items) {
+    public PanelGioHang(JFrame parent, List<JPanel> listVePanel, JPanel listPanelSP) {
         super(parent, "Giỏ hàng", true);
-        initUI();
+        initUI(listVePanel, listPanelSP);
+        setSize(1400, 800);
+        setLocationRelativeTo(parent);
+    }
 
-        lbPhim.setText(tenPhim);
-        lbPhong.setText(tenPhong);
-        lbThoiLuong.setText(thoiLuong);
-        lbTheLoai.setText(theLoai);
-        lbThoiGianBD.setText(thoiGianBD);
-        lbGheDaChon.setText(gheDaChon);
+    private void initUI(List<JPanel> listVePanel, JPanel listPanelSP) {
+        setLayout(new BorderLayout());
 
-        for (GioHang item : items) {
-            addItem(item.getTen(), item.getSoLuong(), item.getGia());
+        // ======= CONTENT VÉ =======
+        panelContainer = new JPanel();
+        panelContainer.setBackground(Color.WHITE);
+        panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.X_AXIS));
+
+        for (JPanel pnl : listVePanel) {
+            pnl.setMaximumSize(new Dimension(300, 220));
+            pnl.setPreferredSize(new Dimension(300, 220));
+            panelContainer.add(pnl);
+            panelContainer.add(Box.createRigidArea(new Dimension(15, 0)));
         }
-    }
 
-    private void initUI() {
-        setSize(600, 500);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        JScrollPane scrollVe = new JScrollPane(panelContainer,
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-        JPanel panelInfo = new JPanel(new GridLayout(6, 2, 10, 5));
-        panelInfo.setBorder(new TitledBorder("Thông tin vé"));
+        scrollVe.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(255, 40, 40)),
+                "Vé đã chọn",
+                0, 0,
+                new Font("Segoe UI", Font.BOLD, 14),
+                new Color(255, 50, 50)
+        ));
 
-        panelInfo.add(new JLabel("Tên phim:")); lbPhim = new JLabel(); panelInfo.add(lbPhim);
-        panelInfo.add(new JLabel("Tên phòng:")); lbPhong = new JLabel(); panelInfo.add(lbPhong);
-        panelInfo.add(new JLabel("Thời lượng:")); lbThoiLuong = new JLabel(); panelInfo.add(lbThoiLuong);
-        panelInfo.add(new JLabel("Thể loại:")); lbTheLoai = new JLabel(); panelInfo.add(lbTheLoai);
-        panelInfo.add(new JLabel("Thời gian BD:")); lbThoiGianBD = new JLabel(); panelInfo.add(lbThoiGianBD);
-        panelInfo.add(new JLabel("Ghế đã chọn:")); lbGheDaChon = new JLabel(); panelInfo.add(lbGheDaChon);
+        scrollVe.getViewport().setBackground(new Color(20,20,20));
 
-        add(panelInfo, BorderLayout.NORTH);
+        add(scrollVe, BorderLayout.CENTER);
 
-        model = new DefaultTableModel(new Object[]{"Tên sản phẩm", "Số lượng", "Giá"}, 0);
-        tableItems = new JTable(model);
-        JScrollPane scroll = new JScrollPane(tableItems);
-        add(scroll, BorderLayout.CENTER);
 
-        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnConfirm = new JButton("Xác nhận");
-        btnCancel = new JButton("Hủy");
+        // ====== TABLE SẢN PHẨM ======
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setBackground(new Color(20,20,20));
 
-        btnConfirm.addActionListener(e -> {
-            if (listener != null) listener.onCartConfirmed();
-            dispose();
-        });
+        String[] col = {"Tên SP", "Số lượng", "Đơn giá"};
+        DefaultTableModel model = new DefaultTableModel(col, 0);
+        tblSanPham = new JTable(model);
 
-        btnCancel.addActionListener(e -> {
-            if (listener != null) listener.onCartCanceled();
-            dispose();
-        });
+        tblSanPham.setRowHeight(28);
+        tblSanPham.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblSanPham.setGridColor(new Color(80,80,80));
 
-        panelButtons.add(btnConfirm);
-        panelButtons.add(btnCancel);
-        add(panelButtons, BorderLayout.SOUTH);
-    }
+        for (Component c : listPanelSP.getComponents()) {
+            if (c instanceof JPanel productPanel) {
 
-    public void addItem(String ten, int soLuong, double gia) {
-        model.addRow(new Object[]{ten, soLuong, gia});
-    }
+                JLabel lb = (JLabel) productPanel.getComponent(0);
+                JLabel dg = (JLabel) productPanel.getComponent(1);          
+                JTextField tf = (JTextField) productPanel.getComponent(2);
 
-    public void clearItems() {
-        model.setRowCount(0);
+                int soLuong = Integer.parseInt(tf.getText().trim());
+                if (soLuong > 0) {
+                    model.addRow(new Object[]{lb.getText(), soLuong, dg.getText()}); 
+                }
+            }
+        }
+
+        JScrollPane spScroll = new JScrollPane(tblSanPham);
+        spScroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(255, 40, 40)),
+                "Sản phẩm đã chọn",
+                0, 0,
+                new Font("Segoe UI", Font.BOLD, 14),
+                new Color(255, 50, 50)
+        ));
+
+        bottom.add(spScroll, BorderLayout.CENTER);
+
+        // ====== FOOTER (THANH TOÁN) ======
+        JButton btnThanhToan = new JButton("Thoát");
+        btnThanhToan.setBackground(new Color(200, 0, 0));
+        btnThanhToan.setForeground(Color.WHITE);
+        btnThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnThanhToan.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnThanhToan.addActionListener(e -> dispose());
+
+        JPanel foot = new JPanel();
+        foot.add(btnThanhToan);
+
+        bottom.add(foot, BorderLayout.SOUTH);
+
+        add(bottom, BorderLayout.SOUTH);
     }
 }
+
+

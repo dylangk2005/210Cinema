@@ -13,6 +13,13 @@ public class DonHang {
 
     public DonHang() {}
 
+    public DonHang(Integer maNhanVien, Integer maKhachHang, BigDecimal tongTienPhaiTra, String trangThaiDonHang) {
+        this.maNhanVien = maNhanVien;
+        this.maKhachHang = maKhachHang;
+        this.tongTienPhaiTra = tongTienPhaiTra;
+        this.trangThaiDonHang = trangThaiDonHang;
+    }
+
     // Getters and Setters
     public int getMaDonHang() { return maDonHang; }
     public void setMaDonHang(int maDonHang) { this.maDonHang = maDonHang; }
@@ -31,5 +38,11 @@ public class DonHang {
 
     public String getTrangThaiDonHang() { return trangThaiDonHang; }
     public void setTrangThaiDonHang(String trangThaiDonHang) { this.trangThaiDonHang = trangThaiDonHang; }
+    
+    @Override
+    public String toString() {
+        return "maNV = " + maNhanVien + ", maKH = " + maKhachHang + ", tongTienPhaiTra = " + tongTienPhaiTra
+                + ", trangThaiDonHang = " + trangThaiDonHang;
+    }
 
 }

@@ -147,7 +147,7 @@ public class Login extends JFrame {
 
         // Mở MainFrom
         SwingUtilities.invokeLater(() -> {
-            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu());
+            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu(), tk.getMaNhanVien());
             mainForm.setVisible(true);
         });
     }
