@@ -70,7 +70,7 @@ public class PanelPhongChieu extends JPanel {
         cboTrangThai = new JComboBox<>(new String[]{"Đang sử dụng", "Bảo trì", "Không sử dụng"});
         cboLoaiManHinh = new JComboBox<>(new String[]{"2D", "3D", "IMAX"});
         cboHeThongAmThanh = new JComboBox<>(new String[]{"Dolby", "Atmos", "Standard"});
-        cboSoGhe = new JComboBox<>(new Integer[]{120, 90, 60, 48, 36});
+        cboSoGhe = new JComboBox<>(new Integer[]{120, 96, 72, 60, 48, 36});
         cboTrangThai.setBackground(Color.WHITE); 
         cboLoaiManHinh.setBackground(Color.WHITE); 
         cboHeThongAmThanh.setBackground(Color.WHITE); 
