@@ -217,7 +217,6 @@ GO
 
 
 
-
 -- ================== Thêm dữ liệu mẫu vào bảng   ===========================
 INSERT INTO ChucVu (tenChucVu, moTaQuyen) VALUES
 (N'Nhân viên bán vé', N'Bán hàng, đăng ký thẻ khách hàng và cộng điểm cho khách'),
@@ -226,8 +225,6 @@ INSERT INTO ChucVu (tenChucVu, moTaQuyen) VALUES
 INSERT INTO NhanVien (hoTenNhanVien, ngaySinh, gioiTinh, soDienThoai, maChucVu) VALUES
 (N'Trương Tuấn Tú', '1999-06-03', N'Nam', '0945678901', 2),
 (N'Trần Minh Đức', '2001-07-22', N'Nam', '0912345678', 1);
-
-
 
 
 INSERT INTO TaiKhoan (tenDangNhap, matKhau, email, maNhanVien) VALUES
@@ -240,11 +237,11 @@ INSERT INTO KhachHang (hoTenKhachHang, ngaySinh, gioiTinh, soDienThoai, email, h
 (N'Đỗ Hoàng Duy', '1999-08-25', N'Nam', '0862345678', 'duy@gmail.com', N'Bạc', 800),
 (N'Nguyễn Lan Hương', '2001-12-01', N'Nữ', '0873456789', 'huong@gmail.com', N'Kim cương', 3000);
 
-INSERT INTO Phim (tenPhim, thoiLuong, gioiHanTuoi, ngayKhoiChieu, moTa, theLoai) VALUES
-(N'Avatar 3: The Seed Bearer', 180, N'P', '2025-12-19',  N'Phần tiếp theo của Avatar', N'Khoa học viễn tưởng, Hành động'),
-(N'Godzilla x Kong', 140, N'C13', '2025-11-15', N'Quái vật đại chiến', N'Hành động, Phiêu lưu'),
-(N'Doraemon: Nobita''s Earth Symphony', 100, N'P', '2025-11-08', N'Hoạt hình Nhật Bản', N'Hoạt hình, Gia đình'),
-(N'Deadpool 3', 130, N'C18', '2025-11-22', N'Siêu anh hùng hài hước', N'Hành động, Hài hước, Siêu anh hùng');
+INSERT INTO Phim (tenPhim, thoiLuong, theLoai, gioiHanTuoi, ngayKhoiChieu, moTa) VALUES
+(N'Avatar 3: The Seed Bearer', 180, N'Khoa học viễn tưởng, Hành động',  N'P', '2025-12-19',  N'Phần tiếp theo của Avatar'),
+(N'Godzilla x Kong', 140, N'Hành động, phiêu lưu',  N'C13', '2025-11-15', N'Quái vật đại chiến'),
+(N'Doraemon: Nobita''s Earth Symphony', 100, N'Hoạt hình, Gia đình',  N'P', '2025-11-08', N'Hoạt hình Nhật Bản'),
+(N'Deadpool 3', 130, N'Hành động, Hài hước, Siêu anh hùng',  N'C18', '2025-11-22', N'Siêu anh hùng hài hước');
 
 INSERT INTO PhongChieu (tenPhongChieu, soGheNgoi, trangThaiPhong, loaiManHinh, heThongAmThanh) VALUES
 (N'Phòng 1', 120, N'Hoạt động', N'3D', N'Dolby Atmos'),
@@ -282,11 +279,11 @@ END
 GO
 
 INSERT INTO SuatChieu (maPhim, maPhongChieu, ngayGioChieu, giaVeCoBan) VALUES
-(1, 1, '2025-11-15 14:00:00', 120000), -- Avatar 3
-(2, 3, '2025-11-15 19:00:00', 150000), -- Godzilla
-(3, 2, '2025-11-16 10:00:00', 70000),  -- Doraemon
-(1, 1, '2025-11-16 17:00:00', 120000), -- Avatar 3
-(4, 2, '2025-11-16 09:00:00', 110000); -- Deadpool 3
+(1, 1, '2025-12-03 14:20:00', 120000), -- Avatar 3
+(2, 3, '2025-12-03 16:40:00', 150000), -- Godzilla
+(3, 2, '2025-12-04 19:00:00', 70000),  -- Doraemon
+(1, 1, '2025-12-03 23:30:00', 120000), -- Avatar 3
+(4, 2, '2025-12-04 09:45:00', 110000); -- Deadpool 3
 
 INSERT INTO SanPham (tenSanPham, donGia, moTa) VALUES
 (N'Bắp rang bơ lớn', 65000, N'Bắp rang bơ size L'),
@@ -360,11 +357,11 @@ INSERT INTO ChiTietDonHang (maDonHang, maSanPham, maVe, soLuong, donGiaLucBan, t
 -- ========================================
 -- 5. INSERT ThanhToan
 -- ========================================
-INSERT INTO ThanhToan (maDonHang, soTien, maNhanVien, phuongThucThanhToan, thoiGianThanhToan)
+INSERT INTO ThanhToan (maDonHang, soTien, maNhanVien, phuongThucThanhToan)
 VALUES
-(1, 305000, 1, N'Tiền mặt', '2025-11-15 12:00:00'),
-(2, 110000, 2, N'Chuyển khoản', '2025-11-15 12:15:00'),  -- Đơn 2: NV2, chuyển khoản
-(3,  85000, 1, N'Thẻ tín dụng','2025-11-15 12:20:00');  -- Đơn 3: NV1, thẻ
+(1, 305000, 1, N'Tiền mặt'),
+(2, 110000, 2, N'Chuyển khoản'),  -- Đơn 2: NV2, chuyển khoản
+(3,  85000, 1, N'Thẻ tín dụng');  -- Đơn 3: NV1, thẻ
 GO
 
 
