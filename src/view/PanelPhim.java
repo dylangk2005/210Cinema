@@ -1,147 +1,406 @@
 package view;
 
-import java.awt.*;
-import java.awt.event.*;
+import dao.PhimDAO;
+import model.Phim;
+
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-public class PanelPhim extends JPanel {
+import java.awt.*;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
-    private JTextField txtMa, txtTen, txtThoiLuong, txtSearch;
-    private JComboBox<String> cbTheLoai, cbQuocGia;
+public class PanelPhim extends JPanel {
+    // màu chủ đạo
+    private final Color MAU_DO = new Color(180, 0, 0);
+    private final Color TRANG = Color.WHITE;
+    
+    // dao + các tp giao diện
+    private PhimDAO dao = new PhimDAO();
+
     private DefaultTableModel model;
     private JTable table;
+    
+    // ô nhập liệu
+    private JTextField txtMa, txtTen, txtThoiLuong, txtTheLoai, txtMoTa, txtSearch;
+    private JComboBox<String> cbGioiHanTuoi, cbTieuChi;
+    private com.toedter.calendar.JDateChooser dcNgayKhoiChieu;
 
+    
+    // constructor
     public PanelPhim() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(15, 15, 15, 15));
+        setBackground(TRANG);
 
-        // === PANEL THÔNG TIN PHIM ===
-        JPanel panelInfo = new JPanel(new GridBagLayout());
-        panelInfo.setBorder(new TitledBorder("Thông tin phim"));
+        taoForm(); // form nhập liệu
+        taoBang(); // bảng danh sách phim
+        taoDuoi(); // tìm kiếm + chức năng
+        loadData(); // load dữ liệu lần dầu
+    }
+    
+    // form nhập liệu
+    private void taoForm() {
+        JPanel p = new JPanel(new GridBagLayout());
+        p.setBackground(TRANG);
+        p.setBorder(new TitledBorder(new LineBorder(MAU_DO, 2),
+                "THÔNG TIN PHIM", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 16), MAU_DO));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
+        
+        txtMa = tf(10); txtMa.setEditable(false); txtMa.setBackground(new Color(245, 245, 245));
+        txtTen = tf(30); txtThoiLuong = tf(10);
+        txtTheLoai = tf(40);           // Thể loại
+        txtMoTa = tf(50);              // Mô tả – ĐƯỢC ĐẨY XUỐNG CUỐI
+        dcNgayKhoiChieu = new com.toedter.calendar.JDateChooser("dd/MM/yyyy", "##/##/####", '_');
+        cbGioiHanTuoi = new JComboBox<>(new String[]{"P", "C13", "C16", "C18"});
 
-        JLabel lbMa = new JLabel("Mã phim:");
-        JLabel lbTen = new JLabel("Tên phim:");
-        JLabel lbTheLoai = new JLabel("Thể loại:");
-        JLabel lbQuocGia = new JLabel("Quốc gia:");
-        JLabel lbThoiLuong = new JLabel("Thời lượng (phút):");
+        int y = 0;
+        addRow(p, gbc, y++, "Mã phim:", txtMa);
+        addRow(p, gbc, y++, "Tên phim:", txtTen);
+        addRow(p, gbc, y++, "Thời lượng (phút):", txtThoiLuong);
+        addRow(p, gbc, y++, "Thể loại:", txtTheLoai);
+        addRow(p, gbc, y++, "Giới hạn tuổi:", cbGioiHanTuoi);
+        addRow(p, gbc, y++, "Ngày khởi chiếu:", dcNgayKhoiChieu);
+        addRow(p, gbc, y++, "Mô tả:", txtMoTa);  // ← MÔ TẢ Ở DÒNG CUỐI CÙNG
 
-        txtMa = new JTextField();
-        txtTen = new JTextField();
-        txtThoiLuong = new JTextField();
-        cbTheLoai = new JComboBox<>(new String[]{"", "Hành động", "Tình cảm", "Hài hước", "Kinh dị"});
-        cbQuocGia = new JComboBox<>(new String[]{"", "Việt Nam", "Mỹ", "Nhật", "Hàn Quốc", "Ý"});
+        add(p, BorderLayout.NORTH);
+    }
+    
+     // bảng ds phim
+    private void taoBang() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new TitledBorder(new LineBorder(MAU_DO, 2),
+                "DANH SÁCH PHIM", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 16), MAU_DO));
 
-        // Hàng 1
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; panelInfo.add(lbMa, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1; panelInfo.add(txtMa, gbc);
+        model = new DefaultTableModel(new String[]{
+            "Mã phim", "Tên phim", "Thời lượng", "Thể loại", "Giới hạn tuổi", "Ngày khởi chiếu", "Mô tả"
+        }, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
 
-        gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0; panelInfo.add(lbTen, gbc);
-        gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 1; panelInfo.add(txtTen, gbc);
 
-        // Hàng 2
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; panelInfo.add(lbTheLoai, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1; panelInfo.add(cbTheLoai, gbc);
-
-        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0; panelInfo.add(lbQuocGia, gbc);
-        gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 1; panelInfo.add(cbQuocGia, gbc);
-
-        // Hàng 3 (Thời lượng nằm riêng xuống dưới)
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; panelInfo.add(lbThoiLuong, gbc);
-        gbc.gridx = 1; gbc.gridy = 2; gbc.gridwidth = 3; gbc.weightx = 1; panelInfo.add(txtThoiLuong, gbc);
-        gbc.gridwidth = 1;
-
-        // === DANH SÁCH PHIM ===
-        model = new DefaultTableModel(new Object[]{"Mã phim", "Tên phim", "Thể loại", "Quốc gia", "Thời lượng"}, 0);
         table = new JTable(model);
-        table.setRowHeight(25);
-        JScrollPane sp = new JScrollPane(table);
+        table.setRowHeight(60);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // === KHU VỰC CHỨC NĂNG DƯỚI ===
-        JPanel panelBottom = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.insets = new Insets(5, 5, 5, 5);
-        gbc2.fill = GridBagConstraints.HORIZONTAL;
-
-        txtSearch = new JTextField();
-        JButton btnTim = new JButton("Tìm");
-        JButton btnThem = new JButton("Thêm");
-        JButton btnSua = new JButton("Sửa");
-        JButton btnXoa = new JButton("Xóa");
-        JButton btnClear = new JButton("Xóa rỗng");
-
-        gbc2.gridx = 0; gbc2.weightx = 0.3; panelBottom.add(txtSearch, gbc2);
-        gbc2.gridx = 1; gbc2.weightx = 0; panelBottom.add(btnTim, gbc2);
-        gbc2.gridx = 2; panelBottom.add(btnThem, gbc2);
-        gbc2.gridx = 3; panelBottom.add(btnSua, gbc2);
-        gbc2.gridx = 4; panelBottom.add(btnXoa, gbc2);
-        gbc2.gridx = 5; panelBottom.add(btnClear, gbc2);
-
-        // === BỐ TRÍ TỔNG THỂ ===
-        add(panelInfo, BorderLayout.NORTH);
-        add(sp, BorderLayout.CENTER);
-        add(panelBottom, BorderLayout.SOUTH);
-
-        // === SỰ KIỆN CLICK BẢNG ===
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int i = table.getSelectedRow();
-                txtMa.setText(model.getValueAt(i, 0).toString());
-                txtTen.setText(model.getValueAt(i, 1).toString());
-                cbTheLoai.setSelectedItem(model.getValueAt(i, 2).toString());
-                cbQuocGia.setSelectedItem(model.getValueAt(i, 3).toString());
-                txtThoiLuong.setText(model.getValueAt(i, 4).toString());
+        // Tô màu header
+        DefaultTableCellRenderer header = new DefaultTableCellRenderer();
+        header.setBackground(MAU_DO); header.setForeground(TRANG);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        header.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(header);
+        }
+        
+        // click vào -> hiện dữ liệu lên form
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() >= 0) {
+                fillForm(table.getSelectedRow());
             }
         });
 
-        // === NÚT CHỨC NĂNG ===
-        btnThem.addActionListener(e -> {
-            model.addRow(new Object[]{
-                    txtMa.getText(), txtTen.getText(),
-                    cbTheLoai.getSelectedItem(),
-                    cbQuocGia.getSelectedItem(),
-                    txtThoiLuong.getText()
+        p.add(new JScrollPane(table));
+        add(p, BorderLayout.CENTER);
+    }
+    
+     // tìm kiếm + nút chức năng
+    private void taoDuoi() {
+        JPanel duoi = new JPanel(new BorderLayout(20, 0));
+        duoi.setBackground(TRANG);
+        duoi.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+        left.setBackground(TRANG);
+
+        JPanel tieuChiPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        tieuChiPanel.setBackground(TRANG);
+        tieuChiPanel.add(new JLabel("Tìm theo:"));
+        cbTieuChi = new JComboBox<>(new String[]{"Mã phim", "Tên phim", "Thể loại"});
+        cbTieuChi.setPreferredSize(new Dimension(150, 32));
+        tieuChiPanel.add(cbTieuChi);
+
+        JPanel oTim = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        oTim.setBackground(TRANG);
+        txtSearch = new JTextField(28);
+        txtSearch.setPreferredSize(new Dimension(280, 32));
+
+        JButton btnRefresh = nutDoXam("Làm mới", e -> {
+            txtSearch.setText("");
+            cbTieuChi.setSelectedIndex(0);
+            loadData();
+        });
+
+        oTim.add(txtSearch);
+        oTim.add(btnRefresh);
+        left.add(tieuChiPanel);
+        left.add(oTim);
+        
+        // tìm kiếm tức thì khi gõ
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { timKiem(); }
+            public void removeUpdate(DocumentEvent e) { timKiem(); }
+            public void changedUpdate(DocumentEvent e) { timKiem(); }
+            private void timKiem() {
+                String key = txtSearch.getText().trim();
+                int type = cbTieuChi.getSelectedIndex();
+                timKiemNangCao(key, type);
+            }
+        });
+        
+        // các nút chức năng
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        right.setBackground(TRANG);
+        right.add(nutDo("Thêm mới", e -> them()));
+        right.add(nutDo("Cập nhật", e -> sua()));
+        right.add(nutDo("Xóa", e -> xoa()));
+        right.add(nutDo("Xóa rỗng", e -> clearForm()));
+
+        duoi.add(left, BorderLayout.WEST);
+        duoi.add(right, BorderLayout.EAST);
+        add(duoi, BorderLayout.SOUTH);
+    }
+    
+    // load data lên bảng
+    private void loadData() {
+        model.setRowCount(0);
+        List<Phim> list = dao.selectAll();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        for (Phim p : list) {
+           model.addRow(new Object[]{
+                p.getMaPhim(),
+                p.getTenPhim(),
+                p.getThoiLuong(),
+                p.getTheLoai(),
+                p.getGioiHanTuoi(),
+                p.getNgayKhoiChieu() != null ? sdf.format(p.getNgayKhoiChieu()) : "",
+                p.getMoTa()
             });
-        });
+        }
+    }
+    
+    // tknc
+    private void timKiemNangCao(String keyword, int tieuChi) {
+        model.setRowCount(0);
+        if (keyword.isEmpty()) { loadData(); return; }
+        List<Phim> ds = dao.search(keyword, tieuChi);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        for (Phim p : ds) {
+            model.addRow(new Object[]{
+                p.getMaPhim(),
+                p.getTenPhim(),
+                p.getThoiLuong(),
+                p.getTheLoai(),
+                p.getMoTa(),
+                p.getGioiHanTuoi(),
+                p.getNgayKhoiChieu() != null ? sdf.format(p.getNgayKhoiChieu()) : ""
+            });
+        }
+    }
+    
+    // điền dữ liệu lên form khi click
+    private void fillForm(int row) {
+        Phim p = dao.selectById((int) model.getValueAt(row, 0));
+        if (p != null) {
+            txtMa.setText(String.valueOf(p.getMaPhim()));
+            txtTen.setText(p.getTenPhim());
+            txtThoiLuong.setText(String.valueOf(p.getThoiLuong()));
+            txtTheLoai.setText(p.getTheLoai());
+            cbGioiHanTuoi.setSelectedItem(p.getGioiHanTuoi());
+            dcNgayKhoiChieu.setDate(p.getNgayKhoiChieu());
+            txtMoTa.setText(p.getMoTa());
+        }
+    }
+    
+    // thêm phim
+    private void them() { 
+        if (checkForm()) 
+            if (dao.insert(getData())){ 
+                msg("Thêm thành công!"); 
+                loadData(); 
+                clearForm(); 
+            }else msg("Thêm thất bại!"); }
+    
+    // update phim
+    private void sua() { 
+        if (txtMa.getText().isEmpty()){ 
+            msg("Chọn phim cần sửa!"); 
+            return; 
+        } 
+        if (checkForm()){ 
+            Phim p = getData(); 
+            p.setMaPhim(Integer.parseInt(txtMa.getText())); 
+            if (dao.update(p)){ 
+                msg("Sửa thành công!"); 
+                loadData(); 
+                clearForm(); 
+            } else msg("Sửa thất bại!"); } }
+    
+    // xóa phim (kiếm tra xem có suất chiếu ko)
+    private void xoa(){
+        if (txtMa.getText().isEmpty()) {
+            thongBao("Vui lòng chọn phim cần xóa!", "Cảnh báo", JOptionPane.WARNING_MESSAGE, false);
+            return;
+        }
+        
+        int maPhim = Integer.parseInt(txtMa.getText());
+        if (dao.daCoSuatChieu(maPhim)){
+            msg("Đã có suất chiếu của phim này. Không thể xóa!");
+            return;
+        }
+        int confirm = thongBao("Bạn có chắc chắn muốn xóa phim này?\nPhim đã chọn: " + txtTen.getText(), 
+                              "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
 
-        btnSua.addActionListener(e -> {
-            int i = table.getSelectedRow();
-            if (i >= 0) {
-                model.setValueAt(txtMa.getText(), i, 0);
-                model.setValueAt(txtTen.getText(), i, 1);
-                model.setValueAt(cbTheLoai.getSelectedItem(), i, 2);
-                model.setValueAt(cbQuocGia.getSelectedItem(), i, 3);
-                model.setValueAt(txtThoiLuong.getText(), i, 4);
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (dao.delete(maPhim)) {
+                thongBao("Xóa phim thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
+                loadData();
+                clearForm();
+            } else {
+                thongBao("Không thể xóa!\nPhim đang được sử dụng trong lịch chiếu hoặc có dữ liệu liên quan.", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE, false);
+            }
+        }
+    }
+    
+    // Xóa rỗng form
+    private void clearForm(){ 
+        txtMa.setText(""); 
+        txtTen.setText(""); 
+        txtThoiLuong.setText(""); 
+        txtTheLoai.setText(""); 
+        txtMoTa.setText(""); 
+        cbGioiHanTuoi.setSelectedIndex(0); 
+        dcNgayKhoiChieu.setDate(null); 
+        table.clearSelection(); 
+    }
+    
+    // Lấy dữ liệu từ form -> đối tượng phim
+    private Phim getData() {
+        Phim p = new Phim();
+        p.setTenPhim(txtTen.getText().trim());
+        p.setThoiLuong(Integer.parseInt(txtThoiLuong.getText().trim()));
+        p.setTheLoai(txtTheLoai.getText().trim());
+        p.setMoTa(txtMoTa.getText().trim());
+        p.setGioiHanTuoi((String) cbGioiHanTuoi.getSelectedItem());
+        p.setNgayKhoiChieu(dcNgayKhoiChieu.getDate() != null ? new Date(dcNgayKhoiChieu.getDate().getTime()) : null);
+        return p;
+    }
+    
+    // kiểm tra dữ liệu nhập
+    private boolean checkForm() {
+        if (txtTen.getText().trim().isEmpty() || txtThoiLuong.getText().trim().isEmpty() || txtTheLoai.getText().trim().isEmpty()) {
+            msg("Vui lòng điền đầy đủ thông tin bắt buộc!"); return false;
+        }
+        try { Integer.parseInt(txtThoiLuong.getText().trim()); }
+        catch (Exception e) { msg("Thời lượng phải là số!"); return false; }
+        return true;
+    }
+    
+    // ================== CÁC HÀM HỖ TRỢ GIAO DIỆN ==================
+    private void msg(String s) {
+        thongBao(s, "Thông báo", JOptionPane.INFORMATION_MESSAGE, false);
+    }
+
+    private JTextField tf(int cols) { JTextField t = new JTextField(cols); t.setFont(new Font("Segoe UI", Font.PLAIN, 14)); return t; }
+    private void addRow(JPanel p, GridBagConstraints g, int y, String label, JComponent c) {
+        g.gridx = 0; g.gridy = y; g.weightx = 0.3; p.add(new JLabel(label), g);
+        g.gridx = 1; g.weightx = 0.7; p.add(c, g);
+    }
+
+    private JButton nutDo(String text, java.awt.event.ActionListener a) {
+        JButton b = new JButton(text);
+        b.setBackground(MAU_DO); b.setForeground(TRANG); b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setPreferredSize(new Dimension(120, 40)); b.setFocusPainted(false); b.setOpaque(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addActionListener(a);
+        return b;
+    }
+
+    private JButton nutDoXam(String text, java.awt.event.ActionListener a) {
+        JButton b = new JButton(text);
+        b.setBackground(new Color(108, 117, 125)); b.setForeground(TRANG); b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setPreferredSize(new Dimension(100, 32)); b.setFocusPainted(false); b.setOpaque(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(130, 140, 150)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(new Color(108, 117, 125)); }
+        });
+        b.addActionListener(a);
+        return b;
+    }
+    
+    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
+        JButton btnCo    = taoNutDialog("Có",     90, 30);
+        JButton btnKhong = taoNutDialog("Không",  90, 30);
+        JButton btnOK    = taoNutDialog("OK",    110, 30);
+
+        JOptionPane optionPane;
+        if (!coYesNo) {
+            optionPane = new JOptionPane(msg, messageType, JOptionPane.DEFAULT_OPTION, null,
+                                        new Object[]{btnOK}, btnOK);
+        } else {
+            optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
+                                        new Object[]{btnCo, btnKhong}, btnCo);
+        }
+
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        if (!coYesNo) {
+            btnOK.addActionListener(e -> dialog.dispose());
+        } else {
+            btnCo.addActionListener(e -> {
+                optionPane.setValue(JOptionPane.YES_OPTION);
+                dialog.dispose();
+            });
+            btnKhong.addActionListener(e -> {
+                optionPane.setValue(JOptionPane.NO_OPTION);
+                dialog.dispose();
+            });
+        }
+
+        dialog.setVisible(true);
+
+        Object value = optionPane.getValue();
+        if (value == null) return JOptionPane.CLOSED_OPTION;
+        if (value instanceof Integer) return (Integer) value;
+        return JOptionPane.CLOSED_OPTION;
+    }
+
+    // Hàm hỗ trợ tạo nút cho dialog
+    private JButton taoNutDialog(String text, int width, int height) {
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(width, height));
+        btn.setMinimumSize(new Dimension(width, height));
+        btn.setMaximumSize(new Dimension(width, height));
+
+        btn.setBackground(MAU_DO);     // đỏ đậm
+        btn.setForeground(TRANG);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover 
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(200, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(180, 0, 0));
             }
         });
-
-        btnXoa.addActionListener(e -> {
-            int i = table.getSelectedRow();
-            if (i >= 0) model.removeRow(i);
-        });
-
-        btnClear.addActionListener(e -> {
-            txtMa.setText("");
-            txtTen.setText("");
-            txtThoiLuong.setText("");
-            cbTheLoai.setSelectedIndex(0);
-            cbQuocGia.setSelectedIndex(0);
-        });
-
-        btnTim.addActionListener(e -> {
-            String ma = txtSearch.getText().trim();
-            for (int i = 0; i < model.getRowCount(); i++) {
-                if (model.getValueAt(i, 0).toString().equalsIgnoreCase(ma)) {
-                    table.setRowSelectionInterval(i, i);
-                    table.scrollRectToVisible(table.getCellRect(i, 0, true));
-                    break;
-                }
-            }
-        });
+        return btn;
     }
 }
