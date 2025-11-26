@@ -10,7 +10,7 @@ nbproject/private/private.properties
 
 # Java compiled
 *.class
-build/built-jar.properties
+build/classes/
 
 # OS
 Thumbs.db
