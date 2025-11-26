@@ -9,7 +9,7 @@ public class MainForm extends JFrame {
     private CardLayout card;
     private String chucVu; // Lưu chức vụ
 
-    public MainForm(String hoTen, String chucVu) {
+    public MainForm(String hoTen, String chucVu, int maNhanVien) {
         this.chucVu = chucVu;
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/view/icons/meo210.png")));
         // cửa sổ chính
@@ -27,7 +27,7 @@ public class MainForm extends JFrame {
         mainPanel.setLayout(card);
 
         // Thêm panel vào main
-        mainPanel.add(new PanelBanHang(), "banhang");
+        mainPanel.add(new PanelBanHang(maNhanVien), "banhang");
         mainPanel.add(new PanelPhim(), "phim");
         mainPanel.add(new PanelSuatChieu(), "suatchieu");
         mainPanel.add(new PanelSanPham(), "sanpham");
@@ -37,7 +37,7 @@ public class MainForm extends JFrame {
         mainPanel.add(new PanelPhongChieu(), "phongchieu");
 
         // Trang mặc định
-        card.show(mainPanel, "ve");
+        card.show(mainPanel, "banhang");
 
         // gộp
         add(menu, BorderLayout.WEST);
@@ -51,7 +51,7 @@ public class MainForm extends JFrame {
         menu.setBackground(Color.BLACK);
 
         // logo
-       JPanel headerPanel = new JPanel();
+        JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setPreferredSize(new Dimension(250, 100));
         headerPanel.setBackground(new Color(139, 0, 0));
@@ -229,7 +229,7 @@ public class MainForm extends JFrame {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnDangXuat.setBackground(new Color(220, 0, 0));
             }
-    });
+        });
         btnHuy.addMouseListener( new java.awt.event.MouseAdapter(){
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnHuy.setBackground(new Color(100, 100, 100));
@@ -239,7 +239,7 @@ public class MainForm extends JFrame {
             }
         });
 
-    dialog.setVisible(true);
-}
+        dialog.setVisible(true);
+    }
     
 }

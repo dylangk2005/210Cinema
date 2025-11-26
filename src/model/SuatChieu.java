@@ -1,13 +1,14 @@
 package model;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 
 public class SuatChieu {
     private int maSuatChieu;
     private int maPhim;
     private int maPhongChieu;
-    private Date ngayGioChieu;
+    private Timestamp ngayGioChieu;
     private BigDecimal giaVeCoBan;
     
     // thêm 2 field để hiển thị tên
@@ -16,6 +17,14 @@ public class SuatChieu {
 
     public SuatChieu() {}
 
+    public SuatChieu(int maSuatChieu, int maPhim, int maPhongChieu, Timestamp ngayGioChieu, BigDecimal giaVeCoBan) {
+        this.maSuatChieu = maSuatChieu;
+        this.maPhim = maPhim;
+        this.maPhongChieu = maPhongChieu;
+        this.ngayGioChieu = ngayGioChieu;
+        this.giaVeCoBan = giaVeCoBan;
+    }
+
     // Getters and Setters
     public int getMaSuatChieu() { return maSuatChieu; }
     public void setMaSuatChieu(int maSuatChieu) { this.maSuatChieu = maSuatChieu; }
@@ -23,8 +32,10 @@ public class SuatChieu {
     public void setMaPhim(int maPhim) { this.maPhim = maPhim; }
     public int getMaPhongChieu() { return maPhongChieu; }
     public void setMaPhongChieu(int maPhongChieu) { this.maPhongChieu = maPhongChieu; }
-    public Date getNgayGioChieu() { return ngayGioChieu; }
-    public void setNgayGioChieu(Date ngayGioChieu) { this.ngayGioChieu = ngayGioChieu; }
+
+    public Timestamp getNgayGioChieu() { return ngayGioChieu; }
+    public void setNgayGioChieu(Timestamp ngayGioChieu) { this.ngayGioChieu = ngayGioChieu; }
+
     public BigDecimal getGiaVeCoBan() { return giaVeCoBan; }
     public void setGiaVeCoBan(BigDecimal giaVeCoBan) { this.giaVeCoBan = giaVeCoBan; }
 
@@ -36,6 +47,6 @@ public class SuatChieu {
 
     @Override
     public String toString() {
-        return ngayGioChieu + " - " + giaVeCoBan + "đ";
+        return ngayGioChieu.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }

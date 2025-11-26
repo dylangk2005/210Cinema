@@ -1,8 +1,16 @@
 # NetBeans
+<<<<<<< HEAD
 nbproject/private/private.xml
 nbproject/private/private.properties
 
 # bo .jar, tru jdbc
+=======
+/nbproject/private/
+/build/
+/dist/
+
+# bỏ .jar, trừ jdbc
+>>>>>>> refs/remotes/origin/PhongChieu_BanHang
 *.jar
 !src/lib/mssql-jdbc-13.2.1.jre11.jar
 !src/lib/jcalendar-1.4.jar

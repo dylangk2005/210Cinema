@@ -147,12 +147,12 @@ public class Login extends JFrame {
 
         // Mở MainFrom
         SwingUtilities.invokeLater(() -> {
-            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu());
+            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu(), tk.getMaNhanVien());
             mainForm.setVisible(true);
         });
     }
     
-        private ImageIcon loadIcon(String path, int w, int h) {
+    private ImageIcon loadIcon(String path, int w, int h) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);

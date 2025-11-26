@@ -10,6 +10,13 @@ public class SanPham {
 
     public SanPham() {}
 
+    public SanPham(int maSanPham, String tenSanPham, BigDecimal donGia, String moTa) {
+        this.maSanPham = maSanPham;
+        this.tenSanPham = tenSanPham;
+        this.donGia = donGia;
+        this.moTa = moTa;
+    }
+
     // Getters and Setters
     public int getMaSanPham() { return maSanPham; }
     public void setMaSanPham(int maSanPham) { this.maSanPham = maSanPham; }

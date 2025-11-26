@@ -13,6 +13,15 @@ public class ChiTietDonHang {
 
     public ChiTietDonHang() {}
 
+    public ChiTietDonHang(int maDonHang, Integer maSanPham, Integer maVe, int soLuong, BigDecimal donGiaLucBan, BigDecimal thanhTien) {
+        this.maDonHang = maDonHang;
+        this.maSanPham = maSanPham;
+        this.maVe = maVe;
+        this.soLuong = soLuong;
+        this.donGiaLucBan = donGiaLucBan;
+        this.thanhTien = thanhTien;
+    }
+
     // Getters and Setters
     public int getMaCTDH() { return maCTDH; }
     public void setMaCTDH(int maCTDH) { this.maCTDH = maCTDH; }
