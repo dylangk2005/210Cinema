@@ -4,7 +4,6 @@ import model.KhachHang;
 import util.DBConnection;
 
 import java.sql.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,20 @@ import java.util.List;
 public class KhachHangDAO {
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
+    
+    // ---------------------- LẤY KHÁCH HÀNG THEO MÃ  ----------------------
+     public KhachHang getById(int maKH) {
+        String sql = "SELECT * FROM KhachHang WHERE maKhachHang = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, maKH);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+     
     // ---------------------- LẤY TẤT CẢ KHÁCH HÀNG ----------------------
     public List<KhachHang> getAll() {
         List<KhachHang> list = new ArrayList<>();
@@ -35,9 +47,9 @@ public class KhachHangDAO {
     // ---------------------- CẬP NHẬT KHÁCH HÀNG ----------------------
     public boolean update(KhachHang kh) {
         String sql = "UPDATE KhachHang SET "
-                + "HoTenKH=?, NgaySinh=?, GioiTinh=?, SoDienThoai=?, Email=?, "
-                + "HangThanhVien=?, DiemTichLuy=?, NgayDangKy=? "
-                + "WHERE MaKH=?";
+                + "hoTenKhachHang=?, ngaySinh=?, gioiTinh=?, soDienThoai=?, email=?, "
+                + "hangThanhVien=?, diemTichLuy=?, ngayDangKy=? "
+                + "WHERE maKhachHang=?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -63,7 +75,7 @@ public class KhachHangDAO {
 
     // ---------------------- XÓA KHÁCH HÀNG ----------------------
     public boolean delete(int maKH) {
-        String sql = "DELETE FROM KhachHang WHERE MaKH=?";
+        String sql = "DELETE FROM KhachHang WHERE maKhachHang=?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -77,36 +89,51 @@ public class KhachHangDAO {
         return false;
     }
 
-    // ---------------------- TÌM THEO SĐT HOẶC MÃ ----------------------
-    public KhachHang search(String key) {
-        String sql;
-
-        boolean isNumber = key.matches("\\d+");
-
-        if (isNumber) {
-            sql = "SELECT * FROM KhachHang WHERE MaKH=? OR SoDienThoai LIKE ?";
-        } else {
-            sql = "SELECT * FROM KhachHang WHERE SoDienThoai LIKE ?";
+    // ---------------------- TÌM THEO MÃ, Họ tên, SĐT ----------------------
+    public List<KhachHang> search(String key, int tieuChi) {
+        List<KhachHang> ds = new ArrayList<>();
+        if (key == null || key.trim().isEmpty()){
+            return getAll();
         }
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            if (isNumber) {
-                ps.setInt(1, Integer.parseInt(key));
-                ps.setString(2, "%" + key + "%");
-            } else {
-                ps.setString(1, "%" + key + "%");
+        
+        key = key.trim();
+        String sql = "SELECT * FROM KhachHang WHERE ";
+        
+        try{
+            switch(tieuChi){
+            case 0 -> { // maKH
+                    KhachHang kh = getById(Integer.parseInt(key));
+                    if (kh != null) ds.add(kh);
+                }
+            case 1 -> { // tenKH
+                sql += "hoTenKhachHang LIKE ?";
+                    try (Connection con = DBConnection.getConnection();
+                         PreparedStatement ps = con.prepareStatement(sql)) {
+                         ps.setString(1, "%" + key + "%");
+                        try (ResultSet rs = ps.executeQuery()) {
+                            while (rs.next()) ds.add(map(rs));
+                        }
+                    }
+                }
+            case 2 ->{ // Sdt
+                    sql += "soDienThoai LIKE ?";
+                    try (Connection con = DBConnection.getConnection();
+                         PreparedStatement ps = con.prepareStatement(sql)) {
+                        ps.setString(1, "%" + key + "%"); // Tìm có chứa từ khóa
+                        try (ResultSet rs = ps.executeQuery()) {
+                            while (rs.next()) ds.add(map(rs));
+                        }
+                    }
+                }
             }
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return map(rs);
-
-        } catch (SQLException e) {
+        }
+        catch (NumberFormatException e){
+            
+        }
+        catch (SQLException e){
             e.printStackTrace();
         }
-
-        return null;
+        return ds;
     }
 
 
@@ -114,15 +141,15 @@ public class KhachHangDAO {
     private KhachHang map(ResultSet rs) throws SQLException {
         KhachHang kh = new KhachHang();
 
-        kh.setMaKhachHang(rs.getInt("MaKH"));
-        kh.setHoTenKhachHang(rs.getString("HoTenKH"));
-        kh.setNgaySinh(rs.getDate("NgaySinh"));
-        kh.setGioiTinh(rs.getString("GioiTinh"));
-        kh.setSoDienThoai(rs.getString("SoDienThoai"));
-        kh.setEmail(rs.getString("Email"));
-        kh.setHangThanhVien(rs.getString("HangThanhVien"));
-        kh.setDiemTichLuy(rs.getInt("DiemTichLuy"));
-        kh.setNgayDangKy(rs.getDate("NgayDangKy"));
+        kh.setMaKhachHang(rs.getInt("maKhachHang"));
+        kh.setHoTenKhachHang(rs.getString("hoTenKhachHang"));
+        kh.setNgaySinh(rs.getDate("ngaySinh"));
+        kh.setGioiTinh(rs.getString("gioiTinh"));
+        kh.setSoDienThoai(rs.getString("soDienThoai"));
+        kh.setEmail(rs.getString("email"));
+        kh.setHangThanhVien(rs.getString("hangThanhVien"));
+        kh.setDiemTichLuy(rs.getInt("diemTichLuy"));
+        kh.setNgayDangKy(rs.getDate("ngayDangKy"));
 
         return kh;
     }

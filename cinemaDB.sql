@@ -232,10 +232,10 @@ INSERT INTO TaiKhoan (tenDangNhap, matKhau, email, maNhanVien) VALUES
 ('duc_nv', '123456', 'duc@gmail.com', 2);
 
 
-INSERT INTO KhachHang (hoTenKhachHang, ngaySinh, gioiTinh, soDienThoai, email, hangThanhVien, diemTichLuy) VALUES
-(N'Vũ Minh Châu', '2000-04-12', N'Nữ', '0851234567', 'chau@gmail.com', N'Vàng', 1500),
-(N'Đỗ Hoàng Duy', '1999-08-25', N'Nam', '0862345678', 'duy@gmail.com', N'Bạc', 800),
-(N'Nguyễn Lan Hương', '2001-12-01', N'Nữ', '0873456789', 'huong@gmail.com', N'Kim cương', 3000);
+INSERT INTO KhachHang (hoTenKhachHang, ngaySinh, gioiTinh, soDienThoai, email, hangThanhVien, diemTichLuy, ngayDangKy) VALUES
+(N'Vũ Minh Châu', '2000-04-12', N'Nữ', '0851234567', 'chau@gmail.com', N'Vàng', 1500, '2020-01-01'),
+(N'Đỗ Hoàng Duy', '1999-08-25', N'Nam', '0862345678', 'duy@gmail.com', N'Bạc', 800, '2023-04-12'),
+(N'Nguyễn Lan Hương', '2001-12-01', N'Nữ', '0873456789', 'huong@gmail.com', N'Kim cương', 3000, '2017-03-18');
 
 INSERT INTO Phim (tenPhim, thoiLuong, theLoai, gioiHanTuoi, ngayKhoiChieu, moTa) VALUES
 (N'Avatar 3: The Seed Bearer', 180, N'Khoa học viễn tưởng, Hành động',  N'P', '2025-12-19',  N'Phần tiếp theo của Avatar'),
