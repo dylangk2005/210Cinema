@@ -9,6 +9,8 @@ import model.ChiTietDonHang;
 public class ChiTietDonHangDAO {
 
     public void insertChiTietDonHang(List<ChiTietDonHang> ctlists) throws Exception {
+        if(ctlists.isEmpty()) return;
+        
         String sql = "INSERT INTO ChiTietDonHang(maDonHang, maSanPham, maVe, soLuong, donGiaLucBan, thanhTien) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
 

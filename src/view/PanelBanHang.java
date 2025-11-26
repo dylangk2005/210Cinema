@@ -472,20 +472,6 @@ public class PanelBanHang extends JPanel {
         return null;
     }
     
-// =============== HAM MO GIO HANG =====================
-    private void openGioHangDialog() {
-        List<JPanel> listPanelVe = new ArrayList<>();
-        for (String seatcode : lbGheDaChon.getText().split(",")) {
-            JPanel panel = createVeCard(seatcode);
-            listPanelVe.add(panel);
-        }
-        
-        PanelGioHang dlg = new PanelGioHang(
-                (JFrame) SwingUtilities.getWindowAncestor(this),
-                listPanelVe,
-                listPanel);
-        dlg.setVisible(true);
-    }
     
 // ========== HAM TAO CAC THE CARD CHO GIO HANG ============
     private JPanel createVeCard(String seatcode) {

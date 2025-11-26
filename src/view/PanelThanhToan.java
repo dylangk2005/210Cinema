@@ -10,21 +10,21 @@ import dao.*;
 import javax.swing.event.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
 import java.util.Set;
 import model.*;
 
 public class PanelThanhToan extends JPanel {
     private BigDecimal tienVe, tongTienSP, total, totalSauGiamGia;
     private int soGhe;
-    private Set<Integer> listSPDaChon = new HashSet<>();
+    private List<ChiTietDonHang> ctlists = new ArrayList<>();
     private int maKHDaChon, diemTichLuy;
+    private String phan_tram_giam;
     private final Color RED = new Color(200, 0, 0);
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 13);
     
-    private JButton btnIn, btnHuy, btnXacNhan, btnCheck, btnSignup;
+    private JButton btnIn, btnInHD, btnHuy, btnXacNhan, btnCheck, btnSignup;
     private JTextField tfSDT, tfKhachDua;
-    private JLabel lbGiamGia, lbTongTien, lbTraLai;
+    private JLabel lbGiamGia, lbTongTien, lbTraLai, lbKH_Ten, lbKH_GT, lbKH_Hang, lbKH_Diem;
     private JRadioButton rbTienMat, rbChuyenKhoan, rbTheTinDung;
 
       
@@ -40,6 +40,7 @@ public class PanelThanhToan extends JPanel {
             int maSuatChieu) {
         
         this.maKHDaChon = -1;
+        this.phan_tram_giam = "0";
         // Lop ngoai cung
         this.setLayout(new BorderLayout(15, 15));
         this.setBackground(Color.WHITE);
@@ -57,7 +58,7 @@ public class PanelThanhToan extends JPanel {
         
         infoVePanel.add(makeLabel("Phim", lbTenPhim.getText()));
         infoVePanel.add(makeLabel("Phòng", lbTenPhong.getText()));
-        infoVePanel.add(makeLabel("Suất chiếu", lbThoiGianBD.getText()));
+        infoVePanel.add(makeLabel("Suất chiếu", lbThoiGianBD.getText())); 
         infoVePanel.add(makeLabel("Ghế đã chọn", lbGheDaChon.getText()));
         infoVePanel.add(makeLabel("Giá vé", lbGiaVe.getText()));
         
@@ -96,7 +97,10 @@ public class PanelThanhToan extends JPanel {
                     );
                     item.setFont(FONT_VALUE);
                     spPanel.add(item);
-                    listSPDaChon.add((int) productPanel.getClientProperty("product"));
+                    ChiTietDonHang ct = new ChiTietDonHang();
+                    ct.setMaSanPham((int) productPanel.getClientProperty("product"));
+                    ct.setDonGiaLucBan(price);
+                    ctlists.add(ct);
                 }
             }
         }
@@ -125,7 +129,6 @@ public class PanelThanhToan extends JPanel {
         JPanel giamGiaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         giamGiaPanel.setBackground(Color.WHITE);
         giamGiaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-//        giamGiaPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
 
         tfSDT = new JTextField(12);
         btnCheck = new JButton("Áp mã");
@@ -155,10 +158,10 @@ public class PanelThanhToan extends JPanel {
         
         accountPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel lbKH_Ten = makeLabel("Tên khách hàng", "(chưa có)");
-        JLabel lbKH_GT = makeLabel("Giới tính", "-");
-        JLabel lbKH_Hang = makeLabel("Hạng thành viên", "-");
-        JLabel lbKH_Diem = makeLabel("Điểm tích lũy", "-");
+        lbKH_Ten = makeLabel("Tên khách hàng", "(null)");
+        lbKH_GT = makeLabel("Giới tính", "null");
+        lbKH_Hang = makeLabel("Hạng thành viên", "null");
+        lbKH_Diem = makeLabel("Điểm tích lũy", "null");
 
         accountPanel.add(lbKH_Ten);
         accountPanel.add(lbKH_GT);
@@ -251,10 +254,12 @@ public class PanelThanhToan extends JPanel {
 
         btnHuy = new JButton("Hủy");
         btnXacNhan = new JButton("Xác nhận thanh toán");
-        btnIn = new JButton("In hóa đơn");
+        btnIn = new JButton("In vé");
+        btnInHD = new JButton("In hóa đơn");
         
         styleButton(btnHuy, Color.DARK_GRAY);
         styleButton(btnIn, new Color(80, 80, 80));
+        styleButton(btnInHD, new Color(80, 80, 80));
         styleButton(btnXacNhan, RED);
         
         // Lop duoi cung, nam duoi
@@ -263,13 +268,13 @@ public class PanelThanhToan extends JPanel {
         actionPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 0, 10)); 
         actionPanel.add(btnHuy);
         actionPanel.add(btnIn);
+        actionPanel.add(btnInHD);
         actionPanel.add(btnXacNhan);
         
         // Lop duoi cung, boc totalPanel va actionPanel
         JPanel panelBottom = new JPanel(new BorderLayout());
         panelBottom.setBackground(Color.WHITE);
         panelBottom.add(totalPanel, BorderLayout.NORTH);
-//        panelBottom.add(tinhTienPanel);
         panelBottom.add(actionPanel, BorderLayout.SOUTH);
               
         // Gan het vao panelThanhToan
@@ -303,28 +308,80 @@ public class PanelThanhToan extends JPanel {
 
         btnIn.addActionListener(e -> {
             try {
-                PdfInvoiceGenerator.exportMovieTicketPdf(
-                        "hoaDon.pdf",
+                String[] suat = lbThoiGianBD.getText().split(" ");
+                String ticketInfo = String.format("Ticket: %s | Tax: 0,000 đ", lbGiaVe.getText());
+                PdfInvoiceGenerator.exportTicketCGVPdf(
                         lbTenPhim.getText(),
-                        lbThoiGianBD.getText(),
+                        suat[1],
+                        suat[0],
                         lbTenPhong.getText(),
-                        lbGheDaChon.getText(), 
-                        listPanelSanPham,
-                        formatMoney(tienVe),
-                        formatMoney(tongTienSP),
-                        formatMoney(total),
-                        formatMoney(total.subtract(totalSauGiamGia)),
-                        formatMoney(totalSauGiamGia),
-                        formatMoney(new BigDecimal(tfKhachDua.getText())),
-                        lbTraLai.getText()
+                        lbGheDaChon.getText(),
+                        ticketInfo
                 );
             } catch (Exception Ex) {
                     Ex.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "In bill thành công!");
+            JOptionPane.showMessageDialog(this, "In vé thành công!");
         });
         
-        
+        btnInHD.addActionListener(e -> {
+            try {
+                String hinhThuc;
+                if (rbTheTinDung.isSelected()) hinhThuc = "Thẻ tín dụng";
+                else if (rbChuyenKhoan.isSelected()) hinhThuc = "Chuyển khoản";
+                else hinhThuc = "Tiền mặt";
+                String[] khachHangInfos = new String[]{
+                    lbKH_Ten.getText().replaceAll("<[^>]*>", ""), 
+                    lbKH_GT.getText().replaceAll("<[^>]*>", ""), 
+                    tfSDT.getText(),
+                    lbKH_Diem.getText().replaceAll("<[^>]*>", ""), 
+                    hinhThuc
+                };
+                
+                String[] thanhToanInfos = new String[]{
+                    formatMoney(total), 
+                    lbGiamGia.getText(), 
+                    tfKhachDua.getText() + " đ", 
+                    lbTraLai.getText(), 
+                    formatMoney(totalSauGiamGia)
+                };
+                List<String[]> items = new ArrayList<>();           
+                int idx = 1;
+                items.add(new String[]{
+                    String.valueOf(idx++), "Vé xem phim (" + lbGheDaChon.getText() + ")", "Vé",
+                    String.valueOf(soGhe), lbGiaVe.getText(), formatMoney(tienVe) 
+                });
+                        
+                for (Component c : listPanelSanPham.getComponents()) {
+                    if (c instanceof JPanel productPanel) {
+
+                        JLabel lb = (JLabel) productPanel.getComponent(0);
+                        JLabel dg = (JLabel) productPanel.getComponent(1);          
+                        JTextField tf = (JTextField) productPanel.getComponent(2);
+                        
+                        int soLuong = Integer.parseInt(tf.getText().trim());
+                        if (soLuong > 0) {
+                            String temp = dg.getText();
+                            BigDecimal don_gia = parseMoney(temp);
+                            BigDecimal thanh_tien = don_gia.multiply(new BigDecimal(soLuong)); 
+                            items.add(new String[]{
+                                String.valueOf(idx++), 
+                                lb.getText(),
+                                "SP",
+                                String.valueOf(soLuong),
+                                formatMoney(don_gia),
+                                formatMoney(thanh_tien)
+                            });
+                        }
+                    }
+                }
+                PdfInvoiceGenerator.exportVATInvoice(items, khachHangInfos, thanhToanInfos); 
+                
+            } catch (Exception Ex) {
+                Ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "In hóa đơn thành công!");
+        });
         
         btnHuy.addActionListener(e -> {
             Window window = SwingUtilities.getWindowAncestor(this);
@@ -334,8 +391,13 @@ public class PanelThanhToan extends JPanel {
         }); 
         
         btnXacNhan.addActionListener(e -> {
+            BigDecimal num = parseMoney(lbTraLai.getText());
+            if(num.compareTo(BigDecimal.ZERO) < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán đủ tiền!");
+                return;
+            } 
             try {
-                updateDatabase(listMaGhe, maNhanVien, maSuatChieu);
+                updateDatabase(listMaGhe, maNhanVien, maSuatChieu, lbGiaVe.getText());
             } catch (Exception ex) {
                 System.getLogger(PanelThanhToan.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
@@ -344,6 +406,7 @@ public class PanelThanhToan extends JPanel {
         // check SDT nhap vao, ap giam gia va cap nhat tich luy
         btnCheck.addActionListener(e -> {
             this.maKHDaChon = -1;
+            this.phan_tram_giam = "0";
             String sdt = tfSDT.getText().trim();
             KhachHang kh = new KhachHangDAO().getKhachHangBySDT(sdt);
             if (kh == null) {
@@ -371,18 +434,21 @@ public class PanelThanhToan extends JPanel {
                 totalSauGiamGia = total.subtract(tienVeGiam).subtract(tienSPGiam);
                 lbGiamGia.setText("Giảm giá: 5% tiền vé + 5% tiền sản phẩm"); 
                 lbTongTien.setText("Tổng tiền: " + formatMoney(totalSauGiamGia)); 
+                this.phan_tram_giam = "0.05";
             } else if (hang.equalsIgnoreCase("Vàng")) {
                 BigDecimal tienVeGiam = tienVe.multiply(new BigDecimal("0.1"));
                 BigDecimal tienSPGiam = tongTienSP.multiply(new BigDecimal("0.1"));
                 totalSauGiamGia = total.subtract(tienVeGiam).subtract(tienSPGiam);
                 lbGiamGia.setText("Giảm giá: 10% tiền vé + 10% tiền sản phẩm"); 
                 lbTongTien.setText("Tổng tiền: " + formatMoney(totalSauGiamGia)); 
+                this.phan_tram_giam = "0.1";
             } else if (hang.equalsIgnoreCase("Kim cương")) {
                 BigDecimal tienVeGiam = tienVe.multiply(new BigDecimal("0.15"));
                 BigDecimal tienSPGiam = tongTienSP.multiply(new BigDecimal("0.15"));
                 totalSauGiamGia = total.subtract(tienVeGiam).subtract(tienSPGiam);
                 lbGiamGia.setText("Giảm giá: 15% tiền vé + 15% tiền sản phẩm"); 
                 lbTongTien.setText("Tổng tiền: " + formatMoney(totalSauGiamGia)); 
+                this.phan_tram_giam = "0.15";
             } else {
                 lbTongTien.setText("Tổng tiền: " + formatMoney(total)); 
                 totalSauGiamGia = total;
@@ -405,9 +471,13 @@ public class PanelThanhToan extends JPanel {
         if (text == null || text.trim().isEmpty()) {
             return BigDecimal.ZERO;
         }
+        text = text.trim();
+        boolean isNegative = text.startsWith("-") || text.startsWith("−"); 
         String cleaned = text.replaceAll("[^\\d]", "");
         if (cleaned.isEmpty()) return BigDecimal.ZERO;
-        return new BigDecimal(cleaned);
+        BigDecimal result = new BigDecimal(cleaned);
+        if (isNegative) result = result.negate();
+        return result;
     }
     
     private String formatMoney(BigDecimal amount) {
@@ -431,7 +501,10 @@ public class PanelThanhToan extends JPanel {
         btn.setBorder(BorderFactory.createEmptyBorder(6, 15, 6, 15)); 
     }
     
-    private void updateDatabase(Set<Integer> listMaGhe, int maNhanVienDaChon, int maSuatChieu) throws Exception {
+    private void updateDatabase(Set<Integer> listMaGhe, 
+            int maNhanVienDaChon, 
+            int maSuatChieu,
+            String gia_ve) throws Exception {
         DonHang dh = new DonHang(maNhanVienDaChon, maKHDaChon, totalSauGiamGia, "Đã thanh toán");
         int maDonHang = new DonHangDAO().insertDonHang(dh);
         
@@ -452,12 +525,21 @@ public class PanelThanhToan extends JPanel {
         BigDecimal giaVe = tienVe.divide(new BigDecimal(soGhe));
         Set<Integer> listMaVe = new VeDAO().insertVe(maDonHang, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
         
-        List<ChiTietDonHang> ctlists = new ArrayList<>();
-        for (Integer maVe : listMaVe) {
-            for (Integer maSP : listSPDaChon) {
-                ctlists.add(new ChiTietDonHang(maDonHang, maSP, maVe, 1, totalSauGiamGia, giaVe));
-            }
+        for (ChiTietDonHang ct : ctlists) {
+            BigDecimal don_gia_luc_ban = ct.getDonGiaLucBan();
+            BigDecimal tien_giam = don_gia_luc_ban.multiply(new BigDecimal(phan_tram_giam));
+            BigDecimal thanh_tien = don_gia_luc_ban.subtract(tien_giam);
+            ct.setMaDonHang(maDonHang); ct.setMaVe(-1); ct.setSoLuong(1); 
+            ct.setThanhTien(thanh_tien); 
         }
+        
+        for (Integer maVe : listMaVe) {
+            BigDecimal don_gia_luc_ban = parseMoney(gia_ve);
+            BigDecimal tien_giam = don_gia_luc_ban.multiply(new BigDecimal(phan_tram_giam));
+            BigDecimal thanh_tien = don_gia_luc_ban.subtract(tien_giam);
+            ctlists.add(new ChiTietDonHang(maDonHang, -1, maVe, 1, don_gia_luc_ban, thanh_tien)); 
+        }
+        
         new ChiTietDonHangDAO().insertChiTietDonHang(ctlists); 
         
     }
