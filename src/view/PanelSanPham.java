@@ -207,7 +207,6 @@ public class PanelSanPham extends JPanel implements Refresh {
             if (id > 0) {
                 msg("Thêm sản phẩm thành công!");
                 loadData();
-                clearForm();
             } else {
                 msg("Thêm thất bại!");
             }
@@ -222,7 +221,6 @@ public class PanelSanPham extends JPanel implements Refresh {
             if (dao.update(sp)) {
                 msg("Cập nhật thành công!");
                 loadData();
-                clearForm();
             } else {
                 msg("Cập nhật thất bại!");
             }
@@ -236,7 +234,6 @@ public class PanelSanPham extends JPanel implements Refresh {
             if (dao.delete(Integer.parseInt(txtMa.getText()))) {
                 msg("Xóa thành công!");
                 loadData();
-                clearForm();
             } else {
                 msg("Xóa thất bại! Có thể đã có đơn hàng.");
             }

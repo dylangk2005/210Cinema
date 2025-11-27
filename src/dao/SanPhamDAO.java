@@ -50,7 +50,7 @@ public class SanPhamDAO {
     public int insert(SanPham sp) {
         String sql = "INSERT INTO SanPham (tenSanPham, donGia, moTa) VALUES (?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
             ps.setString(1, sp.getTenSanPham());
             ps.setBigDecimal(2, sp.getDonGia());
             ps.setString(3, sp.getMoTa());
