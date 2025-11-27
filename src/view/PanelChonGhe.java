@@ -45,7 +45,7 @@ public class PanelChonGhe extends JDialog {
         add(screenPanel, BorderLayout.NORTH);
 
         // ====== GHẾ ======
-        JPanel seatPanel = new JPanel(new GridLayout(10, 12, 10, 10));   
+        JPanel seatPanel = new JPanel(new GridLayout(0, 12, 10, 10));   
         seatPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         seatPanel.setBackground(Color.WHITE);
         

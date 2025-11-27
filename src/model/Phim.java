@@ -44,5 +44,9 @@ public class Phim {
 
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
-
+    
+    @Override
+    public String toString() {
+        return maPhim + " - " + tenPhim;
+    }
 }

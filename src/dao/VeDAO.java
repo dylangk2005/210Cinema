@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import util.DBConnection;
@@ -37,4 +38,18 @@ public class VeDAO {
         return listMaVe;
     }
     
+     // kiểm tra xem suất chiếu đã có ng mua vé chưa
+    public boolean hasTicketsSold(int maSuatChieu) {
+        String sql = "SELECT COUNT(*) FROM Ve WHERE maSuatChieu = ? AND trangThai = N'Đã đặt'";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, maSuatChieu);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
+    }
 }

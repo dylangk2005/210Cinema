@@ -3,45 +3,53 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainForm extends JFrame {
     private JPanel mainPanel;
     private CardLayout card;
     private String chucVu; // Lưu chức vụ
-
+    private Map<String, Refresh> panelMap = new HashMap<>();
+    
     public MainForm(String hoTen, String chucVu, int maNhanVien) {
-        this.chucVu = chucVu;
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/view/icons/meo210.png")));
-        // cửa sổ chính
-        setTitle("210CINEMA - Quản Lý Rạp Phim");
-        setSize(1400, 800);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+    this.chucVu = chucVu;
+    setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/view/icons/meo210.png")));
+    // cửa sổ chính
+    setTitle("210CINEMA - Quản Lý Rạp Phim");
+    setSize(1400, 800);
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // menu trái
-        JPanel menu = createSidebar(hoTen, chucVu);
+    // menu trái
+    JPanel menu = createSidebar(hoTen, chucVu);
 
-        // main panel
-        mainPanel = new JPanel();
-        card = new CardLayout();
-        mainPanel.setLayout(card);
+    // main panel
+    mainPanel = new JPanel();
+    card = new CardLayout();
+    mainPanel.setLayout(card);
 
-        // Thêm panel vào main
-        mainPanel.add(new PanelBanHang(maNhanVien), "banhang");
-        mainPanel.add(new PanelPhim(), "phim");
-        mainPanel.add(new PanelSuatChieu(), "suatchieu");
-        mainPanel.add(new PanelSanPham(), "sanpham");
-        mainPanel.add(new PanelKhachHang(), "khachhang");
-        mainPanel.add(new PanelNhanVien(), "nhanvien");
-        mainPanel.add(new PanelThongKe(), "thongke");
-        mainPanel.add(new PanelPhongChieu(), "phongchieu");
+//  them vào map
+    panelMap.put("banhang", new PanelBanHang(maNhanVien));
+    panelMap.put("phim", new PanelPhim());
+    panelMap.put("suatchieu", new PanelSuatChieu());
+    panelMap.put("sanpham", new PanelSanPham());
+    panelMap.put("khachhang", new PanelKhachHang());
+    panelMap.put("nhanvien", new PanelNhanVien());
+    panelMap.put("thongke", new PanelThongKe());
+    panelMap.put("phongchieu", new PanelPhongChieu());
 
-        // Trang mặc định
-        card.show(mainPanel, "banhang");
+    // them panel vao mainpanel
+    for (Map.Entry<String, Refresh> entry : panelMap.entrySet()) {
+        mainPanel.add((JPanel) entry.getValue(), entry.getKey());
+    }
 
-        // gộp
-        add(menu, BorderLayout.WEST);
-        add(mainPanel, BorderLayout.CENTER);
+    // Trang mặc định
+    card.show(mainPanel, "banhang");
+
+    // gộp
+    add(menu, BorderLayout.WEST);
+    add(mainPanel, BorderLayout.CENTER);
     }
     
     // Side bar
@@ -100,9 +108,9 @@ public class MainForm extends JFrame {
 
         // Danh sách nút
         String[][] buttons = {
-            {"Bán Hàng", "ticket.png", "banhang"},
+            {"Bán Hàng", "ticket.png", "banhang"},
             {"Phim", "film.png", "phim"},
-            {"Phòng Chiếu", "room.png", "phongchieu"},
+            {"Phòng Chiếu", "room.png", "phongchieu"},
             {"Suất Chiếu", "calendar.png", "suatchieu"},
             {"Sản Phẩm", "popcorn.png", "sanpham"},
             {"Nhân Viên", "employee.png", "nhanvien"},
@@ -129,7 +137,9 @@ public class MainForm extends JFrame {
             if ("logout".equals(cardName)) {
                 button.addActionListener(e -> dangXuat());
             } else {
-                button.addActionListener(e -> card.show(mainPanel, cardName));
+                button.addActionListener(e -> {
+                    refreshAndShowPanel(cardName);
+                });
             }
 
             menuButtons.add(button);
@@ -143,6 +153,14 @@ public class MainForm extends JFrame {
 
         menu.add(centerPanel, BorderLayout.CENTER);
         return menu;
+    }
+    
+    private void refreshAndShowPanel(String panelName) {
+        Refresh panel = panelMap.get(panelName);
+        if (panel != null) {
+            panel.refreshData(); // Gọi refresh của panel
+            card.show(mainPanel, panelName);
+        }
     }
     
     // Hàm tạo nút menu
@@ -238,7 +256,7 @@ public class MainForm extends JFrame {
                 btnHuy.setBackground(new Color(70, 70, 70));
             }
         });
-
+        
         dialog.setVisible(true);
     }
     

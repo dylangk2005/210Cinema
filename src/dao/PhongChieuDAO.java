@@ -1,125 +1,153 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import model.PhongChieu;
 import util.DBConnection;
-import dao.GheNgoiDAO;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhongChieuDAO {
+
+    // Lấy tất cả phòng chiếu
     public List<PhongChieu> getAllPhongChieu() {
         List<PhongChieu> list = new ArrayList<>();
         String sql = "SELECT * FROM PhongChieu";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-                
-                while (rs.next()) {
-                    PhongChieu p = new PhongChieu(
-                        rs.getInt("maPhongChieu"),
-                        rs.getString("tenPhongChieu"),
-                        rs.getInt("soGheNgoi"),
-                        rs.getString("trangThaiPhong"),
-                        rs.getString("loaiManHinh"),
-                        rs.getString("heThongAmThanh")
-                    );
-                    list.add(p);
-                }
-        }
-        catch (Exception e) {
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
     }
     
-    public int getCurrentPhongChieuID() {
-        String sql = "SELECT ISNULL(IDENT_CURRENT('PhongChieu'), 0)";
+    // Lấy tất cả phòng chiếu đang hoạt động
+     public List<PhongChieu> getAllPhongChieuHD() {
+        List<PhongChieu> list = new ArrayList<>();
+        String sql = "SELECT * FROM PhongChieu WHERE trangThaiPhong = N'Hoạt động'";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                list.add(mapRow(rs));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
+        return list;
     }
     
-    public void updateDatabase(List<PhongChieu> newList) {
-        List<PhongChieu> oldList = getAllPhongChieu();
-        Map<Integer, Integer> newSeatsMap = new HashMap<>();
-
-        Map<Integer, PhongChieu> oldMap = new HashMap<>();
-        for (PhongChieu pc : oldList) {
-            oldMap.put(pc.getMaPhongChieu(), pc);
-        }
         
-        String sqlInsert = "INSERT INTO PhongChieu (tenPhongChieu, soGheNgoi, trangThaiPhong, loaiManHinh, heThongAmThanh) "
-                + "VALUES (?, ?, ?, ?, ?)";
-        String sqlUpdate = "UPDATE PhongChieu "
-                + "SET tenPhongChieu=?, soGheNgoi=?, trangThaiPhong=?, loaiManHinh=?, heThongAmThanh=? "
-                + "WHERE maPhongChieu=?";
-        String sqlDelete = "DELETE FROM PhongChieu WHERE maPhongChieu=?";
-        
-        try (Connection con = DBConnection.getConnection()) {
-            con.setAutoCommit(false);
-            try (PreparedStatement insert = con.prepareStatement(sqlInsert);
-                PreparedStatement update = con.prepareStatement(sqlUpdate);
-                PreparedStatement delete = con.prepareStatement(sqlDelete)) {
-                for (PhongChieu pc : newList) {
-                    int id = pc.getMaPhongChieu();
-                    if (id <= 0 || !oldMap.containsKey(id)) {
-                        insert.setString(1, pc.getTenPhongChieu());
-                        insert.setInt(2, pc.getSoGheNgoi());
-                        insert.setString(3, pc.getTrangThaiPhong());
-                        insert.setString(4, pc.getLoaiManHinh());
-                        insert.setString(5, pc.getHeThongAmThanh());
-                        insert.addBatch();
-                        newSeatsMap.put(id, pc.getSoGheNgoi());
-                    } else {
-                        update.setString(1, pc.getTenPhongChieu());
-                        update.setInt(2, pc.getSoGheNgoi());
-                        update.setString(3, pc.getTrangThaiPhong());
-                        update.setString(4, pc.getLoaiManHinh());
-                        update.setString(5, pc.getHeThongAmThanh());
-                        update.setInt(6, id);
-                        update.addBatch();
-                        oldMap.remove(id);
-                     }
-                }
-                
-                insert.executeBatch();
-                update.executeBatch();
-                
-                for (Integer idDelete : oldMap.keySet()) {
-                    try {
-                        delete.setInt(1, idDelete);
-                        delete.executeUpdate();
-                    } catch (SQLException ex) {
-                        System.err.println("Không thể xóa phòng chiếu id=" + idDelete + ": " + ex.getMessage());
-                    }
-                }
-                
-                for (var entry : newSeatsMap.entrySet()) {
-                    System.out.println(entry.getKey() + " : " + entry.getValue());
-                }
-                con.commit();
-            } catch (SQLException ex) {
-                con.rollback();
-                throw ex;
-            } 
-        } catch (Exception e) {
-                e.printStackTrace();
+    // Lấy phòng theo ID
+    public PhongChieu getById(int maPhong) {
+        String sql = "SELECT * FROM PhongChieu WHERE maPhongChieu = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, maPhong);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        new GheNgoiDAO().autoChairsGeneration(newSeatsMap);
+        return null;
     }
 
+    // thêm phòng mới + tự động sinh ghế
+    public boolean insert(PhongChieu pc) {
+        String sql = "INSERT INTO PhongChieu (tenPhongChieu, soGheNgoi, trangThaiPhong, loaiManHinh, heThongAmThanh) " +
+                     "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, pc.getTenPhongChieu());
+            ps.setInt(2, pc.getSoGheNgoi());
+            ps.setString(3, pc.getTrangThaiPhong());
+            ps.setString(4, pc.getLoaiManHinh());
+            ps.setString(5, pc.getHeThongAmThanh());
+
+            if (ps.executeUpdate() > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int newId = rs.getInt(1);
+                        new GheNgoiDAO().autoChairsGeneration(newId, pc.getSoGheNgoi());
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    //  update phòng (k cho sửa nếu phòng đã có suất chiếu) + reset ghế mới
+    public boolean update(PhongChieu pc) {
+        int maPhong = pc.getMaPhongChieu();
+      
+        if (new SuatChieuDAO().hasShowTimes(maPhong)) {
+            return false;
+        }
+
+        String sql = "UPDATE PhongChieu SET tenPhongChieu=?, soGheNgoi=?, trangThaiPhong=?, loaiManHinh=?, heThongAmThanh=? " +
+                     "WHERE maPhongChieu=?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, pc.getTenPhongChieu());
+            ps.setInt(2, pc.getSoGheNgoi());
+            ps.setString(3, pc.getTrangThaiPhong());
+            ps.setString(4, pc.getLoaiManHinh());
+            ps.setString(5, pc.getHeThongAmThanh());
+            ps.setInt(6, maPhong);
+
+            if (ps.executeUpdate() > 0) {
+
+                new GheNgoiDAO().xoaGheTheoPhong(maPhong);
+                new GheNgoiDAO().autoChairsGeneration(maPhong, pc.getSoGheNgoi());
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // xóa phòng , k cho xóa nếu có suất chiếu
+    public boolean delete(int maPhong) {
+        // KIỂM TRA CÓ SUẤT CHIẾU KHÔNG
+        if (new SuatChieuDAO().hasShowTimes(maPhong)) {
+            return false;
+        }
+
+        // Xóa ghế trước
+        new GheNgoiDAO().xoaGheTheoPhong(maPhong);
+
+        String sql = "DELETE FROM PhongChieu WHERE maPhongChieu = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, maPhong);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Map ResultSet → PhongChieu
+    private PhongChieu mapRow(ResultSet rs) throws SQLException {
+        return new PhongChieu(
+            rs.getInt("maPhongChieu"),
+            rs.getString("tenPhongChieu"),
+            rs.getInt("soGheNgoi"),
+            rs.getString("trangThaiPhong"),
+            rs.getString("loaiManHinh"),
+            rs.getString("heThongAmThanh")
+        );
+    }
 }

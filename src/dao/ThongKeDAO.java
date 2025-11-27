@@ -177,7 +177,7 @@ public List<ThongKe> getDoanhThuTheoThoiGian(int loai, Date tu, Date den) {
         return list;
     }
 
-    // TOP SẢN PHẨM - HIỂN THỊ TẤT CẢ SẢN PHẨM (kể cả chưa bán được cái nào)
+    // TOP SẢN PHẨM - HIỂN THỊ TẤT CẢ SẢN PHẨM (kể cả chưa bán được sp nào)
     public List<ThongKe> getSanPhamBanChay() {
         List<ThongKe> list = new ArrayList<>();
         String sql = """

@@ -1,243 +1,249 @@
 package view;
 
+import dao.PhongChieuDAO;
+import model.PhongChieu;
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.List;
-import java.util.ArrayList;
-import model.PhongChieu;
-import dao.PhongChieuDAO;
 
-public class PanelPhongChieu extends JPanel {
-    private JTable tblPhongChieu;
+public class PanelPhongChieu extends JPanel implements Refresh {
+
+    private final Color MAU_DO = new Color(180, 0, 0);
+    private final Color TRANG = Color.WHITE;
+
+    private PhongChieuDAO dao = new PhongChieuDAO();
     private DefaultTableModel model;
+    private JTable table;
 
-    private JTextField txtMaPhong, txtTenPhong, txtTimKiem;
-    private JComboBox<String> cboTrangThai, cboLoaiManHinh, cboHeThongAmThanh;
-    private JComboBox<Integer> cboSoGhe;
-
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimTheoMa, btnTimTheoTen, btnLuu;
-    private int maPhongHienTai;
-    
-    private final Color RED = new Color(200, 0, 0);
+    private JTextField txtMa, txtTen;
+    private JComboBox<String> cbSoGhe, cbTrangThai, cbManHinh, cbAmThanh;
+    private JTextField txtSearch;
+    private JComboBox<String> cbTieuChi;
 
     public PanelPhongChieu() {
-        setLayout(new BorderLayout());
-        initComponents();
-        initEvents();
-        loadDatabase();
-    }
-
-    private void initComponents() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        setBackground(Color.WHITE);
-        String[] cols = {
-                "Mã Phòng", "Tên Phòng", "Số Ghế", "Trạng Thái", "Loại Màn Hình", "Âm Thanh"
-        };
-        model = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Không cho phép edit trực tiếp trên table
-            }
-        };
-        tblPhongChieu = new JTable(model);
-        tblPhongChieu.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setBackground(TRANG);
+        setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        JScrollPane scroll = new JScrollPane(tblPhongChieu);
-        JPanel pnlCenter = new JPanel(new BorderLayout());
-        pnlCenter.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY, 1, true),
-            "Danh sách phòng chiếu",
-            0, 0,
-            new Font("Arial", Font.BOLD, 14),
-            new Color(120, 0, 0)
-        )); 
-        pnlCenter.add(scroll, BorderLayout.CENTER);
-        pnlCenter.setBackground(Color.WHITE); 
-        
-        JLabel lblTitle = new JLabel("Quản Lý Phòng Chiếu", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("SansSerif", Font.BOLD, 26));
-        lblTitle.setForeground(new Color(0, 80, 80));
-        lblTitle.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
+        taoForm();
+        taoBang();
+        taoDuoi();
+        loadData();
+    }
+    
+    @Override
+    public void refreshData(){
+        loadData();
+    }
+    // ================== FORM NHẬP THÔNG TIN PHÒNG ==================
+    private void taoForm() {
+        JPanel p = new JPanel(new GridBagLayout());
+        p.setBackground(TRANG);
+        p.setBorder(new TitledBorder(new LineBorder(MAU_DO, 2),
+                "THÔNG TIN PHÒNG CHIẾU", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 16), MAU_DO));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        txtMaPhong = new JTextField("AUTO"); 
-        txtMaPhong.setEnabled(false); 
-        txtTenPhong = new JTextField();
+        txtMa = tf(10); 
+        txtMa.setEditable(false); 
+        txtMa.setBackground(new Color(245, 245, 245));
+        txtMa.setText("");
 
-        cboTrangThai = new JComboBox<>(new String[]{"Đang sử dụng", "Bảo trì", "Không sử dụng"});
-        cboLoaiManHinh = new JComboBox<>(new String[]{"2D", "3D", "IMAX"});
-        cboHeThongAmThanh = new JComboBox<>(new String[]{"Dolby", "Atmos", "Standard"});
-        cboSoGhe = new JComboBox<>(new Integer[]{120, 96, 72, 60, 48, 36});
-        cboTrangThai.setBackground(Color.WHITE); 
-        cboLoaiManHinh.setBackground(Color.WHITE); 
-        cboHeThongAmThanh.setBackground(Color.WHITE); 
+        txtTen = tf(25);
 
-        JPanel pnlForm = new JPanel(new GridLayout(3, 4, 10, 10));
-        pnlForm.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY, 1, true),
-            "Thông tin phòng chiếu",
-            0, 0,
-            new Font("Arial", Font.BOLD, 14),
-            new Color(120, 0, 0)
-        )); 
-        pnlForm.setBackground(Color.WHITE); 
-        pnlForm.add(new JLabel("Mã phòng:"));
-        pnlForm.add(txtMaPhong);
-        pnlForm.add(new JLabel("Tên phòng:"));
-        pnlForm.add(txtTenPhong);
+        cbSoGhe = new JComboBox<>(new String[]{"120", "132", "144", "156"});
+        cbTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Bảo trì", "Ngừng sử dụng"});
+        cbManHinh = new JComboBox<>(new String[]{"2D", "3D", "IMAX", "4DX"});
+        cbAmThanh = new JComboBox<>(new String[]{"Dolby Atmos", "Dolby 7.1", "Standard"});
 
-        pnlForm.add(new JLabel("Số ghế:"));
-        pnlForm.add(cboSoGhe);
-        pnlForm.add(new JLabel("Trạng thái:"));
-        pnlForm.add(cboTrangThai);
+        int y = 0;
+        addRow(p, gbc, y++, "Mã phòng:", txtMa);
+        addRow(p, gbc, y++, "Tên phòng:", txtTen);
+        addRow(p, gbc, y++, "Số ghế:", cbSoGhe); 
+        addRow(p, gbc, y++, "Trạng thái:", cbTrangThai);
+        addRow(p, gbc, y++, "Màn hình:", cbManHinh);
+        addRow(p, gbc, y++, "Âm thanh:", cbAmThanh);
 
-        pnlForm.add(new JLabel("Loại màn hình:"));
-        pnlForm.add(cboLoaiManHinh);
-        pnlForm.add(new JLabel("Âm thanh:"));
-        pnlForm.add(cboHeThongAmThanh);
-        
-        JPanel pnlTop = new JPanel();
-        pnlTop.setLayout(new BorderLayout());
-        pnlTop.add(lblTitle, BorderLayout.PAGE_START);
-        pnlTop.add(pnlForm, BorderLayout.CENTER);
-        pnlTop.setBackground(Color.WHITE); 
-
-
-        // ======= BUTTONS =======
-        JPanel pnlButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        pnlButton.setBackground(Color.WHITE); 
-        pnlSearch.setBackground(Color.WHITE); 
-
-        btnThem = new JButton("Thêm");
-        btnSua = new JButton("Sửa");
-        btnXoa = new JButton("Xóa");
-        btnLamMoi = new JButton("Làm mới");
-        btnLuu = new JButton("Lưu");
-        btnTimTheoMa = new JButton("Tìm theo mã");
-        btnTimTheoTen = new JButton("Tìm theo tên");
-        txtTimKiem = new JTextField("");
-        txtTimKiem.setPreferredSize(new Dimension(200, 25)); 
-        
-        styleButton(btnThem, Color.DARK_GRAY);
-        styleButton(btnSua, new Color(80, 80, 80));
-        styleButton(btnXoa, RED);
-        styleButton(btnLamMoi, RED);
-        styleButton(btnTimTheoMa, RED);
-        styleButton(btnTimTheoTen, RED);
-        styleButton(btnLuu, new Color(80, 80, 80));
-
-        pnlSearch.add(txtTimKiem);
-        pnlSearch.add(btnTimTheoMa);
-        pnlSearch.add(btnTimTheoTen);
-        
-        pnlButton.add(btnThem);
-        pnlButton.add(btnSua);
-        pnlButton.add(btnXoa);
-        pnlButton.add(btnLamMoi);
-        pnlButton.add(btnLuu);
-        
-        JPanel pnlAction = new JPanel(new BorderLayout());
-        pnlAction.add(pnlSearch, BorderLayout.EAST);
-        pnlAction.add(pnlButton, BorderLayout.WEST);
-        pnlAction.setBackground(Color.WHITE); 
-        
-        add(pnlTop, BorderLayout.NORTH);
-        add(pnlCenter, BorderLayout.CENTER);
-        add(pnlAction, BorderLayout.SOUTH);
+        add(p, BorderLayout.NORTH);
     }
 
-    private void initEvents() {
-        btnThem.addActionListener(e -> {
-            String ten = txtTenPhong.getText();
-            String so = cboSoGhe.getSelectedItem().toString();
-            String tt = cboTrangThai.getSelectedItem().toString();
-            String mh = cboLoaiManHinh.getSelectedItem().toString();
-            String at = cboHeThongAmThanh.getSelectedItem().toString();
+    // ================== BẢNG DANH SÁCH PHÒNG ==================
+    private void taoBang() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new TitledBorder(new LineBorder(MAU_DO, 2),
+                "DANH SÁCH PHÒNG CHIẾU", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 16), MAU_DO));
 
-            maPhongHienTai += 1;
-            model.addRow(new Object[]{maPhongHienTai, ten, so, tt, mh, at});
-        });
+        model = new DefaultTableModel(new String[]{
+                "Mã Phòng", "Tên Phòng", "Số Ghế", "Trạng Thái", "Màn Hình", "Âm Thanh"
+        }, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
 
-        // ======= SỬA PHÒNG =======
-        btnSua.addActionListener(e -> {
-            int row = tblPhongChieu.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn phòng cần sửa.");
-                return;
-            }
-            
-            model.setValueAt(txtTenPhong.getText(), row, 1);
-            model.setValueAt(cboSoGhe.getSelectedItem().toString(), row, 2);
-            model.setValueAt(cboTrangThai.getSelectedItem().toString(), row, 3);
-            model.setValueAt(cboLoaiManHinh.getSelectedItem().toString(), row, 4);
-            model.setValueAt(cboHeThongAmThanh.getSelectedItem().toString(), row, 5);
-        });
+        table = new JTable(model);
+        table.setRowHeight(50);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // ======= XÓA PHÒNG =======
-        btnXoa.addActionListener(e -> {
-            int row = tblPhongChieu.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Chọn phòng cần xóa.");
-                return;
-            }
-            model.removeRow(row);
-        });
+        DefaultTableCellRenderer header = new DefaultTableCellRenderer();
+        header.setBackground(MAU_DO); header.setForeground(TRANG);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        header.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) table.getColumnModel().getColumn(i).setHeaderRenderer(header);
 
-        // ======= LÀM MỚI =======
-        btnLamMoi.addActionListener(e -> clearForm());
-
-        // ======= TÌM KIẾM =======
-        btnTimTheoMa.addActionListener(e -> {
-            searchPhongChieuByID(); 
-        });
-        
-        btnTimTheoTen.addActionListener(e -> {
-            searchPhongChieuByName();
-        });
-   
-        btnLuu.addActionListener(e -> {
-            updateDatabase();
-            JOptionPane.showMessageDialog(this, "Đã cập nhật dữ liệu!");
-        }); 
-        
-        // ======= CLICK TABLE => LOAD DATA LÊN FORM =======
-        tblPhongChieu.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = tblPhongChieu.getSelectedRow();
-                if (row != -1) {
-                    txtMaPhong.setText(model.getValueAt(row, 0).toString());
-                    txtTenPhong.setText(model.getValueAt(row, 1).toString());
-                    cboSoGhe.setSelectedItem(model.getValueAt(row, 2).toString());
-                    cboTrangThai.setSelectedItem(model.getValueAt(row, 3).toString());
-                    cboLoaiManHinh.setSelectedItem(model.getValueAt(row, 4).toString());
-                    cboHeThongAmThanh.setSelectedItem(model.getValueAt(row, 5).toString());
-                }
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() >= 0) {
+                fillForm(table.getSelectedRow());
             }
         });
-        
+
+        p.add(new JScrollPane(table));
+        add(p, BorderLayout.CENTER);
+    }
+
+    // ================== PHẦN DƯỚI: TÌM KIẾM + NÚT ==================
+    private void taoDuoi() {
+        JPanel duoi = new JPanel(new BorderLayout(20, 0));
+        duoi.setBackground(TRANG);
+        duoi.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        // Tìm kiếm
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+        left.setBackground(TRANG);
+
+        JPanel tieuChiPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        tieuChiPanel.setBackground(TRANG);
+        tieuChiPanel.add(new JLabel("Tìm theo:"));
+        cbTieuChi = new JComboBox<>(new String[]{"Mã phòng", "Tên phòng"});
+        cbTieuChi.setPreferredSize(new Dimension(150, 32));
+        tieuChiPanel.add(cbTieuChi);
+
+        JPanel oTim = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        oTim.setBackground(TRANG);
+        txtSearch = new JTextField(28);
+        txtSearch.setPreferredSize(new Dimension(280, 32));
+        JButton btnRefresh = nutDoXam("Làm mới", e -> {
+            txtSearch.setText("");
+            cbTieuChi.setSelectedIndex(0);
+            loadData();
+        });
+        oTim.add(txtSearch);
+        oTim.add(btnRefresh);
+        left.add(tieuChiPanel);
+        left.add(oTim);
+
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { timKiem(); }
+            public void removeUpdate(DocumentEvent e) { timKiem(); }
+            public void changedUpdate(DocumentEvent e) { timKiem(); }
+            private void timKiem() { timKiemNangCao(txtSearch.getText().trim()); }
+        });
+
+        // Nút chức năng 
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        right.setBackground(TRANG);
+        right.add(nutDo("Thêm mới", e -> them()));
+        right.add(nutDo("Cập nhật", e -> sua()));
+        right.add(nutDo("Xóa", e -> xoa()));
+        right.add(nutDo("Xóa rỗng", e -> clearForm()));
+
+        duoi.add(left, BorderLayout.WEST);
+        duoi.add(right, BorderLayout.EAST);
+        add(duoi, BorderLayout.SOUTH);
+    }
+
+    // ================== CRUD ==================
+    private void them() {
+        if (txtTen.getText().trim().isEmpty()) {
+            msg("Vui lòng nhập tên phòng!");
+            return;
+        }
+
+        PhongChieu pc = new PhongChieu();
+        pc.setTenPhongChieu(txtTen.getText().trim());
+        pc.setSoGheNgoi(Integer.parseInt((String) cbSoGhe.getSelectedItem()));
+        pc.setTrangThaiPhong((String) cbTrangThai.getSelectedItem());
+        pc.setLoaiManHinh((String) cbManHinh.getSelectedItem());
+        pc.setHeThongAmThanh((String) cbAmThanh.getSelectedItem());
+
+        if (dao.insert(pc)) {
+            msg("Thêm phòng thành công! Đã tự động tạo ghế.");
+            loadData();
+            clearForm();
+        } else {
+            msg("Thêm thất bại!");
+        }
+    }
+
+    private void sua() {
+        if (txtMa.getText().isEmpty()) {
+            msg("Vui lòng chọn phòng cần sửa!");
+            return;
+        }
+
+        int maPhong = Integer.parseInt(txtMa.getText());
+
+        PhongChieu pc = new PhongChieu();
+        pc.setMaPhongChieu(maPhong);
+        pc.setTenPhongChieu(txtTen.getText().trim());
+        pc.setSoGheNgoi(Integer.parseInt((String) cbSoGhe.getSelectedItem()));
+        pc.setTrangThaiPhong((String) cbTrangThai.getSelectedItem());
+        pc.setLoaiManHinh((String) cbManHinh.getSelectedItem());
+        pc.setHeThongAmThanh((String) cbAmThanh.getSelectedItem());
+
+        if (dao.update(pc)) {
+            msg("Cập nhật thành công! Ghế đã được điều chỉnh lại.");
+            loadData();
+            clearForm();
+        } else {
+            msg("Không thể cập nhật! Phòng này đang có suất chiếu.");
+        }
+    }
+
+    private void xoa() {
+        if (txtMa.getText().isEmpty()) {
+            msg("Vui lòng chọn phòng cần xóa!");
+            return;
+        }
+
+        int maPhong = Integer.parseInt(txtMa.getText());
+
+        int confirm = thongBao("Xóa phòng chiếu này?\nTất cả ghế và suất chiếu sẽ bị xóa!", "Xác nhận", JOptionPane.QUESTION_MESSAGE, true);
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (dao.delete(maPhong)) {
+                msg("Xóa thành công!");
+                loadData();
+                clearForm();
+            } else {
+                msg("Không thể xóa! Phòng này đang có suất chiếu.");
+            }
+        }
     }
 
     private void clearForm() {
-        txtMaPhong.setText("AUTO"); 
-        txtTenPhong.setText("");
-        cboSoGhe.setSelectedIndex(0); 
-        cboTrangThai.setSelectedIndex(0);
-        cboLoaiManHinh.setSelectedIndex(0);
-        cboHeThongAmThanh.setSelectedIndex(0);
+        txtMa.setText("");
+        txtTen.setText("");
+        cbSoGhe.setSelectedIndex(0);
+        cbTrangThai.setSelectedIndex(0);
+        cbManHinh.setSelectedIndex(0);
+        cbAmThanh.setSelectedIndex(0);
+        table.clearSelection();
     }
-    
-    private void loadDatabase() {
-        PhongChieuDAO pcdao = new PhongChieuDAO();
-        maPhongHienTai = pcdao.getCurrentPhongChieuID();
+
+    // ================== LOAD + TÌM KIẾM ==================
+    private void loadData() {
         model.setRowCount(0);
-        List<PhongChieu> oldList = pcdao.getAllPhongChieu();
-        for (PhongChieu pc : oldList) {
-            model.addRow(new Object[] {
+        List<PhongChieu> ds = dao.getAllPhongChieu();
+        for (PhongChieu pc : ds) {
+            model.addRow(new Object[]{
                 pc.getMaPhongChieu(),
                 pc.getTenPhongChieu(),
                 pc.getSoGheNgoi(),
@@ -247,73 +253,153 @@ public class PanelPhongChieu extends JPanel {
             });
         }
     }
-    
-    private void updateDatabase() {
-        List<PhongChieu> newList = new ArrayList<>();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            PhongChieu pc = new PhongChieu();
-            pc.setMaPhongChieu(Integer.parseInt(model.getValueAt(i, 0).toString()));
-            pc.setTenPhongChieu(model.getValueAt(i, 1).toString());
-            pc.setSoGheNgoi(Integer.parseInt(model.getValueAt(i, 2).toString()));
-            pc.setTrangThaiPhong(model.getValueAt(i, 3).toString());
-            pc.setLoaiManHinh(model.getValueAt(i, 4).toString());
-            pc.setHeThongAmThanh(model.getValueAt(i, 5).toString());
-            newList.add(pc);
-        }
-        new PhongChieuDAO().updateDatabase(newList);
-    }
-    
-    private void searchPhongChieuByID() {
-        String searchID = txtTimKiem.getText().trim();
-        if (searchID.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập mã phòng chiếu để tìm kiếm!");
+
+    private void timKiemNangCao(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            loadData();
             return;
         }
-        tblPhongChieu.clearSelection();
-        boolean found = false;
-        for (int row = 0; row < model.getRowCount(); row++) {
-            Object idValue = model.getValueAt(row, 0); 
-            if (idValue != null && idValue.toString().equals(searchID)) {
-                tblPhongChieu.setRowSelectionInterval(row, row);
-                tblPhongChieu.scrollRectToVisible(new Rectangle(tblPhongChieu.getCellRect(row, 0, true)));
-                found = true;
-                break;
+        keyword = keyword.trim().toLowerCase();
+        model.setRowCount(0);
+        List<PhongChieu> ds = dao.getAllPhongChieu();
+        for (PhongChieu pc : ds) {
+            boolean match = false;
+            if (cbTieuChi.getSelectedIndex() == 0) {
+                if (String.valueOf(pc.getMaPhongChieu()).contains(keyword)) match = true;
+            } else {
+                if (pc.getTenPhongChieu().toLowerCase().contains(keyword)) match = true;
+            }
+            if (match) {
+                model.addRow(new Object[]{
+                    pc.getMaPhongChieu(),
+                    pc.getTenPhongChieu(),
+                    pc.getSoGheNgoi(),
+                    pc.getTrangThaiPhong(),
+                    pc.getLoaiManHinh(),
+                    pc.getHeThongAmThanh()
+                });
             }
         }
+    }
 
-        if (!found) {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy Phòng Chiếu có mã: " + searchID);
+    private void fillForm(int row) {
+        int ma = (int) model.getValueAt(row, 0);
+        PhongChieu pc = dao.getById(ma);
+        if (pc != null){
+            txtMa.setText(String.valueOf(pc.getMaPhongChieu()));
+            txtTen.setText(pc.getTenPhongChieu());
+            cbSoGhe.setSelectedItem(String.valueOf(pc.getSoGheNgoi()));
+            cbTrangThai.setSelectedItem(pc.getTrangThaiPhong());
+            cbManHinh.setSelectedItem(pc.getLoaiManHinh());
+            cbAmThanh.setSelectedItem(pc.getHeThongAmThanh());
         }
     }
-    
-    private void searchPhongChieuByName() {
-        String searchName = txtTimKiem.getText().trim();
-        if (searchName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên phòng để tìm kiếm!");
-            return;
-        }
-        tblPhongChieu.clearSelection();
-        boolean found = false;
-        for (int row = 0; row < model.getRowCount(); row++) {
-            Object idValue = model.getValueAt(row, 1);
-            if (idValue != null && idValue.toString().equals(searchName)) {
-                tblPhongChieu.setRowSelectionInterval(row, row);
-                tblPhongChieu.scrollRectToVisible(new Rectangle(tblPhongChieu.getCellRect(row, 0, true)));
-                found = true;
-            }
+
+    // ================== HÀM HỖ TRỢ ==================
+    private void msg(String s) {
+        thongBao(s, "Thông báo", JOptionPane.INFORMATION_MESSAGE, false);
+    }
+
+    private JTextField tf(int cols) {
+        JTextField t = new JTextField(cols);
+        t.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        return t;
+    }
+
+    private void addRow(JPanel p, GridBagConstraints g, int y, String label, JComponent c) {
+        g.gridx = 0; g.gridy = y; g.weightx = 0.3; p.add(new JLabel(label), g);
+        g.gridx = 1; g.weightx = 0.7; p.add(c, g);
+    }
+
+    private JButton nutDo(String text, java.awt.event.ActionListener a) {
+        JButton b = new JButton(text);
+        b.setBackground(MAU_DO); b.setForeground(TRANG);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setPreferredSize(new Dimension(130, 45));
+        b.setFocusPainted(false); b.setOpaque(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
+        b.addActionListener(a);
+        return b;
+    }
+
+    private JButton nutDoXam(String text, java.awt.event.ActionListener a) {
+        JButton b = new JButton(text);
+        b.setBackground(new Color(108, 117, 125)); b.setForeground(TRANG);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setPreferredSize(new Dimension(110, 40));
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(130, 140, 150)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(new Color(108, 117, 125)); }
+        });
+        b.addActionListener(a);
+        return b;
+    }
+
+    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
+
+        JOptionPane optionPane;
+        if (!coYesNo) {
+            optionPane = new JOptionPane(msg, messageType, JOptionPane.DEFAULT_OPTION, null,
+                                        new Object[]{btnOK}, btnOK);
+        } else {
+            optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
-        if (!found) {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy Phòng Chiếu có tên: " + searchName);
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        if (!coYesNo) {
+            btnOK.addActionListener(e -> dialog.dispose());
+        } else {
+            btnOK.addActionListener(e -> {
+                optionPane.setValue(JOptionPane.YES_OPTION);
+                dialog.dispose();
+            });
+            btnHuy.addActionListener(e -> {
+                optionPane.setValue(JOptionPane.NO_OPTION);
+                dialog.dispose();
+            });
         }
+
+        dialog.setVisible(true);
+
+        Object value = optionPane.getValue();
+        if (value == null) return JOptionPane.CLOSED_OPTION;
+        if (value instanceof Integer) return (Integer) value;
+        return JOptionPane.CLOSED_OPTION;
     }
-    
-    private void styleButton(JButton btn, Color bg) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(bg);
+
+    // Hàm hỗ trợ tạo nút cho dialog
+    private JButton taoNutDialog(String text, int width, int height) {
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(width, height));
+        btn.setMinimumSize(new Dimension(width, height));
+        btn.setMaximumSize(new Dimension(width, height));
+
+        btn.setBackground(MAU_DO);     // đỏ đậm
+        btn.setForeground(TRANG);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(6, 15, 6, 15)); 
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover 
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(200, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(180, 0, 0));
+            }
+        });
+        return btn;
     }
-    
 }

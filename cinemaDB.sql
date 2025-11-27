@@ -244,9 +244,9 @@ INSERT INTO Phim (tenPhim, thoiLuong, theLoai, gioiHanTuoi, ngayKhoiChieu, moTa)
 (N'Deadpool 3', 130, N'Hành động, Hài hước, Siêu anh hùng',  N'C18', '2025-11-22', N'Siêu anh hùng hài hước');
 
 INSERT INTO PhongChieu (tenPhongChieu, soGheNgoi, trangThaiPhong, loaiManHinh, heThongAmThanh) VALUES
-(N'Phòng 1', 120, N'Hoạt động', N'3D', N'Dolby Atmos'),
-(N'Phòng 2',120, N'Hoạt động', N'2D', N'Dolby 7.1'),
-(N'Phòng 3',120, N'Bảo trì', N'IMAX', N'Dolby Atmos');
+(N'Phòng 1', 120, N'Hoạt động', N'3D', N'Dolby Atmos'),
+(N'Phòng 2',120, N'Hoạt động', N'2D', N'Dolby 7.1'),
+(N'Phòng 3',120, N'Bảo trì', N'IMAX', N'Dolby Atmos');
 
 
 DECLARE @maPhong INT;
@@ -280,16 +280,16 @@ GO
 
 INSERT INTO SuatChieu (maPhim, maPhongChieu, ngayGioChieu, giaVeCoBan) VALUES
 (1, 1, '2025-12-03 14:20:00', 120000), -- Avatar 3
-(2, 3, '2025-12-03 16:40:00', 150000), -- Godzilla
+(2, 2, '2025-12-03 16:40:00', 150000), -- Godzilla
 (3, 2, '2025-12-04 19:00:00', 70000),  -- Doraemon
 (1, 1, '2025-12-03 23:30:00', 120000), -- Avatar 3
 (4, 2, '2025-12-04 09:45:00', 110000); -- Deadpool 3
 
 INSERT INTO SanPham (tenSanPham, donGia, moTa) VALUES
-(N'Bắp rang bơ lớn', 65000, N'Bắp rang bơ size L'),
-(N'Bắp rang caramel', 70000, N'Bắp rang caramel ngọt'),
-(N'Nước ngọt Coca 500ml', 25000, N'Nước ngọt có gas'),
-(N'Nước suối', 15000, N'Nước suối tinh khiết');
+(N'Bắp rang bơ lớn', 65000, N'Bắp rang bơ size L'),
+(N'Bắp rang Caramel', 70000, N'Bắp rang caramel ngọt'),
+(N'Pepsi tươi 500ml', 25000, N'Nước ngọt có gas'),
+(N'Nước suối 500ml', 15000, N'Nước suối tinh khiết');
 
 
 -- ========================================

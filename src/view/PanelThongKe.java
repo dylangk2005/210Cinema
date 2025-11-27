@@ -21,7 +21,7 @@ import java.util.Calendar;
 import java.util.List;
 
 // ================= GIAO DIỆN THỐNG KÊ & BÁO CÁO DOANH THU ======================
-public class PanelThongKe extends JPanel {
+public class PanelThongKe extends JPanel implements Refresh {
     // Màu sắc
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
@@ -63,7 +63,12 @@ public class PanelThongKe extends JPanel {
 
         add(tabbedPane, BorderLayout.CENTER);
     }
-
+    
+     @Override
+    public void refreshData(){
+        //
+    }
+    
     // ==================== 1. TAB DOANH THU THEO THỜI GIAN ====================
     private JPanel taoTabDoanhThu() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
@@ -312,6 +317,10 @@ public class PanelThongKe extends JPanel {
         b.setFont(new Font("Segoe UI", Font.BOLD, 16));
         b.setPreferredSize(new Dimension(180, 50));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
         b.setFocusPainted(false);
         return b;
     }

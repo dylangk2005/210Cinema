@@ -13,7 +13,7 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PanelKhachHang extends JPanel {
+public class PanelKhachHang extends JPanel implements Refresh{
 
     // ================== MÀU SẮC CHỦ ĐẠO ==================
     private final Color MAU_DO = new Color(180, 0, 0);
@@ -43,7 +43,11 @@ public class PanelKhachHang extends JPanel {
         taoDuoi();
         loadData();
     }
-
+    
+    @Override
+    public void refreshData(){
+        loadData();
+    }
     // ================== 1. TẠO FORM NHẬP THÔNG TIN KHÁCH HÀNG ==================
     private void taoForm() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -258,7 +262,7 @@ public class PanelKhachHang extends JPanel {
             msg("Vui lòng chọn khách hàng cần xóa!");
             return;
         }
-        int confirm = thongBao("Bạn có chắc chắn muốn xóa khách hàng này?\n" + txtHoTen.getText(),
+        int confirm = thongBao("Bạn có chắc chắn muốn xóa khách hàng này?\n",
                 "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
         if (confirm == JOptionPane.YES_OPTION) {
             if (dao.delete(Integer.parseInt(txtMa.getText()))) {
@@ -332,12 +336,13 @@ public class PanelKhachHang extends JPanel {
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setPreferredSize(new Dimension(120, 40));
         b.setFocusPainted(false); b.setOpaque(true);
+        // hand cursor + hover
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        b.addActionListener(a);
         b.addMouseListener(new java.awt.event.MouseAdapter(){
             public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
             public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
         });
+         b.addActionListener(a);
         return b;
     }
 
@@ -358,9 +363,8 @@ public class PanelKhachHang extends JPanel {
 
     
     private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -368,7 +372,7 @@ public class PanelKhachHang extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -377,11 +381,11 @@ public class PanelKhachHang extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });

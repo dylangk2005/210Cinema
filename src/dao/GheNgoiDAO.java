@@ -48,36 +48,54 @@ public class GheNgoiDAO {
         return bookedSeats;
     }
     
-    
-    public void autoChairsGeneration(Map<Integer, Integer> seatMaps) {
-        Character[] rows = new Character[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
-        String sql = "INSERT INTO GheNgoi (maPhongChieu, hangGhe, soGhe) "
-                + "VALUES (?, ?, ?)";
-        
-        try (Connection con = DBConnection.getConnection()) {
-            con.setAutoCommit(false);
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                for (var entry : seatMaps.entrySet()) {
-                    ps.setInt(1, entry.getKey());
-                    int row = entry.getValue() / 12;
-                    for (int i = 0; i < row; i++) {
-                        ps.setString(2, String.valueOf(rows[i])); 
-                        for (int j = 1; j <= 12; j++) {
-                            ps.setInt(3, j);
-                            ps.addBatch();
-                        }
-                    }
-                }
-                ps.executeBatch();
-                con.commit();
-            } catch (SQLException ex) {
-                con.rollback();
-                throw ex;
-            } 
-        } catch (Exception e) {
-                e.printStackTrace();
+    // xóa ghế theo mã phòng chiếu
+    public void xoaGheTheoPhong(int maPhongChieu) {
+        String sql = "DELETE FROM GheNgoi WHERE maPhongChieu = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, maPhongChieu);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
-   
+    
+    // tự sinh ghế ngồi theo mã phòng chiếu + số ghế
+    public void autoChairsGeneration(int maPhongChieu, int soGheNgoi) {
+        
+        // Xóa ghế cũ trước (nếu có)
+        xoaGheTheoPhong(maPhongChieu);
+
+        char[] rows = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'}; // Tối đa 13 hàng
+        int soCotMacDinh = 12;
+        int soHangDay = soGheNgoi / soCotMacDinh;        // Số hàng đầy đủ 12 ghế
+
+        String sql = "INSERT INTO GheNgoi (maPhongChieu, hangGhe, soGhe) VALUES (?, ?, ?)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            con.setAutoCommit(false);
+
+            int gheDaTao = 0;
+
+            // Tạo các hàng đầy đủ (12 ghế)
+            for (int h = 0; h < soHangDay; h++) {
+                char hang = rows[h];
+                for (int g = 1; g <= soCotMacDinh; g++) {
+                    ps.setInt(1, maPhongChieu);
+                    ps.setString(2, String.valueOf(hang));
+                    ps.setInt(3, g);
+                    ps.addBatch();
+                    gheDaTao++;
+                }
+            }
+            ps.executeBatch();
+            con.commit();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

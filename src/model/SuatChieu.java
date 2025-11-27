@@ -39,7 +39,7 @@ public class SuatChieu {
     public BigDecimal getGiaVeCoBan() { return giaVeCoBan; }
     public void setGiaVeCoBan(BigDecimal giaVeCoBan) { this.giaVeCoBan = giaVeCoBan; }
 
-    // THÊM 2 GETTER/SETTER NÀY
+    // Thêm 2 getter, setter cho hiển thị
     public String getTenPhim() { return tenPhim; }
     public void setTenPhim(String tenPhim) { this.tenPhim = tenPhim; }
     public String getTenPhongChieu() { return tenPhongChieu; }

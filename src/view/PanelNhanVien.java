@@ -16,7 +16,7 @@ import java.util.List;
 
  // ============= UI QUẢN LÝ NHÂN VIÊN ================
 
-public class PanelNhanVien extends JPanel {
+public class PanelNhanVien extends JPanel implements Refresh {
     // Màu sắc chủ đạo
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
@@ -39,6 +39,11 @@ public class PanelNhanVien extends JPanel {
         taoForm();
         taoBang();
         taoDuoi();
+        loadDuLieu();
+    }
+    
+    @Override
+    public void refreshData(){
         loadDuLieu();
     }
     
@@ -215,7 +220,13 @@ public class PanelNhanVien extends JPanel {
         b.setForeground(TRANG);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setFocusPainted(false);
+        // hand cursor + hover
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
+
         b.setPreferredSize(new Dimension(120, 40));
         return b;
     }
@@ -290,10 +301,9 @@ public class PanelNhanVien extends JPanel {
     }
 
     // ==================== 5. DIALOG THÔNG BÁO ==================== 
-    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+   private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -301,7 +311,7 @@ public class PanelNhanVien extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -310,11 +320,11 @@ public class PanelNhanVien extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });
@@ -352,7 +362,7 @@ public class PanelNhanVien extends JPanel {
             }
         });
         return btn;
-}
+    }
 
      // ==================== 6. CÁC CHỨC NĂNG CHÍNH (THÊM/SỬA/XÓA) ==================== 
     private void them() {

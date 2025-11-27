@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import model.*;
 
-public class PanelBanHang extends JPanel {
+public class PanelBanHang extends JPanel implements Refresh {
 
     private JComboBox<Phim> cbPhim;
     private JComboBox<PhongChieu> cbPhong;
@@ -35,6 +35,11 @@ public class PanelBanHang extends JPanel {
         add(createTopPanel(), BorderLayout.NORTH);
         add(createCenterPanel(), BorderLayout.CENTER);
         add(createBottomPanel(), BorderLayout.SOUTH);
+    }
+    
+    @Override
+    public void refreshData(){
+        //
     }
     
     private void initEvents() {
@@ -101,6 +106,13 @@ public class PanelBanHang extends JPanel {
         });
 
         btnChonGhe.addActionListener(e -> {
+             if (maPhimDaChon == -1 || maPhongChieuDaChon == -1 || maSuatChieuDaChon == -1) {
+                JOptionPane.showMessageDialog(this, 
+                    "Vui lòng chọn đầy đủ Phim → Phòng → Suất chiếu trước khi chọn ghế!", 
+                    "Chưa chọn đủ thông tin", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
             PanelChonGhe dialog = new PanelChonGhe(
                 maPhongChieuDaChon,    
                 maSuatChieuDaChon,    
@@ -178,7 +190,7 @@ public class PanelBanHang extends JPanel {
         cbSuatChieu.addItem(null);
         
         // LOAD NOI DUNG VAO COMBOBOX
-        List<Phim> danhSachPhim = new PhimDAO().getAllPhim();
+        List<Phim> danhSachPhim = new PhimDAO().selectAll();
         for (Phim p : danhSachPhim) {
             cbPhim.addItem(p);
         }
@@ -295,7 +307,7 @@ public class PanelBanHang extends JPanel {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.WHITE);
 
-        List<SanPham> products = new SanPhamDAO().getAllSanPham();
+        List<SanPham> products = new SanPhamDAO().getAll();
         
         for (SanPham sp : products) {
             JPanel productPanel = new JPanel(new GridLayout(1, 3, 10, 0));
@@ -531,7 +543,7 @@ public class PanelBanHang extends JPanel {
         return card;
     }
     
-// =============== HAM DINH DANG TIEN VIET =================
+// =============== HAM DINH DANG TIENG VIET =================
     private String formatMoney(BigDecimal amount) {
         if (amount == null) return "0 đ";
         DecimalFormat df = new DecimalFormat("#,###");

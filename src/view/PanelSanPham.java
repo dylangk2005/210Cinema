@@ -12,7 +12,7 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class PanelSanPham extends JPanel {
+public class PanelSanPham extends JPanel implements Refresh {
     
     // ================== MÀU SẮC CHỦ ĐẠO ==================
     private final Color MAU_DO = new Color(180, 0, 0);
@@ -36,6 +36,11 @@ public class PanelSanPham extends JPanel {
         taoForm();
         taoBang();
         taoDuoi();
+        loadData();
+    }
+    
+    @Override
+    public void refreshData(){
         loadData();
     }
     
@@ -280,11 +285,11 @@ public class PanelSanPham extends JPanel {
         b.setFocusPainted(false); b.setOpaque(true);
         //hiện bàn tay khi click + hover
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        b.addActionListener(a);
         b.addMouseListener(new java.awt.event.MouseAdapter(){
             public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
             public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
         });
+        b.addActionListener(a);
         return b;
     }
 
@@ -304,9 +309,8 @@ public class PanelSanPham extends JPanel {
     }
 
     private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -314,7 +318,7 @@ public class PanelSanPham extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -323,11 +327,11 @@ public class PanelSanPham extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });
