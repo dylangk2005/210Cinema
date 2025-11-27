@@ -11,7 +11,8 @@ public class PanelChonGhe extends JDialog {
     private Map<String, Integer> seatCode_maGhe;
     private Set<String> selectedSeats = new LinkedHashSet<>();
     private Set<Integer> bookedSeats = new HashSet<>();
-    private JLabel lbSelected;
+//    private JLabel lbSelected;
+    private JTextArea taSelected;
     private JButton btnConfirm, btnCancel;
 
     // ====== INTERFACE CALLBACK ======
@@ -76,13 +77,27 @@ public class PanelChonGhe extends JDialog {
         legendPanel.add(createLegend(Color.RED, "Ghế đã đặt"));
 
         // ====== PANEL DƯỚI ======
+        taSelected = new JTextArea("Ghế đã chọn: Chưa chọn");
+        taSelected.setFont(new Font("Arial", Font.BOLD, 16));
+        taSelected.setEditable(false);
+        taSelected.setFocusable(false);
+        taSelected.setOpaque(true);
+        taSelected.setBackground(Color.WHITE); 
+        taSelected.setLineWrap(true);
+        taSelected.setWrapStyleWord(true);
+        JScrollPane scrollSelected = new JScrollPane(
+                taSelected,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+
+        scrollSelected.setBorder(null);
+        scrollSelected.setPreferredSize(new Dimension(1100, 55)); 
+        
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 10, 20));
         bottomPanel.setBackground(Color.WHITE);
-
-        lbSelected = new JLabel("Ghế đã chọn: Chưa chọn");
-        lbSelected.setFont(new Font("Arial", Font.BOLD, 16));
-        bottomPanel.add(lbSelected, BorderLayout.WEST);
+        bottomPanel.add(scrollSelected, BorderLayout.WEST);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
         btnPanel.setBackground(Color.WHITE);
@@ -151,9 +166,9 @@ public class PanelChonGhe extends JDialog {
 
     private void updateSelectedLabel() {
         if (selectedSeats.isEmpty()) {
-            lbSelected.setText("Ghế đã chọn: Chưa chọn");
+            taSelected.setText("Ghế đã chọn: Chưa chọn");
         } else {
-            lbSelected.setText("Ghế đã chọn: " + String.join(", ", selectedSeats));
+            taSelected.setText("Ghế đã chọn: " + String.join(", ", selectedSeats));
         }
     }
     

@@ -20,6 +20,7 @@ public class PanelThanhToan extends JPanel {
     private int maKHDaChon, diemTichLuy;
     private String phan_tram_giam;
     private final Color RED = new Color(200, 0, 0);
+    private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 13);
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 13);
     
     private JButton btnIn, btnInHD, btnHuy, btnXacNhan, btnCheck, btnSignup;
@@ -29,11 +30,11 @@ public class PanelThanhToan extends JPanel {
 
       
     public PanelThanhToan(
-            JLabel lbTenPhim,   
-            JLabel lbTenPhong,
-            JLabel lbThoiGianBD,
-            JLabel lbGheDaChon,
-            JLabel lbGiaVe,
+            String lbTenPhim,   
+            String lbTenPhong,
+            String lbThoiGianBD,
+            String lbGheDaChon,
+            String lbGiaVe,
             JPanel listPanelSanPham,
             Set<Integer> listMaGhe,
             int maNhanVien,
@@ -56,11 +57,26 @@ public class PanelThanhToan extends JPanel {
             RED
         ));
         
-        infoVePanel.add(makeLabel("Phim", lbTenPhim.getText()));
-        infoVePanel.add(makeLabel("Phòng", lbTenPhong.getText()));
-        infoVePanel.add(makeLabel("Suất chiếu", lbThoiGianBD.getText())); 
-        infoVePanel.add(makeLabel("Ghế đã chọn", lbGheDaChon.getText()));
-        infoVePanel.add(makeLabel("Giá vé", lbGiaVe.getText()));
+        infoVePanel.add(makeLabel("Phim", lbTenPhim));
+        infoVePanel.add(makeLabel("Phòng", lbTenPhong));
+        infoVePanel.add(makeLabel("Suất chiếu", lbThoiGianBD)); 
+        infoVePanel.add(makeLabel("Giá vé", lbGiaVe));
+        
+        JTextArea taGhe = new JTextArea(lbGheDaChon);
+        taGhe.setEditable(false);
+        taGhe.setFocusable(false);
+        taGhe.setLineWrap(true);
+        taGhe.setWrapStyleWord(true);
+
+        JScrollPane scroll = new JScrollPane(
+            taGhe,
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        scroll.setBorder(null);
+        scroll.setPreferredSize(new Dimension(100, 16));
+
+        infoVePanel.add(makeRow("Ghế đã chọn", scroll));
         
         // Lop trong, tren cung, ben phai
         JPanel spPanelContainer = new JPanel(new BorderLayout());
@@ -84,9 +100,9 @@ public class PanelThanhToan extends JPanel {
 
                 JLabel lb = (JLabel) productPanel.getComponent(0);
                 JLabel dg = (JLabel) productPanel.getComponent(1);          
-                JTextField tf = (JTextField) productPanel.getComponent(2);
+                JSpinner sl = (JSpinner) productPanel.getComponent(2);
 
-                int soLuong = Integer.parseInt(tf.getText().trim());
+                int soLuong = (int) sl.getValue();
                 if (soLuong > 0) {
                     BigDecimal price = parseMoney(dg.getText()).multiply(new BigDecimal(soLuong));
                     tongTienSP = tongTienSP.add(price);
@@ -173,10 +189,10 @@ public class PanelThanhToan extends JPanel {
         panelCenter.add(accountPanel);
         
         soGhe = 0;
-        if (!lbGheDaChon.getText().equals("-")) {
-            soGhe = lbGheDaChon.getText().split(",").length;
+        if (!lbGheDaChon.equals("-")) {
+            soGhe = lbGheDaChon.split(",").length;
         }
-        tienVe = parseMoney(lbGiaVe.getText()).multiply(new BigDecimal(soGhe)); 
+        tienVe = parseMoney(lbGiaVe).multiply(new BigDecimal(soGhe)); 
         total = tongTienSP.add(tienVe);
         
         totalSauGiamGia = total;
@@ -308,14 +324,14 @@ public class PanelThanhToan extends JPanel {
 
         btnIn.addActionListener(e -> {
             try {
-                String[] suat = lbThoiGianBD.getText().split(" ");
-                String ticketInfo = String.format("Ticket: %s | Tax: 0,000 đ", lbGiaVe.getText());
+                String[] suat = lbThoiGianBD.split(" ");
+                String ticketInfo = String.format("Ticket: %s | Tax: 0,000 đ", lbGiaVe);
                 PdfInvoiceGenerator.exportTicketCGVPdf(
-                        lbTenPhim.getText(),
+                        lbTenPhim,
                         suat[1],
                         suat[0],
-                        lbTenPhong.getText(),
-                        lbGheDaChon.getText(),
+                        lbTenPhong,
+                        lbGheDaChon,
                         ticketInfo
                 );
             } catch (Exception Ex) {
@@ -348,8 +364,8 @@ public class PanelThanhToan extends JPanel {
                 List<String[]> items = new ArrayList<>();           
                 int idx = 1;
                 items.add(new String[]{
-                    String.valueOf(idx++), "Vé xem phim (" + lbGheDaChon.getText() + ")", "Vé",
-                    String.valueOf(soGhe), lbGiaVe.getText(), formatMoney(tienVe) 
+                    String.valueOf(idx++), "Vé xem phim (" + lbGheDaChon + ")", "Vé",
+                    String.valueOf(soGhe), lbGiaVe, formatMoney(tienVe) 
                 });
                         
                 for (Component c : listPanelSanPham.getComponents()) {
@@ -357,9 +373,9 @@ public class PanelThanhToan extends JPanel {
 
                         JLabel lb = (JLabel) productPanel.getComponent(0);
                         JLabel dg = (JLabel) productPanel.getComponent(1);          
-                        JTextField tf = (JTextField) productPanel.getComponent(2);
+                        JSpinner sl = (JSpinner) productPanel.getComponent(2);
                         
-                        int soLuong = Integer.parseInt(tf.getText().trim());
+                        int soLuong = (int) sl.getValue();
                         if (soLuong > 0) {
                             String temp = dg.getText();
                             BigDecimal don_gia = parseMoney(temp);
@@ -397,7 +413,7 @@ public class PanelThanhToan extends JPanel {
                 return;
             } 
             try {
-                updateDatabase(listMaGhe, maNhanVien, maSuatChieu, lbGiaVe.getText());
+                updateDatabase(listMaGhe, maNhanVien, maSuatChieu, lbGiaVe);
             } catch (Exception ex) {
                 System.getLogger(PanelThanhToan.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
@@ -492,6 +508,38 @@ public class PanelThanhToan extends JPanel {
         lb.setFont(FONT_VALUE);
         return lb;
     }
+    
+    private JPanel makeRow(String title, JComponent valueComp) {
+        JPanel row = new JPanel(new GridBagLayout());
+        row.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.insets = new Insets(4, 4, 4, 4); // margin các cạnh
+        gbc.anchor = GridBagConstraints.WEST; 
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Tạo tiêu đề
+        JLabel lbTitle = new JLabel(title + ":");
+        lbTitle.setFont(FONT_TITLE);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;    // không giãn
+        row.add(lbTitle, gbc);
+
+        // Component giá trị
+        valueComp.setFont(FONT_VALUE);
+        valueComp.setOpaque(true);
+        valueComp.setBackground(Color.WHITE);
+        valueComp.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0)); //
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;    // component bên phải giãn đầy phần còn lại
+        row.add(valueComp, gbc);
+
+        return row;
+    }
+
     
     private void styleButton(JButton btn, Color bg) {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));

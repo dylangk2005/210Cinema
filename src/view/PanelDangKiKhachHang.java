@@ -1,6 +1,6 @@
 package view;
 
-
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
@@ -15,8 +15,8 @@ public class PanelDangKiKhachHang extends JDialog {
     private JTextField txtEmail;
     private JTextField txtHangThanhVien;
     private JTextField txtDiemTichLuy;
-    private SpinnerDateModel model;
-    private JSpinner spnNgaySinh;
+    private JDateChooser dcNgaySinh;
+    
 
     private JButton btnHuy;
     private JButton btnXacNhan;
@@ -33,32 +33,20 @@ public class PanelDangKiKhachHang extends JDialog {
         setLocationRelativeTo(parent);
         
         btnXacNhan.addActionListener(e -> {
-            String ten = txtTen.getText().trim();
-            String sdt = txtSoDienThoai.getText().trim();
-            String email = txtEmail.getText().trim();
-            String hang = txtHangThanhVien.getText().trim();
-            int diem = Integer.parseInt(txtDiemTichLuy.getText().trim());
-            
-            String gt;
-            if (rdoNam.isSelected()) {
-                gt = "Nam";
-            } else if (rdoNu.isSelected()) {
-                gt = "Nữ";
-            } else {
-                gt = "Khác";
+            KhachHang kh = getKhachHang();
+            if (kh == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin!", 
+                        "Không thể đăng kí", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            
-            Date ns = (Date) spnNgaySinh.getValue();
-            
             try {
-                int maKH = new KhachHangDAO().insertKhachHangAndReturnId( 
-                        new KhachHang(0, ten, ns, gt, sdt, email, hang, diem));
+                int maKH = new KhachHangDAO().insertKhachHangAndReturnId(kh);
                 listener.onSignUpDone(maKH); 
             } catch (Exception ex) {
                 System.getLogger(PanelDangKiKhachHang.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
-            dispose();
             JOptionPane.showMessageDialog(this, "Đăng kí thành công!");
+            dispose();
         });
     }
 
@@ -93,14 +81,13 @@ public class PanelDangKiKhachHang extends JDialog {
         txtHangThanhVien.setText("Sắt"); 
         txtHangThanhVien.setEnabled(false); 
         
-        model = new SpinnerDateModel();
-        spnNgaySinh = new JSpinner(model);
-        spnNgaySinh.setEditor(new JSpinner.DateEditor(spnNgaySinh, "dd/MM/yyyy"));
+        dcNgaySinh = new com.toedter.calendar.JDateChooser("dd/MM/yyyy", "##/##/####", '_'); 
 
         // Radio giới tính
         rdoNam = new JRadioButton("Nam");
         rdoNu = new JRadioButton("Nữ");
         rdoKhac = new JRadioButton("Khác");
+        rdoKhac.setSelected(true); 
 
         ButtonGroup group = new ButtonGroup(); 
         group.add(rdoNam);
@@ -113,7 +100,7 @@ public class PanelDangKiKhachHang extends JDialog {
 
         // ======= Add vào form =======
         addRow(form, gbc, 0, "Tên khách hàng:", txtTen);
-        addRow(form, gbc, 1, "Ngày sinh:", spnNgaySinh);
+        addRow(form, gbc, 1, "Ngày sinh:", dcNgaySinh);
 
         // Giới tính
         gbc.gridx = 0;
@@ -170,6 +157,29 @@ public class PanelDangKiKhachHang extends JDialog {
 
         gbc.gridx = 1;
         panel.add(component, gbc);
+    }
+    
+    private KhachHang getKhachHang() {
+        String ten = txtTen.getText().trim();
+        String sdt = txtSoDienThoai.getText().trim();
+        String email = txtEmail.getText().trim();
+        Date ns = (Date) dcNgaySinh.getDate();
+        
+        if(ten.isEmpty() || sdt.isEmpty() || email.isEmpty() || ns == null) return null;
+        
+        int diem = Integer.parseInt(txtDiemTichLuy.getText().trim());
+        String hang = txtHangThanhVien.getText().trim();
+
+        String gt;
+        if (rdoNam.isSelected()) {
+            gt = "Nam";
+        } else if (rdoNu.isSelected()) {
+            gt = "Nữ";
+        } else {
+            gt = "Khác";
+        }
+
+        return new KhachHang(0, ten, ns, gt, sdt, email, hang, diem); 
     }
 
 }

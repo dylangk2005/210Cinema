@@ -16,9 +16,10 @@ public class PanelBanHang extends JPanel implements Refresh {
     private JComboBox<Phim> cbPhim;
     private JComboBox<PhongChieu> cbPhong;
     private JComboBox<SuatChieu> cbSuatChieu;
-    private JLabel lbTenPhim, lbTenPhong, lbThoiLuong, lbTheLoai, lbThoiGianBD, lbGheDaChon, lbGiaVe;
+    private JLabel lbTenPhim, lbTenPhong, lbThoiLuong, lbTheLoai, lbThoiGianBD, lbGiaVe;
+    private JTextArea taGheDaChon;
     private JPanel listPanel;
-    private JButton btnGioHang, btnXacNhan, btnChonGhe;
+    private JButton btnGioHang, btnXacNhan, btnChonGhe, btnLamMoi;
     private int maPhongChieuDaChon, maPhimDaChon, maSuatChieuDaChon, maNhanVien;
     private Set<Integer> listMaGheDaChon;
 
@@ -39,7 +40,20 @@ public class PanelBanHang extends JPanel implements Refresh {
     
     @Override
     public void refreshData(){
-        //
+        clearForm();
+        cbPhim.removeAllItems();
+        cbPhong.removeAllItems();
+        cbPhim.addItem(null);
+        cbPhong.addItem(null);
+        List<Phim> danhSachPhim = new PhimDAO().selectAll();
+        for (Phim p : danhSachPhim) {
+            cbPhim.addItem(p);
+        }
+        
+        List<PhongChieu> danhSachPhongChieu = new PhongChieuDAO().getAllPhongChieu();
+        for (PhongChieu p : danhSachPhongChieu) {
+            cbPhong.addItem(p);
+        }
     }
     
     private void initEvents() {
@@ -118,7 +132,7 @@ public class PanelBanHang extends JPanel implements Refresh {
                 maSuatChieuDaChon,    
                 (JFrame) SwingUtilities.getWindowAncestor(this),
                 (seats, listMaGhe) -> {
-                    lbGheDaChon.setText(String.join(", ", seats));
+                    taGheDaChon.setText(String.join(", ", seats));
                     this.listMaGheDaChon = listMaGhe;
                 }
             );
@@ -134,11 +148,11 @@ public class PanelBanHang extends JPanel implements Refresh {
             dialog.setLocationRelativeTo(this);
 
             PanelThanhToan panelThanhToan = new PanelThanhToan(
-                    lbTenPhim,
-                    lbTenPhong,
-                    lbThoiGianBD,
-                    lbGheDaChon,
-                    lbGiaVe,
+                    lbTenPhim.getText(),
+                    lbTenPhong.getText(),
+                    lbThoiGianBD.getText(),
+                    taGheDaChon.getText(),
+                    lbGiaVe.getText(),
                     listPanel,
                     listMaGheDaChon,
                     maNhanVien,
@@ -147,11 +161,11 @@ public class PanelBanHang extends JPanel implements Refresh {
 
             dialog.add(panelThanhToan);
             dialog.setVisible(true);
-        });
+        });      
         
         btnGioHang.addActionListener(e -> {
             List<JPanel> listPanelVe = new ArrayList<>();
-            for (String seatcode : lbGheDaChon.getText().split(",")) {
+            for (String seatcode : taGheDaChon.getText().split(",")) {
                 JPanel panel = createVeCard(seatcode);
                 listPanelVe.add(panel);
             }
@@ -159,7 +173,8 @@ public class PanelBanHang extends JPanel implements Refresh {
             PanelGioHang dlg = new PanelGioHang(
                     (JFrame) SwingUtilities.getWindowAncestor(this),
                     listPanelVe,
-                    listPanel);
+                    listPanel,
+                    btnXacNhan);
             dlg.setVisible(true);
         });
     }
@@ -172,10 +187,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         JLabel lbSuat = new JLabel("Suất chiếu:");
         
         // btnChonGhe
-        btnChonGhe = new JButton("CHỌN GHẾ");
-        btnChonGhe.setBackground(new Color(200, 0, 0));
-        btnChonGhe.setForeground(Color.WHITE);
-        btnChonGhe.setFont(new Font("Arial", Font.BOLD, 14));
+        btnChonGhe = makeButton(120, 36, new Color(200, 0, 0), "CHỌN GHẾ");
            
         // COMBOBOX PHIM
         cbPhim = new JComboBox<>();
@@ -318,16 +330,17 @@ public class PanelBanHang extends JPanel implements Refresh {
             JLabel lb = new JLabel(sp.getTenSanPham());
             lb.setFont(new Font("Arial", Font.PLAIN, 14));
             
-            JTextField tf = new JTextField("0");
-            tf.setHorizontalAlignment(JTextField.CENTER);
-            tf.setPreferredSize(new Dimension(10, 10));
+            SpinnerNumberModel model = new SpinnerNumberModel(0, 0, null, 1);
+            JSpinner sl = new JSpinner(model);
+            ((JSpinner.DefaultEditor) sl.getEditor()).getTextField().setHorizontalAlignment(JTextField.CENTER);
+            sl.setPreferredSize(new Dimension(60, 25));
             
             JLabel dg = new JLabel(formatMoney(sp.getDonGia())); 
             dg.setHorizontalAlignment(JLabel.CENTER); 
             dg.setFont(new Font("Arial", Font.PLAIN, 14));
             productPanel.add(lb);
             productPanel.add(dg);
-            productPanel.add(tf);
+            productPanel.add(sl);
             productPanel.putClientProperty("product", sp.getMaSanPham());
             listPanel.add(productPanel);
         }
@@ -385,8 +398,23 @@ public class PanelBanHang extends JPanel implements Refresh {
         JLabel lb6 = new JLabel("Ghế đã chọn:");
         lb6.setFont(labelFont);
         lb6.setForeground(labelColor);
-        lbGheDaChon = new JLabel("-");
-        lbGheDaChon.setFont(valueFont);
+        
+        taGheDaChon = new JTextArea("-");
+        taGheDaChon.setFont(valueFont);
+        taGheDaChon.setEditable(false);
+        taGheDaChon.setFocusable(false);
+        taGheDaChon.setOpaque(true);
+        taGheDaChon.setBackground(Color.WHITE); 
+        taGheDaChon.setLineWrap(true);
+        taGheDaChon.setWrapStyleWord(true);
+        JScrollPane scrollSelected = new JScrollPane(
+                taGheDaChon,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+
+        scrollSelected.setBorder(null);
+        scrollSelected.setPreferredSize(new Dimension(240, 18));
         
         JLabel lb7 = new JLabel("Giá vé:");
         lb7.setFont(labelFont); 
@@ -414,7 +442,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         gbc.gridx = 1; infoPanel.add(lbThoiGianBD, gbc);
 
         gbc.gridx = 0; gbc.gridy = 5; infoPanel.add(lb6, gbc);
-        gbc.gridx = 1; infoPanel.add(lbGheDaChon, gbc);
+        gbc.gridx = 1; infoPanel.add(scrollSelected, gbc);
         
         gbc.gridx = 0; gbc.gridy = 6; infoPanel.add(lb7, gbc);
         gbc.gridx = 1; infoPanel.add(lbGiaVe, gbc);        
@@ -440,50 +468,32 @@ public class PanelBanHang extends JPanel implements Refresh {
  
 // ================== HAM TAO BOTTOM PANEL =================    
     private JPanel createBottomPanel() {
+        btnLamMoi = makeButton(100, 36, Color.DARK_GRAY, "Làm mới");
+        
         // NUT GIO HANG
-        btnGioHang = new JButton("GIỎ HÀNG");
-        
-        ImageIcon logoIcon = loadIcon("/view/icons/cart-shopping.png", 28, 28);
-        if (logoIcon != null) {
-            btnGioHang.setIcon(logoIcon);
-        }
-        
-        btnGioHang.setPreferredSize(new Dimension(120, 36));
-        btnGioHang.setMaximumSize(new Dimension(120, 36));
-        btnGioHang.setMargin(new Insets(0, 2, 0, 2));
-        btnGioHang.setBackground(new Color(200, 0, 0));
-        btnGioHang.setForeground(Color.WHITE);
-        btnGioHang.setFont(new Font("Arial", Font.BOLD, 13));
+        btnGioHang = makeButton(100, 36, new Color(80, 80, 80), "Giỏ hàng");
         
         // NUT XAC NHAN
-        btnXacNhan = new JButton("XÁC NHẬN ĐẶT VÉ");
-        
-        btnXacNhan.setPreferredSize(new Dimension(160, 36));
-        btnXacNhan.setMaximumSize(new Dimension(160, 36));
-        btnXacNhan.setBackground(new Color(200, 0, 0));
-        btnXacNhan.setForeground(Color.WHITE);
-        btnXacNhan.setFont(new Font("Arial", Font.BOLD, 13));
+        btnXacNhan = makeButton(160, 36, new Color(200, 0, 0), "Xác nhận thanh toán");
 
         // BOTTOM PANEL
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.add(btnGioHang);
-        bottomPanel.add(btnXacNhan);
+        JPanel leftBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        leftBottomPanel.setBackground(Color.WHITE);
+        leftBottomPanel.add(btnLamMoi);
+        
+        JPanel rightBottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        rightBottomPanel.setBackground(Color.WHITE);
+        rightBottomPanel.add(btnGioHang);
+        rightBottomPanel.add(btnXacNhan);
+        
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE); 
+        bottomPanel.setPreferredSize(new Dimension(0, 60));
+        bottomPanel.add(leftBottomPanel, BorderLayout.WEST);
+        bottomPanel.add(rightBottomPanel, BorderLayout.EAST);
         
         return bottomPanel;
     }
-// ================= HAM LOAD ICON =======================
-    private ImageIcon loadIcon(String path, int w, int h) {
-        java.net.URL imgURL = getClass().getResource(path);
-        if (imgURL != null) {
-            ImageIcon icon = new ImageIcon(imgURL);
-            Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
-            return new ImageIcon(img);
-        }
-        System.err.println("Icon không tìm thấy: " + path);
-        return null;
-    }
-    
     
 // ========== HAM TAO CAC THE CARD CHO GIO HANG ============
     private JPanel createVeCard(String seatcode) {
@@ -541,6 +551,33 @@ public class PanelBanHang extends JPanel implements Refresh {
 
         card.add(lb_gia);
         return card;
+    }
+    
+// ================ HAM LAM MOI DU LIEU ================
+    private void clearForm() {
+        this.maPhimDaChon = this.maPhongChieuDaChon = this.maSuatChieuDaChon;
+        taGheDaChon.setText("-");
+        cbPhim.setSelectedItem(null); 
+        cbPhong.setSelectedItem(null);
+        
+        for (Component c : listPanel.getComponents()) {
+            if (c instanceof JPanel productPanel) {        
+                JSpinner sl = (JSpinner) productPanel.getComponent(2);
+                sl.setValue(0); 
+            }
+        }       
+    }
+    
+    private JButton makeButton(int w, int h, Color bg, String value) {
+        JButton btn = new JButton(value);
+        btn.setPreferredSize(new Dimension(w, h));
+        btn.setMaximumSize(new Dimension(w, h));
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return btn;
     }
     
 // =============== HAM DINH DANG TIENG VIET =================
