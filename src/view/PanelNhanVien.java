@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
  // ============= UI QUẢN LÝ NHÂN VIÊN ================
@@ -20,6 +21,9 @@ public class PanelNhanVien extends JPanel implements Refresh {
     // Màu sắc chủ đạo
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
+    
+    // đinh dang in ngay
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
     
     // Thành phần UI
     private JTextField txtMaNV, txtHoTen, txtSDT, txtSearch;
@@ -248,10 +252,11 @@ public class PanelNhanVien extends JPanel implements Refresh {
         model.setRowCount(0);
         List<NhanVien> ds = dao.timKiemNangCao(keyword, tieuChi);
         for (NhanVien nv : ds) {
+            String ngaySinhStr = nv.getNgaySinh() != null ? SDF.format(nv.getNgaySinh()) : "Chưa xác định";
             model.addRow(new Object[]{
                 nv.getMaNhanVien(),
                 nv.getHoTenNhanVien(),
-                nv.getNgaySinh() != null ? nv.getNgaySinh().toString() : "",
+                ngaySinhStr,
                 nv.getGioiTinh(),
                 nv.getSoDienThoai(),
                 nv.getMaChucVu() == 2 ? "Quản lý" : "Nhân viên bán vé"
@@ -263,13 +268,20 @@ public class PanelNhanVien extends JPanel implements Refresh {
     private void loadFormTuBang(int row) {
         txtMaNV.setText(model.getValueAt(row, 0).toString());
         txtHoTen.setText(model.getValueAt(row, 1).toString());
-        try {
-            String d = (String) model.getValueAt(row, 2);
-            if (!d.isEmpty()) dateChooser.setDate(Date.valueOf(d));
-        } catch (Exception ignored) {}
+
+        int maNV = (int) model.getValueAt(row, 0);
+        NhanVien nv = dao.getByID(maNV);
+
+        if (nv != null && nv.getNgaySinh() != null) {
+            dateChooser.setDate(nv.getNgaySinh());
+        } else {
+            dateChooser.setDate(null);
+        }
+
         String gt = (String) model.getValueAt(row, 3);
         rdNam.setSelected("Nam".equals(gt));
         rdNu.setSelected("Nữ".equals(gt));
+
         txtSDT.setText(model.getValueAt(row, 4).toString());
         String cv = (String) model.getValueAt(row, 5);
         cbChucVu.setSelectedItem(cv);

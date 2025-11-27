@@ -160,14 +160,6 @@ public class KhachHangDAO {
         return new java.sql.Date(date.getTime());
     }
 
-    // ---------------------- HỖ TRỢ PARSE STRING (nếu cần) ----------------------
-    private java.util.Date parseDate(String s) {
-        try {
-            return sdf.parse(s);
-        } catch (Exception ex) {
-            return null;
-        }
-    }
     public void updateDiemTichLuy(int maKhachHang, int diemTichLuy) throws SQLException {
         String sql = "UPDATE KhachHang SET diemTichLuy = ? WHERE maKhachHang = ?";
 

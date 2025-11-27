@@ -19,7 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.sql.Timestamp;
+import model.Phim;
 import model.PhongChieu;
+import java.sql.Date;
+import java.time.LocalDate;
 
 public class PanelSuatChieu extends JPanel implements Refresh {
     // màu chủ đạo
@@ -41,8 +44,9 @@ public class PanelSuatChieu extends JPanel implements Refresh {
     private Map<String, Integer> mapPhim = new HashMap<>();
     private Map<String, Integer> mapPhong = new HashMap<>();
     
-    // ds giờ chiếu cố định
-    private final String[] GIO_CHIEU = {"09:45", "12:00", "14:20", "16:40", "19:00", "21:20", "23:30"};
+    // ds giờ chiếu cố định : (mỗi sc cách nhau 150')
+    // tg dọn dẹp : 15'
+    private final String[] GIO_CHIEU = {"09:45", "12:15", "14:45", "17:15", "19:45", "22:15", "00:45"};
     
     // constructor
     public PanelSuatChieu() {
@@ -213,7 +217,7 @@ public class PanelSuatChieu extends JPanel implements Refresh {
                 sc.getTenPhim(),
                 sc.getTenPhongChieu(),
                 sdf.format(sc.getNgayGioChieu()),
-                String.format("%,.0f đ", sc.getGiaVeCoBan())
+                String.format("%,.0f VNĐ", sc.getGiaVeCoBan())
             });
         }
     }
@@ -255,6 +259,18 @@ public class PanelSuatChieu extends JPanel implements Refresh {
     // các hàm xử lý dữ liệu
     private void them() {
         if (validateForm()) {
+            SuatChieu temp = getFormData();
+            Phim p = new PhimDAO().selectById(temp.getMaPhim());
+            
+            Date sqlNgayKhoiChieu = p.getNgayKhoiChieu();
+            LocalDate ngayKhoiChieu = sqlNgayKhoiChieu.toLocalDate();
+            Timestamp ts = temp.getNgayGioChieu();
+            LocalDate ngayChieu = ts.toLocalDateTime().toLocalDate();
+            
+            if (ngayChieu.isBefore(ngayKhoiChieu)){
+                thongBao("Không thể thêm, lỗi ngày chiếu!", "Lỗi", JOptionPane.ERROR_MESSAGE, false);
+                return;
+            }
             if (dao.insert(getFormData())) {
                 thongBao("Thêm suất chiếu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
                 loadData();

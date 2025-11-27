@@ -111,7 +111,7 @@ public class PanelThongKe extends JPanel implements Refresh {
             cbThangTu.addItem(mm); cbThangDen.addItem(mm);
         }
         int namHienTai = Calendar.getInstance().get(Calendar.YEAR);
-        for (int y = namHienTai - 10; y <= namHienTai + 5; y++) {
+        for (int y = namHienTai - 10; y <= namHienTai + 10; y++) {
             String year = String.valueOf(y);
             cbNamTu.addItem(year); cbNamDen.addItem(year);
         }
@@ -132,7 +132,7 @@ public class PanelThongKe extends JPanel implements Refresh {
         panelNam.add(new JLabel("Từ năm:"));
         cbNamTu2 = new JComboBox<>(); cbNamDen2 = new JComboBox<>();
         
-        for (int y = namHienTai - 20; y <= namHienTai + 5; y++) {
+        for (int y = namHienTai - 10; y <= namHienTai + 10; y++) {
             cbNamTu2.addItem(String.valueOf(y));
             cbNamDen2.addItem(String.valueOf(y));
         }

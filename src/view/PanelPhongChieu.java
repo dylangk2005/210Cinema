@@ -185,7 +185,7 @@ public class PanelPhongChieu extends JPanel implements Refresh {
 
     private void sua() {
         if (txtMa.getText().isEmpty()) {
-            msg("Vui lòng chọn phòng cần sửa!");
+            msg("Vui lòng chọn phòng cần cập nhật!");
             return;
         }
 

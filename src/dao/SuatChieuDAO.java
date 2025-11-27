@@ -205,8 +205,8 @@ public class SuatChieuDAO {
                 JOIN Phim p ON sc.maPhim = p.maPhim
                 WHERE sc.maPhongChieu = ?
                   AND sc.maSuatChieu != ?
-                  AND sc.ngayGioChieu >= DATEADD(MINUTE, -p.thoiLuong-30, ?)
-                  AND sc.ngayGioChieu <= DATEADD(MINUTE, p.thoiLuong+30, ?)
+                  AND sc.ngayGioChieu >= DATEADD(MINUTE, -p.thoiLuong -15, ?)
+                  AND sc.ngayGioChieu <= DATEADD(MINUTE, p.thoiLuong +15, ?)
                 """;
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
