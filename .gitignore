@@ -1,6 +1,7 @@
 # NetBeans
 nbproject/private/private.xml
 nbproject/private/private.properties
+build/built-jar.properties
 
 # bo .jar, tru jdbc
 *.jar
