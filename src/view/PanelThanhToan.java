@@ -24,13 +24,13 @@ public class PanelThanhToan extends JPanel {
     private final Color RED = new Color(180, 0, 0);
     private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 13);
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 13);
-    
+  
     private JButton btnIn, btnInHD, btnHuy, btnXacNhan, btnCheck, btnSignup;
     private JTextField tfSDT, tfKhachDua;
     private JLabel lbGiamGia, lbTongTien, lbTraLai, lbKH_Ten, lbKH_GT, lbKH_Hang, lbKH_Diem;
     private JRadioButton rbTienMat, rbChuyenKhoan, rbTheTinDung;
 
-      
+    private boolean thanhToanThanhCong;  // đánh dấu thanh toán thành công , không cho in lại lần 2
     public PanelThanhToan(
             String lbTenPhim,   
             String lbTenPhong,
@@ -219,7 +219,7 @@ public class PanelThanhToan extends JPanel {
         totalSauGiamGia = total;
         
         lbTongTien = new JLabel("Tổng tiền: " + formatMoney(total));  
-        lbTongTien.setFont(new Font("Arial", Font.BOLD, 16));
+        lbTongTien.setFont(new Font("SegoeUI", Font.BOLD, 16));
         lbTongTien.setForeground(RED);
         
         // Lop duoi cung, nam tren
@@ -393,7 +393,7 @@ public class PanelThanhToan extends JPanel {
             } catch (Exception Ex) {
                     Ex.printStackTrace();
             }
-            msg("In vé thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            msg("In vé thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         });
         
         btnInHD.addActionListener(e -> {
@@ -423,25 +423,31 @@ public class PanelThanhToan extends JPanel {
                 };
                 List<String[]> items = new ArrayList<>();           
                 int idx = 1;
-                items.add(new String[]{
-                    String.valueOf(idx++), "Vé xem phim", "Vé",
-                    String.valueOf(soGhe), lbGiaVe, formatMoney(tienVe) 
-                });
-                        
+                // số ghế > 0 : thêm trường vé
+                if (soGhe > 0) {
+                    items.add(new String[]{
+                        String.valueOf(idx++), 
+                        "Vé xem phim", 
+                        "Vé",
+                        String.valueOf(soGhe), 
+                        lbGiaVe, 
+                        formatMoney(tienVe)
+                    });
+                }    
                 for (Component c : listPanelSanPham.getComponents()) {
                     if (c instanceof JPanel productPanel) {
+                        JLabel lb = (JLabel) productPanel.getComponent(0);   // tên sản phẩm
+                        JLabel dg = (JLabel) productPanel.getComponent(1);       // đơn giá
+                        JSpinner sl = (JSpinner) productPanel.getComponent(2); // số lượng
 
-                        JLabel lb = (JLabel) productPanel.getComponent(0);
-                        JLabel dg = (JLabel) productPanel.getComponent(1);          
-                        JSpinner sl = (JSpinner) productPanel.getComponent(2);
-                        
                         int soLuong = (int) sl.getValue();
                         if (soLuong > 0) {
                             String temp = dg.getText();
                             BigDecimal don_gia = parseMoney(temp);
-                            BigDecimal thanh_tien = don_gia.multiply(new BigDecimal(soLuong)); 
+                            BigDecimal thanh_tien = don_gia.multiply(new BigDecimal(soLuong));
+
                             items.add(new String[]{
-                                String.valueOf(idx++), 
+                                String.valueOf(idx++),
                                 lb.getText(),
                                 "SP",
                                 String.valueOf(soLuong),
@@ -456,7 +462,7 @@ public class PanelThanhToan extends JPanel {
             } catch (Exception Ex) {
                 Ex.printStackTrace();
             }
-            msg("In hóa đơn thành công!", "Thành công",  JOptionPane.INFORMATION_MESSAGE);
+            msg("In hóa đơn thành công!", "Thông báo",  JOptionPane.INFORMATION_MESSAGE);
         });
         
         btnHuy.addActionListener(e -> {
@@ -467,6 +473,13 @@ public class PanelThanhToan extends JPanel {
         }); 
         
         btnXacNhan.addActionListener(e -> {
+            
+            if (thanhToanThanhCong) {
+                msg("Hóa đơn này đã được thanh toán rồi!\nKhông thể thanh toán lại.", 
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
             BigDecimal num = parseMoney(lbTraLai.getText());
             if(num.compareTo(BigDecimal.ZERO) < 0) {
                msg("Không thể thanh toán! Vui lòng thanh toán đủ tiền!", "Lỗi",  JOptionPane.ERROR_MESSAGE);
@@ -477,8 +490,9 @@ public class PanelThanhToan extends JPanel {
             } catch (Exception ex) {
                 System.getLogger(PanelThanhToan.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
-            msg("Thành công", "Thanh toán thành công!", JOptionPane.INFORMATION_MESSAGE);
+            msg("Thanh toán thành công", "Thông báo!", JOptionPane.INFORMATION_MESSAGE);
             this.da_thanh_toan = true;
+            thanhToanThanhCong = true;
         });
         // check SDT nhap vao, ap giam gia va cap nhat tich luy
         btnCheck.addActionListener(e -> {
@@ -630,14 +644,11 @@ public class PanelThanhToan extends JPanel {
 //        int diem_tl = 1400;
         new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, this.diemTichLuy); 
 //        new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, diem_tl); 
-      
-        BigDecimal giaVe;
+     
         Set<Integer> listMaVe = new HashSet<>();
-        if(soGhe != 0) {
-            giaVe = tienVe.divide(new BigDecimal(soGhe));
-            listMaVe = new VeDAO().insertVe(maHoaDon, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
+        if (listMaGhe != null){
+            listMaVe = new VeDAO().insertVe(maSuatChieu, listMaGhe);
         }
-        
         for (ChiTietHoaDon ct : ctlists) {
             BigDecimal don_gia_luc_ban = ct.getDonGiaLucBan();
             BigDecimal tien_giam = don_gia_luc_ban.multiply(new BigDecimal(phan_tram_giam));

@@ -181,6 +181,7 @@ public class PanelBanHang extends JPanel implements Refresh {
 
             dialog.add(panelThanhToan);
             dialog.setVisible(true);
+            clearForm();
         });      
         
         btnGioHang.addActionListener(e -> {
@@ -662,12 +663,6 @@ public class PanelBanHang extends JPanel implements Refresh {
         return df.format(amount) + " đ";
     }
     
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainForm mainForm = new MainForm("Trương Tuấn Tú", "Quản lý", 2);
-            mainForm.setVisible(true);
-        });
-    }  
     // tạo nút dialog
     public void msg(String message, String title, int type) {
         // Tạo nút OK đỏ 

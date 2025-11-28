@@ -156,25 +156,19 @@ CREATE TABLE Ve (
     maVe INT IDENTITY(1,1) PRIMARY KEY,
     maSuatChieu INT,
     maGheNgoi INT,
-    maHoaDon INT NULL,
-    giaVe DECIMAL(10,2),
-    trangThai NVARCHAR(30),
     FOREIGN KEY (maSuatChieu)
         REFERENCES SuatChieu(maSuatChieu)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     FOREIGN KEY (maGheNgoi)
         REFERENCES GheNgoi(maGheNgoi)
-		ON DELETE NO ACTION,
-    FOREIGN KEY (maHoaDon)
-        REFERENCES HoaDon(maHoaDon)
-		ON DELETE CASCADE
+		ON DELETE NO ACTION
 );
 GO
 
 -- 12. Chi tiết đơn hàng
 CREATE TABLE ChiTietHoaDon (
-    maCTDH INT IDENTITY(1,1) PRIMARY KEY,
+    maCTHD INT IDENTITY(1,1) PRIMARY KEY,
     maHoaDon INT,
     maSanPham INT NULL,
     maVe INT NULL,
@@ -219,7 +213,7 @@ CREATE INDEX IX_HoaDon_TGTao ON HoaDon(thoiGianTao);
 CREATE INDEX IX_HoaDon_maNV ON HoaDon(maNhanVien);
 
 CREATE INDEX IX_Ve_maSuatChieu ON Ve(maSuatChieu);
-CREATE INDEX IX_Ve_trangThaiVe On VE(trangThai);
+
 
 CREATE INDEX IX_CTHoaDon_maHoaDon ON ChiTietHoaDon(maHoaDon);
 CREATE INDEX IX_CTHoaDon_maVe ON ChiTietHoaDon(maVe);
