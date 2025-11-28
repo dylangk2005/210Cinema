@@ -1,5 +1,7 @@
 package model;
 
+import java.sql.Date;
+
 public class Phim {
     private int maPhim;
     private String tenPhim;
@@ -10,6 +12,16 @@ public class Phim {
     private String moTa;
 
     public Phim() {}
+
+    public Phim(int maPhim, String tenPhim, int thoiLuong, String theLoai, String gioiHanTuoi, Date ngayKhoiChieu, String moTa) {
+        this.maPhim = maPhim;
+        this.tenPhim = tenPhim;
+        this.thoiLuong = thoiLuong;
+        this.theLoai = theLoai;
+        this.gioiHanTuoi = gioiHanTuoi;
+        this.ngayKhoiChieu = ngayKhoiChieu;
+        this.moTa = moTa;
+    }
 
     // Getters and Setters
     public int getMaPhim() { return maPhim; }
@@ -32,5 +44,9 @@ public class Phim {
 
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
-
+    
+    @Override
+    public String toString() {
+        return maPhim + " - " + tenPhim;
+    }
 }

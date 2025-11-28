@@ -2,23 +2,32 @@ package model;
 
 import java.math.BigDecimal;
 
-public class ChiTietDonHang {
-    private int maCTDH;
-    private int maDonHang;
+public class ChiTietHoaDon {
+    private int maCTHD;
+    private int maHoaDon;
     private Integer maSanPham;
     private Integer maVe;
     private int soLuong;
     private BigDecimal donGiaLucBan;
     private BigDecimal thanhTien;
 
-    public ChiTietDonHang() {}
+    public ChiTietHoaDon() {}
+
+    public ChiTietHoaDon(int maDonHang, Integer maSanPham, Integer maVe, int soLuong, BigDecimal donGiaLucBan, BigDecimal thanhTien) {
+        this.maHoaDon = maDonHang;
+        this.maSanPham = maSanPham;
+        this.maVe = maVe;
+        this.soLuong = soLuong;
+        this.donGiaLucBan = donGiaLucBan;
+        this.thanhTien = thanhTien;
+    }
 
     // Getters and Setters
-    public int getMaCTDH() { return maCTDH; }
-    public void setMaCTDH(int maCTDH) { this.maCTDH = maCTDH; }
+    public int getMaCTHD() { return maCTHD; }
+    public void setMaCTHD(int maCTHD) { this.maCTHD = maCTHD; }
 
-    public int getMaDonHang() { return maDonHang; }
-    public void setMaDonHang(int maDonHang) { this.maDonHang = maDonHang; }
+    public int getMaHoaDon() { return maHoaDon; }
+    public void setMaHoaDon(int maHoaDon) { this.maHoaDon = maHoaDon; }
 
     public Integer getMaSanPham() { return maSanPham; }
     public void setMaSanPham(Integer maSanPham) { this.maSanPham = maSanPham; }

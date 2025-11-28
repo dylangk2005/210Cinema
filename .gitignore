@@ -1,11 +1,17 @@
 # NetBeans
 nbproject/private/private.xml
 nbproject/private/private.properties
+build/built-jar.properties
 
 # bo .jar, tru jdbc
 *.jar
-!src/lib/mssql-jdbc-13.2.1.jre11.jar
+!src/lib/commons-logging-1.2.jar
+!src/lib/core-3.5.2.jar
+!src/lib/fontbox-2.0.35.jar
+!src/lib/javase-3.5.2.jar
 !src/lib/jcalendar-1.4.jar
+!src/lib/mssql-jdbc-13.2.1.jre11.jar
+!src/lib/pdfbox-2.0.35.jar
 !src/lib/poi-4.0.1.jar
 
 # Java compiled

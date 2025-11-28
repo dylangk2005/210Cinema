@@ -12,14 +12,18 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
  // ============= UI QUẢN LÝ NHÂN VIÊN ================
 
-public class PanelNhanVien extends JPanel {
+public class PanelNhanVien extends JPanel implements Refresh {
     // Màu sắc chủ đạo
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
+    
+    // đinh dang in ngay
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
     
     // Thành phần UI
     private JTextField txtMaNV, txtHoTen, txtSDT, txtSearch;
@@ -39,6 +43,11 @@ public class PanelNhanVien extends JPanel {
         taoForm();
         taoBang();
         taoDuoi();
+        loadDuLieu();
+    }
+    
+    @Override
+    public void refreshData(){
         loadDuLieu();
     }
     
@@ -215,7 +224,13 @@ public class PanelNhanVien extends JPanel {
         b.setForeground(TRANG);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setFocusPainted(false);
+        // hand cursor + hover
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
+
         b.setPreferredSize(new Dimension(120, 40));
         return b;
     }
@@ -237,10 +252,11 @@ public class PanelNhanVien extends JPanel {
         model.setRowCount(0);
         List<NhanVien> ds = dao.timKiemNangCao(keyword, tieuChi);
         for (NhanVien nv : ds) {
+            String ngaySinhStr = nv.getNgaySinh() != null ? SDF.format(nv.getNgaySinh()) : "Chưa xác định";
             model.addRow(new Object[]{
                 nv.getMaNhanVien(),
                 nv.getHoTenNhanVien(),
-                nv.getNgaySinh() != null ? nv.getNgaySinh().toString() : "",
+                ngaySinhStr,
                 nv.getGioiTinh(),
                 nv.getSoDienThoai(),
                 nv.getMaChucVu() == 2 ? "Quản lý" : "Nhân viên bán vé"
@@ -252,13 +268,20 @@ public class PanelNhanVien extends JPanel {
     private void loadFormTuBang(int row) {
         txtMaNV.setText(model.getValueAt(row, 0).toString());
         txtHoTen.setText(model.getValueAt(row, 1).toString());
-        try {
-            String d = (String) model.getValueAt(row, 2);
-            if (!d.isEmpty()) dateChooser.setDate(Date.valueOf(d));
-        } catch (Exception ignored) {}
+
+        int maNV = (int) model.getValueAt(row, 0);
+        NhanVien nv = dao.getByID(maNV);
+
+        if (nv != null && nv.getNgaySinh() != null) {
+            dateChooser.setDate(nv.getNgaySinh());
+        } else {
+            dateChooser.setDate(null);
+        }
+
         String gt = (String) model.getValueAt(row, 3);
         rdNam.setSelected("Nam".equals(gt));
         rdNu.setSelected("Nữ".equals(gt));
+
         txtSDT.setText(model.getValueAt(row, 4).toString());
         String cv = (String) model.getValueAt(row, 5);
         cbChucVu.setSelectedItem(cv);
@@ -290,10 +313,9 @@ public class PanelNhanVien extends JPanel {
     }
 
     // ==================== 5. DIALOG THÔNG BÁO ==================== 
-    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+   private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -301,7 +323,7 @@ public class PanelNhanVien extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -310,11 +332,11 @@ public class PanelNhanVien extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });
@@ -345,14 +367,14 @@ public class PanelNhanVien extends JPanel {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(139, 0, 0));
             }
         });
         return btn;
-}
+    }
 
      // ==================== 6. CÁC CHỨC NĂNG CHÍNH (THÊM/SỬA/XÓA) ==================== 
     private void them() {

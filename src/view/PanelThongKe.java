@@ -21,22 +21,26 @@ import java.util.Calendar;
 import java.util.List;
 
 // ================= GIAO DIỆN THỐNG KÊ & BÁO CÁO DOANH THU ======================
-public class PanelThongKe extends JPanel {
+public class PanelThongKe extends JPanel implements Refresh {
     // Màu sắc
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
     
     // Kết nối + Định dạng
     private final ThongKeDAO dao = new ThongKeDAO();
-    private final DecimalFormat df = new DecimalFormat("###,### VNĐ");
+    private final DecimalFormat df = new DecimalFormat("###,### đ");
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
+    
+    // lưu ngày chọn lịch sử hóa đơn
+    private java.util.Date ngay_lshd = new java.util.Date();
+    
     // Các bảng & model
     private DefaultTableModel modelDoanhThu, modelTopPhim, modelNhanVien, modelSanPham;
     private JTable tableDoanhThu, tableTopPhim, tableNhanVien, tableSanPham;
 
     // control cho tab doanh thu
     private JDateChooser dcTu, dcDen;
+    private JDateChooser dcdoanhThu;
     private JComboBox<String> cbLoaiThoiGian;
     private JComboBox<String> cbThangTu, cbThangDen, cbNamTu, cbNamDen;
     private JComboBox<String> cbNamTu2, cbNamDen2;
@@ -55,16 +59,96 @@ public class PanelThongKe extends JPanel {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 16));
         tabbedPane.setForeground(MAU_DO);
-
+        
+        tabbedPane.addTab("Lịch sử hóa đơn", taoTabLichSuHoaDon());
         tabbedPane.addTab("Doanh thu theo thời gian", taoTabDoanhThu());
         tabbedPane.addTab("Doanh thu nhân viên", taoTabNhanVien());
         tabbedPane.addTab("Top phim ăn khách", taoTabTopPhim());
         tabbedPane.addTab("Top sản phẩm bán chạy", taoTabSanPham());
-
         add(tabbedPane, BorderLayout.CENTER);
     }
+    
+     @Override
+    public void refreshData(){
+        //
+    }
+    
+    
+    // ==================== 1. TAB LỊCH SỬ HÓA ĐƠN  ====================
+   private JPanel taoTabLichSuHoaDon() {
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+        p.setBackground(TRANG);
 
-    // ==================== 1. TAB DOANH THU THEO THỜI GIAN ====================
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setBackground(TRANG);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 10, 5,  10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JPanel panelNgay = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        panelNgay.setBackground(TRANG);
+        panelNgay.add(new JLabel("Ngày:"));
+        JDateChooser dcNgay = new JDateChooser();
+        dcNgay.setDateFormatString("dd/MM/yyyy");
+        dcNgay.setPreferredSize(new Dimension(150, 40));
+        dcNgay.setDate(new java.util.Date());
+        panelNgay.add(dcNgay);
+
+        JButton btnXem = nutDo("Xem hóa đơn");
+        JButton btnExcel = nutDo("Xuất Excel");
+
+        gbc.gridx = 2; gbc.gridwidth = 3;
+        topPanel.add(panelNgay, gbc);
+        gbc.gridx = 5; gbc.gridwidth = 1;
+        topPanel.add(btnXem, gbc);
+        gbc.gridx = 6;
+        topPanel.add(btnExcel, gbc);
+
+        DefaultTableModel modelLS = new DefaultTableModel(
+            new String[]{"Mã hóa đơn", "Thành tiền", "Phương thức thanh toán"}, 0
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; }};
+        JTable tableLS = taoBang(modelLS);
+
+        btnXem.addActionListener(e -> {
+            java.util.Date utilDate = dcNgay.getDate();
+            if (utilDate == null) {
+                thongBao("Vui lòng chọn ngày!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // LƯU NGÀY ĐÃ CHỌN (quan trọng!)
+            ngay_lshd = utilDate;
+
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            modelLS.setRowCount(0);
+
+            List<ThongKe> ds = dao.getLichSuHoaDon(sqlDate);
+            for (ThongKe tk : ds) {
+                String pt = tk.getGhiChu();
+                if (pt == null || pt.trim().isEmpty()) pt = "Chưa thanh toán";
+                modelLS.addRow(new Object[]{tk.getTen(), df.format(tk.getDoanhThu()), pt});
+            }
+            if (ds.isEmpty()) {
+                thongBao("Không có hóa đơn nào trong ngày " + sdf.format(utilDate) + "!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        btnExcel.addActionListener(e -> {
+            if (modelLS.getRowCount() == 0) {
+                thongBao("Chưa có dữ liệu để xuất!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            xuatExcel(modelLS, tableLS, "ls_hoadon");
+        });
+
+        btnXem.doClick(); // tự load hôm nay
+
+        p.add(topPanel, BorderLayout.NORTH);
+        p.add(new JScrollPane(tableLS), BorderLayout.CENTER);
+        return p;
+    }
+
+    // ==================== 2. TAB DOANH THU THEO THỜI GIAN ====================
     private JPanel taoTabDoanhThu() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
         p.setBackground(TRANG);
@@ -106,7 +190,7 @@ public class PanelThongKe extends JPanel {
             cbThangTu.addItem(mm); cbThangDen.addItem(mm);
         }
         int namHienTai = Calendar.getInstance().get(Calendar.YEAR);
-        for (int y = namHienTai - 10; y <= namHienTai + 5; y++) {
+        for (int y = namHienTai - 10; y <= namHienTai + 10; y++) {
             String year = String.valueOf(y);
             cbNamTu.addItem(year); cbNamDen.addItem(year);
         }
@@ -127,7 +211,7 @@ public class PanelThongKe extends JPanel {
         panelNam.add(new JLabel("Từ năm:"));
         cbNamTu2 = new JComboBox<>(); cbNamDen2 = new JComboBox<>();
         
-        for (int y = namHienTai - 20; y <= namHienTai + 5; y++) {
+        for (int y = namHienTai - 10; y <= namHienTai + 10; y++) {
             cbNamTu2.addItem(String.valueOf(y));
             cbNamDen2.addItem(String.valueOf(y));
         }
@@ -170,7 +254,7 @@ public class PanelThongKe extends JPanel {
         });
 
         // Bảng hiển thị doanh thu
-        modelDoanhThu = new DefaultTableModel(new String[]{"Thời gian", "Số hóa đơn", "Tổng doanh thu (VNĐ)"}, 0) {
+        modelDoanhThu = new DefaultTableModel(new String[]{"Thời gian", "Số hóa đơn", "Tổng doanh thu (đ)"}, 0) {
            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tableDoanhThu = taoBang(modelDoanhThu);
@@ -197,17 +281,17 @@ public class PanelThongKe extends JPanel {
     }
 
 
-    // ==================== 2. TAB TOP PHIM ====================
+    // ==================== 3. TAB TOP PHIM ====================
     private JPanel taoTabTopPhim() {
         return taoTabCoXepHang(
                 "Top 10 phim ăn khách",
                 "top_phim",
                 dao::getTopPhim,
-                new String[]{"Xếp hạng", "Tên phim", "Số vé bán", "Doanh thu (VNĐ)"}
+                new String[]{"Xếp hạng", "Tên phim", "Số vé bán", "Doanh thu (đ)"}
         );
     }
 
-    // ==================== 3. TAB DOANH THU NHÂN VIÊN ====================
+    // ==================== 4. TAB DOANH THU NHÂN VIÊN ====================
     private JPanel taoTabNhanVien() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
         p.setBackground(TRANG);
@@ -221,7 +305,7 @@ public class PanelThongKe extends JPanel {
         top.add(btnXem); top.add(btnExcel);
 
         modelNhanVien = new DefaultTableModel(new String[]{
-                "Họ tên nhân viên", "Số hóa đơn", "Tổng doanh thu (VNĐ)"
+                "Họ tên nhân viên", "Số hóa đơn", "Tổng doanh thu (đ)"
         }, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -234,17 +318,17 @@ public class PanelThongKe extends JPanel {
         return p;
     }
 
-    // ==================== 4. TAB TOP SẢN PHẨM ====================
+    // ==================== 5. TAB TOP SẢN PHẨM ====================
     private JPanel taoTabSanPham() {
         return taoTabCoXepHang(
                 "Top sản phẩm đồ ăn bán chạy",
                 "top_sanpham",
                 dao::getSanPhamBanChay,
-                new String[]{"Xếp hạng", "Tên sản phẩm", "Số lượng", "Doanh thu (VNĐ)"}
+                new String[]{"Xếp hạng", "Tên sản phẩm", "Số lượng", "Doanh thu (đ)"}
         );
     }
 
-    // ==================== 5. HÀM CHUNG CHO TAB CÓ XẾP HẠNG (TOP PHIM, TOP SP) ====================
+    // ==================== 6. HÀM CHUNG CHO TAB CÓ XẾP HẠNG (TOP PHIM, TOP SP) ====================
     private JPanel taoTabCoXepHang(String tieuDe, String tenFileExcel,
                                    java.util.function.Supplier<List<ThongKe>> supplier,
                                    String[] cols) {
@@ -276,7 +360,7 @@ public class PanelThongKe extends JPanel {
         return p;
     }
 
-    // ==================== 6.LOAD DỮ LIỆU VÀO BẢNG  ====================
+    // ==================== 7.LOAD DỮ LIỆU VÀO BẢNG  ====================
     private void loadData(DefaultTableModel model,
                           java.util.function.Supplier<List<ThongKe>> supplier,
                           boolean coXepHang) {
@@ -312,6 +396,10 @@ public class PanelThongKe extends JPanel {
         b.setFont(new Font("Segoe UI", Font.BOLD, 16));
         b.setPreferredSize(new Dimension(180, 50));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
         b.setFocusPainted(false);
         return b;
     }
@@ -348,7 +436,7 @@ public class PanelThongKe extends JPanel {
             int namDen = Integer.parseInt(cbNamDen.getSelectedItem().toString());
          
             Date sqlTu = Date.valueOf(String.format("%04d-%02d-01", namTu, thangTu));
-            Date sqlDen = Date.valueOf(String.format("%04d-%02d-28", namDen, thangDen)); // approximate end
+            Date sqlDen = Date.valueOf(String.format("%04d-%02d-28", namDen, thangDen)); 
             List<ThongKe> ds = dao.getDoanhThuTheoThoiGian(idx, sqlTu, sqlDen);
             for (ThongKe tk : ds) {
                 modelDoanhThu.addRow(new Object[]{tk.getTen(), tk.getSoLuong(), df.format(tk.getDoanhThu())});
@@ -426,115 +514,115 @@ public class PanelThongKe extends JPanel {
         if (inputKey == null) return "baocao";
         
         String key = inputKey.toLowerCase();
-        if (key.contains("doanhthu_theothoigian") || key.contains("doanhthu")) {
+        if (key.equals("doanhthu_theothoigian")) {
             int idx = cbLoaiThoiGian != null ? cbLoaiThoiGian.getSelectedIndex() : -1;
             if (idx == 0) return "Doanhthu_ngay";
             if (idx == 1) return "Doanhthu_thang";
             if (idx == 2) return "Doanhthu_nam";
             return "Doanhthu";
         }
-        if (key.contains("top10_phim") || key.contains("top_phim")) return "top_phim";
-        if (key.contains("doanhthu_nhanvien") || key.contains("nhanvien")) return "Doanhthu_nhanvien";
-        if (key.contains("top_sanpham") || key.contains("sanpham")) return "top_sanpham";
-        return inputKey.replace(" ", "_");
+        if (key.equals("top_phim")) return "top_phim";
+        if (key.equals("doanhthu_nhanvien")) return "Doanhthu_nhanvien";
+        if (key.equals("top_sanpham")) return "top_sanpham";
+        if (key.equals("ls_hoadon")) return "ls_hoadon";
+        return inputKey;
     }
     
     // Hàm xuất báo cáo ra file excel (.xls)
     private void xuatExcel(DefaultTableModel model, JTable table, String inputKey) {
-    try (Workbook wb = new HSSFWorkbook()) {
-        Sheet sheet = wb.createSheet("Báo cáo");
-        int rowIndex = 0;
+        try (Workbook wb = new HSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("Báo cáo");
+            int rowIndex = 0;
 
-        // tiêu đề
-        CellStyle styleTitle = wb.createCellStyle();
-        org.apache.poi.ss.usermodel.Font fontTitle = wb.createFont();
-        fontTitle.setBold(true);
-        fontTitle.setFontHeightInPoints((short) 13);
-        styleTitle.setFont(fontTitle);
-        styleTitle.setAlignment(HorizontalAlignment.CENTER);
+            CellStyle styleTitle = wb.createCellStyle();
+            org.apache.poi.ss.usermodel.Font fontTitle = wb.createFont();
+            fontTitle.setBold(true); fontTitle.setFontHeightInPoints((short) 12);
+            styleTitle.setFont(fontTitle); styleTitle.setAlignment(HorizontalAlignment.CENTER);
 
-        //thời gian
-        CellStyle styleTime = wb.createCellStyle();
-        org.apache.poi.ss.usermodel.Font fontTime = wb.createFont();
-        fontTime.setBold(false);
-        fontTime.setFontHeightInPoints((short) 12);
-        styleTime.setFont(fontTime);
-        styleTime.setAlignment(HorizontalAlignment.CENTER);
+            CellStyle styleTime = wb.createCellStyle();
+            styleTime.setAlignment(HorizontalAlignment.CENTER);
 
-        // header bảng
-        CellStyle styleHeader = wb.createCellStyle();
-        org.apache.poi.ss.usermodel.Font fontHeader = wb.createFont();
-        fontHeader.setBold(true);
-        styleHeader.setFont(fontHeader);
-        styleHeader.setBorderBottom(BorderStyle.THIN);
-        styleHeader.setBorderTop(BorderStyle.THIN);
-        styleHeader.setBorderLeft(BorderStyle.THIN);
-        styleHeader.setBorderRight(BorderStyle.THIN);
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
+           CellStyle styleHeader = wb.createCellStyle();
+            org.apache.poi.ss.usermodel.Font fontHeader = wb.createFont();
+            fontHeader.setBold(true);
+            fontHeader.setColor(IndexedColors.BLACK.getIndex()); // chữ trắng
+            styleHeader.setFont(fontHeader);
 
-        CellStyle styleCell = wb.createCellStyle();
-        styleCell.setBorderBottom(BorderStyle.THIN);
-        styleCell.setBorderTop(BorderStyle.THIN);
-        styleCell.setBorderLeft(BorderStyle.THIN);
-        styleCell.setBorderRight(BorderStyle.THIN);
+            styleHeader.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+            styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Dòng 1 : Tiêu đề
-        Row rowTitle = sheet.createRow(rowIndex++);
-        Cell cellTitle = rowTitle.createCell(0);
-        String tieuDe = inputKey;
-        
-        if ("DoanhThu_TheoThoiGian".equalsIgnoreCase(inputKey) || inputKey.toLowerCase().contains("doanhthu")) {
-            tieuDe = "210CINEMA - BÁO CÁO DOANH THU";
-        } else if (inputKey.toLowerCase().contains("top") && inputKey.toLowerCase().contains("phim")) {
-            tieuDe = "210CINEMA - TOP PHIM ĂN KHÁCH";
-        } else if (inputKey.toLowerCase().contains("sanpham")) {
-            tieuDe = "210CINEMA - TOP SẢN PHẨM BẢN CHẠY";
-        } else if (inputKey.toLowerCase().contains("nhanvien")) {
-            tieuDe = "210CINEMA - DOANH THU NHÂN VIÊN";
-        }
-        
-        cellTitle.setCellValue(tieuDe);
-        cellTitle.setCellStyle(styleTitle);
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, model.getColumnCount() - 1));
+            styleHeader.setAlignment(HorizontalAlignment.CENTER);
+            styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+            styleHeader.setBorderTop(BorderStyle.THIN);
+            styleHeader.setBorderBottom(BorderStyle.THIN);
+            styleHeader.setBorderLeft(BorderStyle.THIN);
+            styleHeader.setBorderRight(BorderStyle.THIN);
+            
+            CellStyle styleCell = wb.createCellStyle();
+            styleCell.setBorderBottom(BorderStyle.THIN);
+            styleCell.setBorderTop(BorderStyle.THIN);
+            styleCell.setBorderLeft(BorderStyle.THIN);
+            styleCell.setBorderRight(BorderStyle.THIN);
 
-        // Dòng 2: Thời gian
-        Row rowTime = sheet.createRow(rowIndex++);
-        Cell cellTime = rowTime.createCell(0);
-        cellTime.setCellValue("Thời gian: " + (cbLoaiThoiGian != null ? layChuoiThoiGian() : ""));
-        cellTime.setCellStyle(styleTime);
-        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, model.getColumnCount() - 1));
+            // Tiêu đề
+            Row rowTitle = sheet.createRow(rowIndex++);
+            Cell cellTitle = rowTitle.createCell(0);
+            String tieuDe = switch (inputKey.toLowerCase()) {
+                case "doanhthu_theothoigian", "doanhthu" -> "210CINEMA - BÁO CÁO DOANH THU";
+                case "top_phim" -> "210CINEMA - TOP PHIM ĂN KHÁCH";
+                case "top_sanpham" -> "210CINEMA - TOP SẢN PHẨM BÁN CHẠY";
+                case "doanhthu_nhanvien" -> "210CINEMA - DOANH THU NHÂN VIÊN";
+                case "ls_hoadon" -> "210CINEMA - LỊCH SỬ HÓA ĐƠN";
+                default -> "210CINEMA - BÁO CÁO";
+            };
+            cellTitle.setCellValue(tieuDe);
+            cellTitle.setCellStyle(styleTitle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, model.getColumnCount() - 1));
 
-        rowIndex++; // 1 dòng trống
+            // Thời gian
+            Row rowTime = sheet.createRow(rowIndex++);
+            Cell cellTime = rowTime.createCell(0);
+            String thoiGian = "";
 
-        // Header bảng
-        Row rowHeader = sheet.createRow(rowIndex++);
-        for (int col = 0; col < model.getColumnCount(); col++) {
-            Cell cell = rowHeader.createCell(col);
-            cell.setCellValue(model.getColumnName(col));
-            cell.setCellStyle(styleHeader);
-        }
-
-        // Dữ liệu
-        for (int i = 0; i < model.getRowCount(); i++) {
-            Row row = sheet.createRow(rowIndex++);
-            for (int j = 0; j < model.getColumnCount(); j++) {
-                Cell cell = row.createCell(j);
-                Object value = model.getValueAt(i, j);
-                cell.setCellValue(value == null ? "" : value.toString());
-                cell.setCellStyle(styleCell);
+            if (inputKey.toLowerCase().contains("doanhthu")) {
+                thoiGian = "Thời gian: " + layChuoiThoiGian();
+            } else if ("ls_hoadon".equalsIgnoreCase(inputKey)) {
+                thoiGian = "Ngày: " + sdf.format(ngay_lshd);
             }
-        }
 
-        // Tự động giãn cột
-        for (int i = 0; i < model.getColumnCount(); i++) sheet.autoSizeColumn(i);
+            cellTime.setCellValue(thoiGian);
+            cellTime.setCellStyle(styleTime);
+            if (!thoiGian.isEmpty()) {
+                sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, model.getColumnCount() - 1));
+            }
+            rowIndex++;
 
-        // Tên file
-        String fileName = resolveFileName(inputKey) + ".xls";
-        try (FileOutputStream out = new FileOutputStream(fileName)) {
-            wb.write(out);
-        }
+            // Header + Data + Auto size + Save
+            Row rowHeader = sheet.createRow(rowIndex++);
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                Cell c = rowHeader.createCell(i);
+                c.setCellValue(model.getColumnName(i));
+                c.setCellStyle(styleHeader);
+            }
 
-        thongBao("Xuất Excel thành công!\nFile: " + fileName, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Row r = sheet.createRow(rowIndex++);
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    Cell c = r.createCell(j);
+                    Object val = model.getValueAt(i, j);
+                    c.setCellValue(val == null ? "" : val.toString());
+                    c.setCellStyle(styleCell);
+                }
+            }
+
+            for (int i = 0; i < model.getColumnCount(); i++) sheet.autoSizeColumn(i);
+
+            String fileName = "ls_hoadon".equalsIgnoreCase(inputKey) ? "ls_hoadon.xls" : resolveFileName(inputKey) + ".xls";
+            try (FileOutputStream out = new FileOutputStream(fileName)) {
+                wb.write(out);
+            }
+            thongBao("Xuất Excel thành công!\nFile: " + fileName, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (Exception ex) {
             ex.printStackTrace();
             thongBao("Lỗi xuất Excel: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -556,10 +644,10 @@ public class PanelThongKe extends JPanel {
         // hover
         btnDongY.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnDongY.setBackground(new Color(200, 0, 0)); // đỏ sáng khi hover
+                btnDongY.setBackground(new Color(220, 0, 0)); 
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnDongY.setBackground(new Color(139, 0, 0)); // trở lại đỏ đậm
+                btnDongY.setBackground(new Color(139, 0, 0)); 
             }
         });
 

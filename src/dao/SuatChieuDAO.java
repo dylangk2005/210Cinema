@@ -7,6 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SuatChieuDAO {
+    public List<SuatChieu> getSuatChieuByPhimAndPhong(int maPhim, int maPhongChieu) {
+        List<SuatChieu> list = new ArrayList<>();
+        String sql = "SELECT * FROM SuatChieu WHERE maPhim = ? AND maPhongChieu = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, maPhim);
+                ps.setInt(2, maPhongChieu);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    SuatChieu p = new SuatChieu(
+                        rs.getInt("maSuatChieu"),
+                        rs.getInt("maPhim"),
+                        rs.getInt("maPhongChieu"),
+                        rs.getTimestamp("ngayGioChieu"),
+                        rs.getBigDecimal("giaVeCoBan")
+                    );
+                    list.add(p);
+                }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
     
     // chuyển dòng thành đối tg sc
     private SuatChieu mapRow(ResultSet rs) throws SQLException {
@@ -82,8 +106,10 @@ public class SuatChieuDAO {
     }
     
     // cập nhật sc
-    public boolean update(SuatChieu sc) {
-        if (hasConflict(sc, sc.getMaSuatChieu())) return false;
+    // 2: có vé đã bán, 1 bị trùng suất chiếu, -1: k co anh huong, -2: lỗi, 0: chay ok
+    public int update(SuatChieu sc) {
+        if (hasConflict(sc, sc.getMaSuatChieu())) return 1;
+        if (new VeDAO().hasTicketsSold(sc.getMaSuatChieu())) return 2;
         String sql = "UPDATE SuatChieu SET maPhim = ?, maPhongChieu = ?, ngayGioChieu = ?, giaVeCoBan = ? WHERE maSuatChieu = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -92,16 +118,17 @@ public class SuatChieuDAO {
             ps.setTimestamp(3, new Timestamp(sc.getNgayGioChieu().getTime()));
             ps.setBigDecimal(4, sc.getGiaVeCoBan());
             ps.setInt(5, sc.getMaSuatChieu());
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return -2;
         }
+        return 0;
     }
     
     // xóa sc (k cho xóa nếu có vé đặt r)
     public boolean delete(int maSuatChieu) {
-        if (hasTicketsSold(maSuatChieu)) return false;
+        if (new VeDAO().hasTicketsSold(maSuatChieu)) return false;
         String sql = "DELETE FROM SuatChieu WHERE maSuatChieu = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -178,8 +205,8 @@ public class SuatChieuDAO {
                 JOIN Phim p ON sc.maPhim = p.maPhim
                 WHERE sc.maPhongChieu = ?
                   AND sc.maSuatChieu != ?
-                  AND sc.ngayGioChieu >= DATEADD(MINUTE, -p.thoiLuong-30, ?)
-                  AND sc.ngayGioChieu <= DATEADD(MINUTE, p.thoiLuong+30, ?)
+                  AND sc.ngayGioChieu >= DATEADD(MINUTE, -p.thoiLuong -15, ?)
+                  AND sc.ngayGioChieu <= DATEADD(MINUTE, p.thoiLuong +15, ?)
                 """;
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -195,18 +222,36 @@ public class SuatChieuDAO {
         }
         return false;
     }
+   
     
-    // kiếm tra vé đã bán chưa
-    private boolean hasTicketsSold(int maSuatChieu) {
-        String sql = "SELECT COUNT(*) FROM Ve WHERE maSuatChieu = ? AND trangThai = N'Đã đặt'";
+    // Kiểm tra xem phim đã có suất chiếu chưa
+    public boolean daCoSuatChieu(int maPhim) {
+        String sql = "SELECT COUNT(*) FROM SuatChieu WHERE MaPhim = ?";
+        try (var conn = DBConnection.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, maPhim);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // nếu đếm được >= 1 suất chiếu → true
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+     // kiểm tra xem phòng đã có suất chiếu hay chưa
+    public boolean hasShowTimes(int maPhong) {
+        String sql = "SELECT COUNT(*) FROM SuatChieu WHERE maPhongChieu = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, maSuatChieu);
+            ps.setInt(1, maPhong);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            return false;
+            e.printStackTrace();
         }
         return false;
     }

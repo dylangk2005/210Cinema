@@ -1,11 +1,10 @@
 package dao;
 
-import model.Phim;
-import util.DBConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Phim;
+import util.DBConnection;
 
 public class PhimDAO {
     
@@ -59,11 +58,13 @@ public class PhimDAO {
             ps.setDate(5, p.getNgayKhoiChieu());
             ps.setString(6, p.getMoTa());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
+        } catch (SQLException e) { 
+            e.printStackTrace(); return false; }
     }
     
     // Cập nhật tt phim
     public boolean update(Phim p) {
+        if (new SuatChieuDAO().daCoSuatChieu(p.getMaPhim())) return false;
         String sql = "UPDATE Phim SET tenPhim = ?, thoiLuong = ?, theLoai = ?, gioiHanTuoi = ?, ngayKhoiChieu = ?, moTa = ? WHERE maPhim = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -80,6 +81,7 @@ public class PhimDAO {
     
     // Delete Phim
     public boolean delete(int maPhim) {
+        if (new SuatChieuDAO().daCoSuatChieu(maPhim)) return false;
         String sql = "DELETE FROM Phim WHERE maPhim = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -138,22 +140,5 @@ public class PhimDAO {
             e.printStackTrace();
         }
         return list;
-    }
-    
-    // Kiểm tra xem phim đã có suất chiếu chưa
-    public boolean daCoSuatChieu(int maPhim) {
-        String sql = "SELECT COUNT(*) FROM SuatChieu WHERE MaPhim = ?";
-        try (var conn = DBConnection.getConnection();
-             var ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, maPhim);
-            var rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0; // nếu đếm được >= 1 suất chiếu → true
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }

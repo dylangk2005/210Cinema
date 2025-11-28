@@ -1,6 +1,7 @@
 package view;
 
 import dao.PhimDAO;
+import dao.PhongChieuDAO;
 import dao.SuatChieuDAO;
 import model.SuatChieu;
 
@@ -14,12 +15,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.Timestamp;
+import model.Phim;
+import model.PhongChieu;
+import java.sql.Date;
+import java.time.LocalDate;
 
-public class PanelSuatChieu extends JPanel {
+public class PanelSuatChieu extends JPanel implements Refresh {
     // màu chủ đạo
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
@@ -39,8 +44,9 @@ public class PanelSuatChieu extends JPanel {
     private Map<String, Integer> mapPhim = new HashMap<>();
     private Map<String, Integer> mapPhong = new HashMap<>();
     
-    // ds giờ chiếu cố định
-    private final String[] GIO_CHIEU = {"09:45", "12:00", "14:20", "16:40", "19:00", "21:20", "23:30"};
+    // ds giờ chiếu cố định : (mỗi sc cách nhau 150')
+    // tg dọn dẹp : 15'
+    private final String[] GIO_CHIEU = {"09:45", "12:15", "14:45", "17:15", "19:45", "22:15", "00:45"};
     
     // constructor
     public PanelSuatChieu() {
@@ -55,6 +61,10 @@ public class PanelSuatChieu extends JPanel {
         loadData(); 
     }
     
+    public void refreshData(){
+        loadComboData();
+        loadData();
+    }
     // tạo form nhập thông tin sc
     private void taoForm() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -172,16 +182,27 @@ public class PanelSuatChieu extends JPanel {
     }
 
     private void loadComboData() {
-        cbPhim.removeAllItems(); mapPhim.clear(); cbPhim.addItem("--- Chọn phim ---");
-        List<model.Phim> ds = phimDAO.selectAll();
-        for (model.Phim p : ds) {
+        // === LOAD PHIM ===
+        cbPhim.removeAllItems();
+        mapPhim.clear();
+        cbPhim.addItem("--- Chọn phim ---");
+        List<model.Phim> dsPhim = phimDAO.selectAll();
+        for (model.Phim p : dsPhim) {
             String item = p.getMaPhim() + " - " + p.getTenPhim();
-            cbPhim.addItem(item); mapPhim.put(item, p.getMaPhim());
+            cbPhim.addItem(item);
+            mapPhim.put(item, p.getMaPhim());
         }
+
+        // === LOAD PHÒNG CHIẾU TỪ DATABASE (QUAN TRỌNG!) ===
         cbPhong.removeAllItems();
-        for (int i = 1; i <= 3; i++) {
-            String item = i + " - Phòng " + i;
-            cbPhong.addItem(item); mapPhong.put(item, i);
+        mapPhong.clear();
+        cbPhong.addItem("--- Chọn phòng ---");
+
+        List<PhongChieu> dsPhong = new PhongChieuDAO().getAllPhongChieuHD();
+        for (PhongChieu pc : dsPhong) {
+            String item = pc.getMaPhongChieu() + " - " + pc.getTenPhongChieu();
+            cbPhong.addItem(item);
+            mapPhong.put(item, pc.getMaPhongChieu());
         }
     }
     
@@ -238,6 +259,18 @@ public class PanelSuatChieu extends JPanel {
     // các hàm xử lý dữ liệu
     private void them() {
         if (validateForm()) {
+            SuatChieu temp = getFormData();
+            Phim p = new PhimDAO().selectById(temp.getMaPhim());
+            
+            Date sqlNgayKhoiChieu = p.getNgayKhoiChieu();
+            LocalDate ngayKhoiChieu = sqlNgayKhoiChieu.toLocalDate();
+            Timestamp ts = temp.getNgayGioChieu();
+            LocalDate ngayChieu = ts.toLocalDateTime().toLocalDate();
+            
+            if (ngayChieu.isBefore(ngayKhoiChieu)){
+                thongBao("Không thể thêm, lỗi ngày chiếu!", "Lỗi", JOptionPane.ERROR_MESSAGE, false);
+                return;
+            }
             if (dao.insert(getFormData())) {
                 thongBao("Thêm suất chiếu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
                 loadData();
@@ -256,12 +289,16 @@ public class PanelSuatChieu extends JPanel {
         if (validateForm()) {
             SuatChieu sc = getFormData();
             sc.setMaSuatChieu(Integer.parseInt(txtMa.getText()));
-            if (dao.update(sc)) {
+            int idx = dao.update(sc);
+            if (idx == 0) {
                 thongBao("Cập nhật suất chiếu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
                 loadData();
                 clearForm();
-            } else {
+            } else if (idx == 1){
                 thongBao("Không thể cập nhật! Trùng suất chiếu trong phòng.", "Lỗi", JOptionPane.ERROR_MESSAGE, false);
+            } 
+            else if (idx == 2){
+                 thongBao("Không thể cập nhật! Vé của suất chiếu đã được bán.", "Lỗi", JOptionPane.ERROR_MESSAGE, false);
             }
         }
     }
@@ -273,7 +310,7 @@ public class PanelSuatChieu extends JPanel {
         }
 
         int maSuat = Integer.parseInt(txtMa.getText());
-        int confirm = thongBao("Bạn có chắc muốn xóa suất chiếu này?", "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
+        int confirm = thongBao("Bạn có chắc muốn xóa suất chiếu này?", "Xác nhận", JOptionPane.QUESTION_MESSAGE, true);
         if (confirm == JOptionPane.YES_OPTION) {
             if (dao.delete(maSuat)) {
                 thongBao("Xóa suất chiếu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
@@ -293,16 +330,19 @@ public class PanelSuatChieu extends JPanel {
     
     // lấy dữ liệu từ form
     private SuatChieu getFormData() {
-        SuatChieu sc = new SuatChieu();
-        sc.setMaPhim(mapPhim.get(cbPhim.getSelectedItem()));
-        sc.setMaPhongChieu(mapPhong.get(cbPhong.getSelectedItem()));
-        Calendar c = Calendar.getInstance(); c.setTime(dcNgay.getDate());
-        String[] t = ((String) cbGio.getSelectedItem()).split(":");
-        c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(t[0])); c.set(Calendar.MINUTE, Integer.parseInt(t[1]));
-        sc.setNgayGioChieu(c.getTime());
-        sc.setGiaVeCoBan(new BigDecimal(txtGiaVe.getText().trim()));
-        return sc;
-    }
+    SuatChieu sc = new SuatChieu();
+    sc.setMaPhim(mapPhim.get(cbPhim.getSelectedItem()));
+    sc.setMaPhongChieu(mapPhong.get(cbPhong.getSelectedItem()));
+
+    String ngay = new SimpleDateFormat("yyyy-MM-dd").format(dcNgay.getDate());
+    String gio = (String) cbGio.getSelectedItem();
+    String dateTime = ngay + " " + gio + ":00";
+
+    sc.setNgayGioChieu(Timestamp.valueOf(dateTime));
+    sc.setGiaVeCoBan(new BigDecimal(txtGiaVe.getText().trim().replace(",", "")));
+
+    return sc;
+}
     
     // kiếm tra dữ liệu nhập 
     private boolean validateForm() {
@@ -333,6 +373,14 @@ public class PanelSuatChieu extends JPanel {
         b.setBackground(MAU_DO); b.setForeground(TRANG); b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setPreferredSize(new Dimension(120, 40)); b.setFocusPainted(false); b.setOpaque(true);
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                b.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                b.setBackground(new Color(180, 0, 0));
+            }
+        });
         b.addActionListener(a);
         return b;
     }
@@ -342,6 +390,7 @@ public class PanelSuatChieu extends JPanel {
         b.setBackground(new Color(108, 117, 125)); b.setForeground(TRANG);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setPreferredSize(new Dimension(100, 32)); b.setFocusPainted(false); b.setOpaque(true);
+        // hand + hover
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         b.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(130, 140, 150)); }
@@ -350,10 +399,9 @@ public class PanelSuatChieu extends JPanel {
         b.addActionListener(a);
         return b;
     }
-     private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -361,7 +409,7 @@ public class PanelSuatChieu extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -370,11 +418,11 @@ public class PanelSuatChieu extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });
@@ -405,7 +453,7 @@ public class PanelSuatChieu extends JPanel {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

@@ -48,7 +48,7 @@ public class Login extends JFrame {
 
         // Chữ 210CINEMA
         JLabel lbLogo = new JLabel("210CINEMA");
-        lbLogo.setFont(new Font("Arial", Font.BOLD, 30));
+        lbLogo.setFont(new Font("SegoeUI", Font.BOLD, 30));
         lbLogo.setForeground(Color.WHITE);
         logoContainer.add(lbLogo);
 
@@ -65,7 +65,7 @@ public class Login extends JFrame {
 
         // Tiêu đề
         JLabel lbTitle = new JLabel("ĐĂNG NHẬP HỆ THỐNG", SwingConstants.CENTER);
-        lbTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        lbTitle.setFont(new Font("SegoeUI", Font.BOLD, 24));
         lbTitle.setForeground(new Color(139, 0, 0));
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         right.add(lbTitle, gbc);
@@ -77,7 +77,7 @@ public class Login extends JFrame {
 
         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
         txtUser = new JTextField(18);
-        txtUser.setFont(new Font("Arial", Font.PLAIN, 16));
+        txtUser.setFont(new Font("SegoeUI", Font.PLAIN, 16));
         right.add(txtUser, gbc);
 
         // Pass
@@ -87,18 +87,26 @@ public class Login extends JFrame {
 
         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
         txtPass = new JPasswordField(18);
-        txtPass.setFont(new Font("Arial", Font.PLAIN, 16));
+        txtPass.setFont(new Font("SegoeUI", Font.PLAIN, 16));
         right.add(txtPass, gbc);
 
         // Button
         gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         JButton btnLogin = new JButton("ĐĂNG NHẬP");
-        btnLogin.setFont(new Font("Arial", Font.BOLD, 16));
-        btnLogin.setBackground(new Color(139, 0, 0));
+        btnLogin.setFont(new Font("SegoeUI", Font.BOLD, 16));
+        btnLogin.setBackground(new Color(180, 0, 0));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFocusPainted(false);
         btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnLogin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnLogin.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnLogin.setBackground(new Color(180, 0, 0));
+            }
+        });
         right.add(btnLogin, gbc);
 
         // === SỰ KIỆN ===
@@ -147,12 +155,12 @@ public class Login extends JFrame {
 
         // Mở MainFrom
         SwingUtilities.invokeLater(() -> {
-            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu());
+            MainForm mainForm = new MainForm(nv.getHoTenNhanVien(), cv.getTenChucVu(), tk.getMaNhanVien());
             mainForm.setVisible(true);
         });
     }
     
-        private ImageIcon loadIcon(String path, int w, int h) {
+    private ImageIcon loadIcon(String path, int w, int h) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);
@@ -166,21 +174,21 @@ public class Login extends JFrame {
     private void thongBao(String msg, String title, int type) {
         // Tạo nút OK 
         JButton btnOK = new JButton("OK");
-        btnOK.setBackground(new Color(139, 0, 0));
+        btnOK.setBackground(new Color(180, 0, 0));
         btnOK.setForeground(Color.WHITE);
         btnOK.setFont(new Font("SegoeUI", Font.BOLD, 15));
         btnOK.setFocusPainted(false);
         btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnOK.setPreferredSize(new Dimension(110, 30));
+        btnOK.setPreferredSize(new Dimension(90, 30));
         btnOK.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         
         // Hover 
         btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnOK.setBackground(new Color(200, 0, 0));
+                btnOK.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnOK.setBackground(new Color(139, 0, 0));
+                btnOK.setBackground(new Color(180, 0, 0));
             }
         });
 

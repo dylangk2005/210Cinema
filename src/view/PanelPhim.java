@@ -1,6 +1,7 @@
 package view;
 
 import dao.PhimDAO;
+import dao.SuatChieuDAO;
 import model.Phim;
 
 import javax.swing.*;
@@ -15,7 +16,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PanelPhim extends JPanel {
+public class PanelPhim extends JPanel implements Refresh {
     // màu chủ đạo
     private final Color MAU_DO = new Color(180, 0, 0);
     private final Color TRANG = Color.WHITE;
@@ -44,6 +45,11 @@ public class PanelPhim extends JPanel {
         loadData(); // load dữ liệu lần dầu
     }
     
+    @Override
+    public void refreshData(){
+        loadData();
+    }
+
     // form nhập liệu
     private void taoForm() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -234,17 +240,17 @@ public class PanelPhim extends JPanel {
     // update phim
     private void sua() { 
         if (txtMa.getText().isEmpty()){ 
-            msg("Chọn phim cần sửa!"); 
+            msg("Chọn phim cần cập nhật!"); 
             return; 
         } 
         if (checkForm()){ 
             Phim p = getData(); 
             p.setMaPhim(Integer.parseInt(txtMa.getText())); 
             if (dao.update(p)){ 
-                msg("Sửa thành công!"); 
+                msg("Cập nhật thành công!"); 
                 loadData(); 
                 clearForm(); 
-            } else msg("Sửa thất bại!"); } }
+            } else msg("Đã có suất chiếu của phim này! Không thể cập nhật"); } }
     
     // xóa phim (kiếm tra xem có suất chiếu ko)
     private void xoa(){
@@ -254,10 +260,6 @@ public class PanelPhim extends JPanel {
         }
         
         int maPhim = Integer.parseInt(txtMa.getText());
-        if (dao.daCoSuatChieu(maPhim)){
-            msg("Đã có suất chiếu của phim này. Không thể xóa!");
-            return;
-        }
         int confirm = thongBao("Bạn có chắc chắn muốn xóa phim này?\nPhim đã chọn: " + txtTen.getText(), 
                               "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
 
@@ -323,6 +325,11 @@ public class PanelPhim extends JPanel {
         b.setBackground(MAU_DO); b.setForeground(TRANG); b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setPreferredSize(new Dimension(120, 40)); b.setFocusPainted(false); b.setOpaque(true);
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent e) { b.setBackground(new Color(220, 0, 0)); }
+            public void mouseExited(java.awt.event.MouseEvent e) { b.setBackground(MAU_DO); }
+        });
+
         b.addActionListener(a);
         return b;
     }
@@ -341,9 +348,8 @@ public class PanelPhim extends JPanel {
     }
     
     private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
-        JButton btnCo    = taoNutDialog("Có",     90, 30);
-        JButton btnKhong = taoNutDialog("Không",  90, 30);
-        JButton btnOK    = taoNutDialog("OK",    110, 30);
+        JButton btnHuy = taoNutDialog("Hủy", 90, 30);
+        JButton btnOK    = taoNutDialog("OK", 90, 30);
 
         JOptionPane optionPane;
         if (!coYesNo) {
@@ -351,7 +357,7 @@ public class PanelPhim extends JPanel {
                                         new Object[]{btnOK}, btnOK);
         } else {
             optionPane = new JOptionPane(msg, messageType, JOptionPane.YES_NO_OPTION, null,
-                                        new Object[]{btnCo, btnKhong}, btnCo);
+                                        new Object[]{btnHuy, btnOK}, btnOK);
         }
 
         JDialog dialog = optionPane.createDialog(this, title);
@@ -360,11 +366,11 @@ public class PanelPhim extends JPanel {
         if (!coYesNo) {
             btnOK.addActionListener(e -> dialog.dispose());
         } else {
-            btnCo.addActionListener(e -> {
+            btnOK.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.YES_OPTION);
                 dialog.dispose();
             });
-            btnKhong.addActionListener(e -> {
+            btnHuy.addActionListener(e -> {
                 optionPane.setValue(JOptionPane.NO_OPTION);
                 dialog.dispose();
             });
@@ -395,7 +401,7 @@ public class PanelPhim extends JPanel {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

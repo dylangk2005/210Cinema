@@ -10,6 +10,15 @@ public class PhongChieu {
 
     public PhongChieu() {}
 
+    public PhongChieu(int maPhongChieu, String tenPhongChieu, int soGheNgoi, String trangThaiPhong, String loaiManHinh, String heThongAmThanh) {
+        this.maPhongChieu = maPhongChieu;
+        this.tenPhongChieu = tenPhongChieu;
+        this.soGheNgoi = soGheNgoi;
+        this.trangThaiPhong = trangThaiPhong;
+        this.loaiManHinh = loaiManHinh;
+        this.heThongAmThanh = heThongAmThanh;
+    }
+
     // Getters and Setters
     public int getMaPhongChieu() { return maPhongChieu; }
     public void setMaPhongChieu(int maPhongChieu) { this.maPhongChieu = maPhongChieu; }
