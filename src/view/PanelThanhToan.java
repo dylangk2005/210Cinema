@@ -627,8 +627,10 @@ public class PanelThanhToan extends JPanel {
         
         HoaDon dh = new HoaDon(maNhanVienDaChon, maKHDaChon, totalSauGiamGia, hinhThucThanhToan);
         int maHoaDon = new HoaDonDAO().insertHoaDon(dh);
+//        int diem_tl = 1400;
         new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, this.diemTichLuy); 
-       
+//        new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, diem_tl); 
+      
         BigDecimal giaVe;
         Set<Integer> listMaVe = new HashSet<>();
         if(soGhe != 0) {

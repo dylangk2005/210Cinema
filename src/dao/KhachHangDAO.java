@@ -161,12 +161,19 @@ public class KhachHangDAO {
     }
 
     public void updateDiemTichLuy(int maKhachHang, int diemTichLuy) throws SQLException {
-        String sql = "UPDATE KhachHang SET diemTichLuy = ? WHERE maKhachHang = ?";
+//        String sql = "UPDATE KhachHang SET diemTichLuy = ? WHERE maKhachHang = ?";
+        String sql = "UPDATE KhachHang SET diemTichLuy = ?, hangThanhVien = ? WHERE maKhachHang = ?";
+        String hang;
+        if (diemTichLuy >= 0 && diemTichLuy <= 499) hang = "Sắt";
+        else if (diemTichLuy <= 1499) hang = "Bạc";
+        else if (diemTichLuy <=2999) hang = "Vàng";
+        else hang = "Kim cương";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, diemTichLuy);
-            ps.setInt(2, maKhachHang);
+            ps.setString(2, hang);
+            ps.setInt(3, maKhachHang);
             ps.executeUpdate();
         }
     }
