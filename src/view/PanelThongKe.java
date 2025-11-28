@@ -116,7 +116,7 @@ public class PanelThongKe extends JPanel implements Refresh {
                 return;
             }
 
-            // LƯU NGÀY ĐÃ CHỌN (quan trọng!)
+            // lưu ngày đã pick
             ngay_lshd = utilDate;
 
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
@@ -140,8 +140,6 @@ public class PanelThongKe extends JPanel implements Refresh {
             }
             xuatExcel(modelLS, tableLS, "ls_hoadon");
         });
-
-        btnXem.doClick(); // tự load hôm nay
 
         p.add(topPanel, BorderLayout.NORTH);
         p.add(new JScrollPane(tableLS), BorderLayout.CENTER);
