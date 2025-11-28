@@ -12,9 +12,9 @@ import util.DBConnection;
 
 public class VeDAO {
 
-    public Set<Integer> insertVe(int maDonHang, int maSuatChieu, 
+    public Set<Integer> insertVe(int maHoaDon, int maSuatChieu, 
             Set<Integer> listMaGhe, BigDecimal giaVe, String trangThai) throws Exception {
-        String sql = "INSERT INTO Ve(maSuatChieu, maGheNgoi, maDonHang, giaVe, trangThai) "
+        String sql = "INSERT INTO Ve(maSuatChieu, maGheNgoi, maHoaDon, giaVe, trangThai) "
                    + "VALUES (?, ?, ?, ?, ?)";
         Set<Integer> listMaVe = new HashSet<>();
         try (Connection con = DBConnection.getConnection();
@@ -23,7 +23,7 @@ public class VeDAO {
             for (Integer maGhe : listMaGhe) {
                 ps.setInt(1, maSuatChieu);
                 ps.setInt(2, maGhe);
-                ps.setInt(3, maDonHang);
+                ps.setInt(3, maHoaDon);
                 ps.setBigDecimal(4, giaVe);
                 ps.setString(5, trangThai);
                 ps.executeUpdate();

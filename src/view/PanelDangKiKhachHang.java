@@ -35,8 +35,8 @@ public class PanelDangKiKhachHang extends JDialog {
         btnXacNhan.addActionListener(e -> {
             KhachHang kh = getKhachHang();
             if (kh == null) {
-                JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin!", 
-                        "Không thể đăng kí", JOptionPane.ERROR_MESSAGE);
+                msg("Vui lòng điền đầy đủ thông tin!", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
@@ -45,7 +45,7 @@ public class PanelDangKiKhachHang extends JDialog {
             } catch (Exception ex) {
                 System.getLogger(PanelDangKiKhachHang.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
-            JOptionPane.showMessageDialog(this, "Đăng kí thành công!");
+            msg("Đăng kí thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         });
     }
@@ -63,7 +63,7 @@ public class PanelDangKiKhachHang extends JDialog {
 
         JLabel title = new JLabel("ĐĂNG KÝ THÀNH VIÊN");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        title.setForeground(new Color(200, 0, 0));
+        title.setForeground(new Color(180 , 0, 0));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
         content.add(title, BorderLayout.NORTH);
@@ -131,11 +131,29 @@ public class PanelDangKiKhachHang extends JDialog {
         btnXacNhan = new JButton("Xác Nhận");
 
         styleButton(btnHuy, Color.DARK_GRAY);
-        styleButton(btnXacNhan, new Color(200, 0, 0));
-
+        styleButton(btnXacNhan, new Color(180, 0, 0));
+        
+        btnHuy.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnHuy.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnHuy.setBackground(Color.DARK_GRAY);
+            }
+        });
+        btnXacNhan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnXacNhan.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnXacNhan.setBackground(new Color(180, 0, 0));
+            }
+        });
+        
         buttonPanel.add(btnHuy);
         buttonPanel.add(btnXacNhan);
-
+        
+        
         content.add(buttonPanel, BorderLayout.SOUTH);
 
         add(content);
@@ -148,6 +166,7 @@ public class PanelDangKiKhachHang extends JDialog {
         btn.setFocusPainted(false);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setPreferredSize(new Dimension(110, 35));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     private void addRow(JPanel panel, GridBagConstraints gbc, int row, String label, JComponent component) {
@@ -181,6 +200,45 @@ public class PanelDangKiKhachHang extends JDialog {
 
         return new KhachHang(0, ten, ns, gt, sdt, email, hang, diem); 
     }
+     public void msg(String message, String title, int type) {
+        // Tạo nút OK đỏ 
+        JButton btnOK = new JButton("OK");
+        btnOK.setBackground(new Color(180, 0, 0));
+        btnOK.setForeground(Color.WHITE);
+        btnOK.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnOK.setFocusPainted(false);
+        btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnOK.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
+        btnOK.setPreferredSize(new Dimension(90, 30));
 
+        // Hover effect
+        btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(180, 0, 0));
+            }
+        });
+
+        // Tạo JOptionPane chỉ có 1 nút
+        JOptionPane optionPane = new JOptionPane(
+            message,
+            type,
+            JOptionPane.DEFAULT_OPTION,
+            null,
+            new Object[]{btnOK},
+            btnOK
+        );
+
+        // Tạo dialog
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        // Bấm nút OK → đóng dialog
+        btnOK.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
 }
 

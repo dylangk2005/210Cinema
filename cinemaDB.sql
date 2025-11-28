@@ -132,14 +132,14 @@ CREATE TABLE KhachHang (
 GO
 
 
--- 10. Đơn hàng
-CREATE TABLE DonHang (
-    maDonHang INT IDENTITY(1,1) PRIMARY KEY,
+-- 10. Hóa đơn
+CREATE TABLE HoaDon (
+    maHoaDon INT IDENTITY(1,1) PRIMARY KEY,
     maNhanVien INT NULL,
 	maKhachHang INT NULL,
     thoiGianTao DATETIME DEFAULT GETDATE(),
     tongTienPhaiTra DECIMAL(10,2),
-    trangThaiDonHang NVARCHAR(50),
+    phuongThucThanhToan NVARCHAR(50),
     FOREIGN KEY (maNhanVien)
         REFERENCES NhanVien(maNhanVien)
         ON UPDATE CASCADE
@@ -156,7 +156,7 @@ CREATE TABLE Ve (
     maVe INT IDENTITY(1,1) PRIMARY KEY,
     maSuatChieu INT,
     maGheNgoi INT,
-    maDonHang INT NULL,
+    maHoaDon INT NULL,
     giaVe DECIMAL(10,2),
     trangThai NVARCHAR(30),
     FOREIGN KEY (maSuatChieu)
@@ -166,23 +166,23 @@ CREATE TABLE Ve (
     FOREIGN KEY (maGheNgoi)
         REFERENCES GheNgoi(maGheNgoi)
 		ON DELETE NO ACTION,
-    FOREIGN KEY (maDonHang)
-        REFERENCES DonHang(maDonHang)
+    FOREIGN KEY (maHoaDon)
+        REFERENCES HoaDon(maHoaDon)
 		ON DELETE CASCADE
 );
 GO
 
 -- 12. Chi tiết đơn hàng
-CREATE TABLE ChiTietDonHang (
+CREATE TABLE ChiTietHoaDon (
     maCTDH INT IDENTITY(1,1) PRIMARY KEY,
-    maDonHang INT,
+    maHoaDon INT,
     maSanPham INT NULL,
     maVe INT NULL,
     soLuong INT,
     donGiaLucBan DECIMAL(10,2),
     thanhTien DECIMAL(10,2),
-    FOREIGN KEY (maDonHang)
-        REFERENCES DonHang(maDonHang)
+    FOREIGN KEY (maHoaDon)
+        REFERENCES HoaDon(maHoaDon)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     FOREIGN KEY (maSanPham)
@@ -191,24 +191,6 @@ CREATE TABLE ChiTietDonHang (
         ON DELETE SET NULL,
     FOREIGN KEY (maVe)
         REFERENCES Ve(maVe)
-);
-GO
-
--- 13. Thanh toán
-CREATE TABLE ThanhToan (
-    maThanhToan INT IDENTITY(1,1) PRIMARY KEY,
-    maDonHang INT NULL,
-    soTien DECIMAL(10,2),
-    thoiGianThanhToan DATETIME DEFAULT GETDATE(),
-    maNhanVien INT NULL,
-    phuongThucThanhToan NVARCHAR(50),
-    FOREIGN KEY (maNhanVien)
-        REFERENCES NhanVien(maNhanVien)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL,
-	FOREIGN KEY (maDonHang)
-		REFERENCES DonHang(maDonHang)
-		ON DELETE CASCADE
 );
 GO
 
@@ -233,16 +215,15 @@ CREATE INDEX IX_SanPham_tenSanPham ON SanPham(tenSanPham);
 CREATE INDEX IX_KhachHang_TenKH ON KhachHang(hoTenKhachHang);
 CREATE INDEX IX_KhachHang_hoTenKH ON KhachHang(soDienThoai);
 
-CREATE INDEX IX_DonHang_TGTao ON DonHang(thoiGianTao);
-CREATE INDEX IX_DonHang_TrangThai ON DonHang(trangThaiDonHang);
-CREATE INDEX IX_DonHang_maNV ON DonHang(maNhanVien);
+CREATE INDEX IX_HoaDon_TGTao ON HoaDon(thoiGianTao);
+CREATE INDEX IX_HoaDon_maNV ON HoaDon(maNhanVien);
 
 CREATE INDEX IX_Ve_maSuatChieu ON Ve(maSuatChieu);
 CREATE INDEX IX_Ve_trangThaiVe On VE(trangThai);
 
-CREATE INDEX IX_CTDonHang_maDonHang ON ChiTietDonHang(maDonHang);
-CREATE INDEX IX_CTDonHang_maVe ON ChiTietDonHang(maVe);
-CREATE INDEX IX_CTDonHang_maSanPham ON ChiTietDonHang(maSanPham);
+CREATE INDEX IX_CTHoaDon_maHoaDon ON ChiTietHoaDon(maHoaDon);
+CREATE INDEX IX_CTHoaDon_maVe ON ChiTietHoaDon(maVe);
+CREATE INDEX IX_CTHoaDon_maSanPham ON ChiTietHoaDon(maSanPham);
 
 -- ================== Thêm dữ liệu mẫu vào bảng   ===========================
 INSERT INTO ChucVu (tenChucVu, moTaQuyen) VALUES
@@ -324,26 +305,26 @@ INSERT INTO KhachHang (hoTenKhachHang, ngaySinh, gioiTinh, soDienThoai, email, h
 -- ========================================
 --  TRIGGER TỰ ĐỘNG TÍNH TỔNG
 -- ========================================
-IF EXISTS (SELECT * FROM sys.triggers WHERE name = 'trg_UpdateTongTienDonHang')
-    DROP TRIGGER trg_UpdateTongTienDonHang;
+IF EXISTS (SELECT * FROM sys.triggers WHERE name = 'trg_UpdateTongTienHoaDon')
+    DROP TRIGGER trg_UpdateTongTienHoaDon;
 GO
 
-CREATE TRIGGER trg_UpdateTongTienDonHang
-ON ChiTietDonHang
+CREATE TRIGGER trg_UpdateTongTienHoaDon
+ON ChiTietHoaDon
 AFTER INSERT, UPDATE, DELETE
 AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE DonHang
+    UPDATE HoaDon
     SET tongTienPhaiTra = ISNULL((
         SELECT SUM(thanhTien)
-        FROM ChiTietDonHang
-        WHERE maDonHang = DonHang.maDonHang
+        FROM ChiTietHoaDon
+        WHERE maHoaDon = HoaDon.maHoaDon
     ), 0)
-    WHERE maDonHang IN (
-        SELECT DISTINCT maDonHang FROM inserted
+    WHERE maHoaDon IN (
+        SELECT DISTINCT maHoaDon FROM inserted
         UNION
-        SELECT DISTINCT maDonHang FROM deleted
+        SELECT DISTINCT maHoaDon FROM deleted
     );
 END;
 GO

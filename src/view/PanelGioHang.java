@@ -21,8 +21,8 @@ public class PanelGioHang extends JDialog {
     private final String[] col = {"Tên SP", "Số lượng", "Đơn giá"};
 
     public PanelGioHang(JFrame parent, List<JPanel> listVePanel, JPanel listPanelSP, JButton btn) {
-        this.btnXacNhanCha = btn;
         super(parent, "Giỏ hàng", true);
+        this.btnXacNhanCha = btn;
         initUI(listVePanel, listPanelSP);
         setSize(1400, 800);
         setLocationRelativeTo(parent);
@@ -80,9 +80,25 @@ public class PanelGioHang extends JDialog {
 
         // ====== FOOTER (THANH TOÁN) ======
         btnThoat = makeButton(80, 32, Color.DARK_GRAY, "Thoát");
+        btnThoat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnThoat.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnThoat.setBackground(Color.DARK_GRAY);
+            }
+        });
         btnThoat.addActionListener(e -> dispose());
         
         btnThanhToan = makeButton(110, 32, MAU_DO, "Thanh toán");
+        btnThanhToan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnThanhToan.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnThanhToan.setBackground(new Color(180, 0, 0));
+            }
+        });
         btnThanhToan.addActionListener(e -> {
             for (ActionListener al : btnXacNhanCha.getActionListeners()) {
                 al.actionPerformed(new ActionEvent(btnThanhToan, ActionEvent.ACTION_PERFORMED, null));

@@ -263,7 +263,7 @@ public class PanelKhachHang extends JPanel implements Refresh{
             return;
         }
         int confirm = thongBao("Bạn có chắc chắn muốn xóa khách hàng này?\n",
-                "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
+                "Xác nhận", JOptionPane.QUESTION_MESSAGE, true);
         if (confirm == JOptionPane.YES_OPTION) {
             if (dao.delete(Integer.parseInt(txtMa.getText()))) {
                 msg("Xóa thành công!");
@@ -416,7 +416,7 @@ public class PanelKhachHang extends JPanel implements Refresh{
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

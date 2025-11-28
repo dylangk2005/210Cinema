@@ -260,10 +260,6 @@ public class PanelPhim extends JPanel implements Refresh {
         }
         
         int maPhim = Integer.parseInt(txtMa.getText());
-        if (new SuatChieuDAO().daCoSuatChieu(maPhim)){
-            msg("Đã có suất chiếu của phim này. Không thể xóa!");
-            return;
-        }
         int confirm = thongBao("Bạn có chắc chắn muốn xóa phim này?\nPhim đã chọn: " + txtTen.getText(), 
                               "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
 
@@ -405,7 +401,7 @@ public class PanelPhim extends JPanel implements Refresh {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

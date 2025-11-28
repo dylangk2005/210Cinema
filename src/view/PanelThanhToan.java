@@ -17,11 +17,11 @@ import model.*;
 public class PanelThanhToan extends JPanel {
     private BigDecimal tienVe, tongTienSP, total, totalSauGiamGia;
     private int soGhe;
-    private List<ChiTietDonHang> ctlists = new ArrayList<>();
+    private List<ChiTietHoaDon> ctlists = new ArrayList<>();
     private int maKHDaChon, diemTichLuy;
     private String phan_tram_giam;
     private boolean da_thanh_toan;
-    private final Color RED = new Color(200, 0, 0);
+    private final Color RED = new Color(180, 0, 0);
     private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 13);
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 13);
     
@@ -84,7 +84,6 @@ public class PanelThanhToan extends JPanel {
         // Lop trong, tren cung, ben phai
         JPanel spPanelContainer = new JPanel(new BorderLayout());
         spPanelContainer.setBackground(Color.WHITE);
-        
         spPanelContainer.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(RED, 1),
             "Thông tin sản phẩm",
@@ -116,7 +115,7 @@ public class PanelThanhToan extends JPanel {
                     );
                     item.setFont(FONT_VALUE);
                     spPanel.add(item);
-                    ChiTietDonHang ct = new ChiTietDonHang();
+                    ChiTietHoaDon ct = new ChiTietHoaDon();
                     ct.setMaSanPham((int) productPanel.getClientProperty("product"));
                     ct.setDonGiaLucBan(price);
                     ctlists.add(ct);
@@ -155,8 +154,23 @@ public class PanelThanhToan extends JPanel {
         lbGiamGia = new JLabel("Giảm giá: 0%");
         
         styleButton(btnCheck, new Color(80, 80, 80));
-        styleButton(btnSignup, RED);
-        
+        styleButton(btnSignup, new Color(180,0,0));
+        btnCheck.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnCheck.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnCheck.setBackground(new Color(80, 80, 80));
+            }
+        });
+        btnSignup.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnSignup.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnSignup.setBackground(new Color(180, 0, 0));
+            }
+        }); 
         giamGiaPanel.add(new JLabel("SĐT (mã giảm giá): "));
         giamGiaPanel.add(tfSDT);
         giamGiaPanel.add(btnCheck);
@@ -223,7 +237,7 @@ public class PanelThanhToan extends JPanel {
         totalPanel.add(lbTongTien, gbc);
 
         // ====== DÒNG 3: Khách đưa ======
-        tfKhachDua = new JTextField("0", 10);
+        tfKhachDua = new JTextField("", 10);
         lbTraLai = new JLabel(formatMoney(totalSauGiamGia.negate())); 
         
         JPanel khachDuaPanel = new JPanel(new GridLayout(1, 2));
@@ -279,8 +293,39 @@ public class PanelThanhToan extends JPanel {
         styleButton(btnHuy, Color.DARK_GRAY);
         styleButton(btnIn, new Color(80, 80, 80));
         styleButton(btnInHD, new Color(80, 80, 80));
-        styleButton(btnXacNhan, RED);
-        
+        styleButton(btnXacNhan, new Color(180, 0, 0));
+        btnHuy.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnHuy.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnHuy.setBackground(Color.DARK_GRAY);
+            }
+        });
+        btnInHD.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnInHD.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnInHD.setBackground(new Color(80, 80, 80));
+            }
+        });
+        btnXacNhan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnXacNhan.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnXacNhan.setBackground(new Color(180, 0, 0));
+            }
+        });
+        btnIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnIn.setBackground(new Color(110, 110, 110));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnIn.setBackground(new Color(80, 80, 80));
+            }
+        });
         // Lop duoi cung, nam duoi
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setBackground(Color.WHITE);
@@ -327,8 +372,7 @@ public class PanelThanhToan extends JPanel {
 
         btnIn.addActionListener(e -> {
             if(lbGheDaChon.trim().equals("-")) {
-                JOptionPane.showMessageDialog(this, "Khách hàng không đặt vé!", 
-                        "Không thể in vé", JOptionPane.ERROR_MESSAGE);
+                msg("Khách hàng không đặt vé! Không thể in vé", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
@@ -345,13 +389,12 @@ public class PanelThanhToan extends JPanel {
             } catch (Exception Ex) {
                     Ex.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "In vé thành công!");
+            msg("In vé thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
         });
         
         btnInHD.addActionListener(e -> {
             if (!da_thanh_toan) {
-                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán hóa đơn trước!", 
-                        "Không thể in hóa đơn", JOptionPane.ERROR_MESSAGE);
+                msg("Không thể in hóa đơn! Vui lòng thanh toán hóa đơn trước!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
@@ -409,7 +452,7 @@ public class PanelThanhToan extends JPanel {
             } catch (Exception Ex) {
                 Ex.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "In hóa đơn thành công!");
+            msg("In hóa đơn thành công!", "Thành công",  JOptionPane.INFORMATION_MESSAGE);
         });
         
         btnHuy.addActionListener(e -> {
@@ -422,16 +465,15 @@ public class PanelThanhToan extends JPanel {
         btnXacNhan.addActionListener(e -> {
             BigDecimal num = parseMoney(lbTraLai.getText());
             if(num.compareTo(BigDecimal.ZERO) < 0) {
-                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán đủ tiền!", 
-                        "Không thể thanh toán", JOptionPane.ERROR_MESSAGE);
-                return;
+               msg("Không thể thanh toán! Vui lòng thanh toán đủ tiền!", "Lỗi",  JOptionPane.ERROR_MESSAGE);
+               return;
             } 
             try {
                 updateDatabase(listMaGhe, maNhanVien, maSuatChieu, lbGiaVe);
             } catch (Exception ex) {
                 System.getLogger(PanelThanhToan.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
-            JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
+            msg("Thành công", "Thanh toán thành công!", JOptionPane.INFORMATION_MESSAGE);
             this.da_thanh_toan = true;
         });
         // check SDT nhap vao, ap giam gia va cap nhat tich luy
@@ -448,7 +490,7 @@ public class PanelThanhToan extends JPanel {
                 lbTongTien.setText("Tổng tiền: " + formatMoney(total)); 
                 totalSauGiamGia = total;
                 lbGiamGia.setText("Giảm giá: 0%"); 
-                JOptionPane.showMessageDialog(this,"Bạn chưa phải thành viên!","Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                msg("Bạn chưa phải thành viên!", "Thông báo",  JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             this.maKHDaChon = kh.getMaKhachHang();
@@ -484,7 +526,7 @@ public class PanelThanhToan extends JPanel {
                 lbTongTien.setText("Tổng tiền: " + formatMoney(total)); 
                 totalSauGiamGia = total;
                 lbGiamGia.setText("Giảm giá: 0%"); 
-                JOptionPane.showMessageDialog(this,"Bạn không được giảm giá!","Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                msg("Bạn không được giảm giá!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         
@@ -561,14 +603,14 @@ public class PanelThanhToan extends JPanel {
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createEmptyBorder(6, 15, 6, 15)); 
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
     
     private void updateDatabase(Set<Integer> listMaGhe, 
             int maNhanVienDaChon, 
             int maSuatChieu,
             String gia_ve) throws Exception {
-        DonHang dh = new DonHang(maNhanVienDaChon, maKHDaChon, totalSauGiamGia, "Đã thanh toán");
-        int maDonHang = new DonHangDAO().insertDonHang(dh);
+       
         
         String hinhThucThanhToan;
         if (rbTienMat.isSelected()) {
@@ -579,23 +621,22 @@ public class PanelThanhToan extends JPanel {
             hinhThucThanhToan = "Thẻ tín dụng";
         }
         
-        ThanhToan tt = new ThanhToan(maDonHang, totalSauGiamGia, maNhanVienDaChon, hinhThucThanhToan);
-        new ThanhToanDAO().insertThanhToan(tt);
-        
+        HoaDon dh = new HoaDon(maNhanVienDaChon, maKHDaChon, totalSauGiamGia, hinhThucThanhToan);
+        int maHoaDon = new HoaDonDAO().insertHoaDon(dh);
         new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, this.diemTichLuy); 
        
         BigDecimal giaVe;
         Set<Integer> listMaVe = new HashSet<>();
         if(soGhe != 0) {
             giaVe = tienVe.divide(new BigDecimal(soGhe));
-            listMaVe = new VeDAO().insertVe(maDonHang, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
+            listMaVe = new VeDAO().insertVe(maHoaDon, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
         }
         
-        for (ChiTietDonHang ct : ctlists) {
+        for (ChiTietHoaDon ct : ctlists) {
             BigDecimal don_gia_luc_ban = ct.getDonGiaLucBan();
             BigDecimal tien_giam = don_gia_luc_ban.multiply(new BigDecimal(phan_tram_giam));
             BigDecimal thanh_tien = don_gia_luc_ban.subtract(tien_giam);
-            ct.setMaDonHang(maDonHang); ct.setMaVe(-1); ct.setSoLuong(1); 
+            ct.setMaHoaDon(maHoaDon); ct.setMaVe(-1); ct.setSoLuong(1); 
             ct.setThanhTien(thanh_tien); 
         }
         
@@ -603,10 +644,50 @@ public class PanelThanhToan extends JPanel {
             BigDecimal don_gia_luc_ban = parseMoney(gia_ve);
             BigDecimal tien_giam = don_gia_luc_ban.multiply(new BigDecimal(phan_tram_giam));
             BigDecimal thanh_tien = don_gia_luc_ban.subtract(tien_giam);
-            ctlists.add(new ChiTietDonHang(maDonHang, -1, maVe, 1, don_gia_luc_ban, thanh_tien)); 
+            ctlists.add(new ChiTietHoaDon(maHoaDon, -1, maVe, 1, don_gia_luc_ban, thanh_tien)); 
         }
         
-        new ChiTietDonHangDAO().insertChiTietDonHang(ctlists); 
-        
+        new ChiTietHoaDonDAO().insertChiTietHoaDon(ctlists); 
+    }
+    // tạo nút dialog
+    public void msg(String message, String title, int type) {
+        // Tạo nút OK đỏ 
+        JButton btnOK = new JButton("OK");
+        btnOK.setBackground(new Color(180, 0, 0));
+        btnOK.setForeground(Color.WHITE);
+        btnOK.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnOK.setFocusPainted(false);
+        btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnOK.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
+        btnOK.setPreferredSize(new Dimension(90, 30));
+
+        // Hover effect
+        btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(180, 0, 0));
+            }
+        });
+
+        // Tạo JOptionPane chỉ có 1 nút
+        JOptionPane optionPane = new JOptionPane(
+            message,
+            type,
+            JOptionPane.DEFAULT_OPTION,
+            null,
+            new Object[]{btnOK},
+            btnOK
+        );
+
+        // Tạo dialog
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        // Bấm nút OK → đóng dialog
+        btnOK.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
     }
 }

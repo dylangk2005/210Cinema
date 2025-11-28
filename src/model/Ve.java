@@ -6,7 +6,7 @@ public class Ve {
     private int maVe;
     private int maSuatChieu;
     private int maGheNgoi;
-    private Integer maDonHang;
+    private Integer maHoaDon;
     private BigDecimal giaVe;
     private String trangThai;
 
@@ -22,8 +22,8 @@ public class Ve {
     public int getMaGheNgoi() { return maGheNgoi; }
     public void setMaGheNgoi(int maGheNgoi) { this.maGheNgoi = maGheNgoi; }
 
-    public Integer getMaDonHang() { return maDonHang; }
-    public void setMaDonHang(Integer maDonHang) { this.maDonHang = maDonHang; }
+    public Integer getMaHoaDon() { return maHoaDon; }
+    public void setMaHoaDon(Integer maHoaDon) { this.maHoaDon = maHoaDon; }
 
     public BigDecimal getGiaVe() { return giaVe; }
     public void setGiaVe(BigDecimal giaVe) { this.giaVe = giaVe; }

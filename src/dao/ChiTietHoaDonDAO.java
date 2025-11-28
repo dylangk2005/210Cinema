@@ -4,21 +4,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 import util.DBConnection;
-import model.ChiTietDonHang;
+import model.ChiTietHoaDon;
 
-public class ChiTietDonHangDAO {
+public class ChiTietHoaDonDAO {
 
-    public void insertChiTietDonHang(List<ChiTietDonHang> ctlists) throws Exception {
+    public void insertChiTietHoaDon(List<ChiTietHoaDon> ctlists) throws Exception {
         if(ctlists.isEmpty()) return;
         
-        String sql = "INSERT INTO ChiTietDonHang(maDonHang, maSanPham, maVe, soLuong, donGiaLucBan, thanhTien) "
+        String sql = "INSERT INTO ChiTietHoaDon(maHoaDon, maSanPham, maVe, soLuong, donGiaLucBan, thanhTien) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
             
-            for (ChiTietDonHang ct : ctlists) {
-                ps.setInt(1, ct.getMaDonHang());
+            for (ChiTietHoaDon ct : ctlists) {
+                ps.setInt(1, ct.getMaHoaDon());
                 ps.setObject(2, ct.getMaSanPham() <= 0 ? null : ct.getMaSanPham());
                 ps.setObject(3, ct.getMaVe() <= 0 ? null : ct.getMaVe());
                 ps.setInt(4, ct.getSoLuong());

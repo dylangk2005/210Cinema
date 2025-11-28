@@ -367,7 +367,7 @@ public class PanelNhanVien extends JPanel implements Refresh {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(139, 0, 0));

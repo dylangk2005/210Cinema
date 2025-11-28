@@ -71,6 +71,11 @@ public class PanelBanHang extends JPanel implements Refresh {
                 lbTheLoai.setText("-");
                 maPhimDaChon = -1;
             }
+            // reset ghế đã chọn nếu chọn lại phim
+            taGheDaChon.setText("-");
+            listMaGheDaChon = null; 
+            maSuatChieuDaChon = -1;
+            
             if (maPhimDaChon != -1 && maPhongChieuDaChon != -1) {
                 cbSuatChieu.removeAllItems();
                 cbSuatChieu.addItem(null); 
@@ -93,6 +98,12 @@ public class PanelBanHang extends JPanel implements Refresh {
                 lbTenPhong.setText("-");
                 maPhongChieuDaChon = -1;
             }
+            
+            // reset ghế đã chọn nếu chọn lại phòng chiếu
+            taGheDaChon.setText("-");
+            listMaGheDaChon = null; 
+            maSuatChieuDaChon = -1;
+            
             if (maPhimDaChon != -1 && maPhongChieuDaChon != -1) {
                 cbSuatChieu.removeAllItems();
                 cbSuatChieu.addItem(null); 
@@ -117,14 +128,16 @@ public class PanelBanHang extends JPanel implements Refresh {
                 lbGiaVe.setText("-"); 
                 maSuatChieuDaChon = -1;
             }
-            
+            //reset ghế nếu chọn lại suất chiếu
+            taGheDaChon.setText("-");
+            listMaGheDaChon = null;
         });
 
         btnChonGhe.addActionListener(e -> {
              if (maPhimDaChon == -1 || maPhongChieuDaChon == -1 || maSuatChieuDaChon == -1) {
-                JOptionPane.showMessageDialog(this, 
+                msg( 
                     "Vui lòng chọn đầy đủ Phim → Phòng → Suất chiếu trước khi chọn ghế!", 
-                    "Chưa chọn đủ thông tin", JOptionPane.WARNING_MESSAGE);
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -143,8 +156,8 @@ public class PanelBanHang extends JPanel implements Refresh {
         
         btnXacNhan.addActionListener(e -> {
             if(isPaymentNotAllowed()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn hàng hóa để thanh toán!", 
-                        "Không thể thanh toán", JOptionPane.ERROR_MESSAGE); 
+                msg("Vui lòng chọn hàng hóa để thanh toán!", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE); 
                 return;
             }
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
@@ -195,7 +208,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         JLabel lbSuat = new JLabel("Suất chiếu:");
         
         // btnChonGhe
-        btnChonGhe = makeButton(120, 36, new Color(200, 0, 0), "CHỌN GHẾ");
+        btnChonGhe = redButton("CHỌN GHẾ");
            
         // COMBOBOX PHIM
         cbPhim = new JComboBox<>();
@@ -297,13 +310,13 @@ public class PanelBanHang extends JPanel implements Refresh {
         
         // CAC LABEL
         JLabel h1 = new JLabel("Sản phẩm");
-        h1.setFont(new Font("Arial", Font.BOLD, 14));
+        h1.setFont(new Font("SegoeUI", Font.BOLD, 14));
         
         JLabel h2 = new JLabel("Đơn giá (VND)", JLabel.CENTER);
-        h2.setFont(new Font("Arial", Font.BOLD, 14));
+        h2.setFont(new Font("SegoeUI", Font.BOLD, 14));
         
         JLabel h3 = new JLabel("Số lượng", JLabel.CENTER);
-        h3.setFont(new Font("Arial", Font.BOLD, 14));
+        h3.setFont(new Font("SegoeUI", Font.BOLD, 14));
         
         JPanel header = new JPanel(new GridLayout(1, 3));
         header.setBackground(Color.WHITE);
@@ -319,7 +332,7 @@ public class PanelBanHang extends JPanel implements Refresh {
                 BorderFactory.createLineBorder(Color.GRAY, 1, true),
                 "Lựa chọn sản phẩm",
                 0, 0,
-                new Font("Arial", Font.BOLD, 14),
+                new Font("SegoeUI", Font.BOLD, 14),
                 new Color(120, 0, 0)
         ), BorderFactory.createEmptyBorder(20, 20, 20, 20)));
         
@@ -344,8 +357,8 @@ public class PanelBanHang extends JPanel implements Refresh {
         gbc.insets = new Insets(10, 15, 10, 15);
         gbc.anchor = GridBagConstraints.WEST;
 
-        Font labelFont = new Font("Arial", Font.BOLD, 15);
-        Font valueFont = new Font("Arial", Font.PLAIN, 15);
+        Font labelFont = new Font("SegoeUI", Font.BOLD, 15);
+        Font valueFont = new Font("SegoeUI", Font.PLAIN, 15);
         Color labelColor = new Color(50, 50, 50);
 
         JLabel lb1 = new JLabel("Tên phim:");
@@ -437,7 +450,7 @@ public class PanelBanHang extends JPanel implements Refresh {
                 BorderFactory.createLineBorder(Color.GRAY, 1, true),
                 "Thông tin vé",
                 0, 0,
-                new Font("Arial", Font.BOLD, 14),
+                new Font("SegoeUI", Font.BOLD, 14),
                 new Color(120, 0, 0)
         ));        
         
@@ -451,13 +464,13 @@ public class PanelBanHang extends JPanel implements Refresh {
  
 // ================== HAM TAO BOTTOM PANEL =================    
     private JPanel createBottomPanel() {
-        btnLamMoi = makeButton(100, 36, Color.DARK_GRAY, "Làm mới");
+        btnLamMoi = grayButton("Làm mới");
         
         // NUT GIO HANG
-        btnGioHang = makeButton(100, 36, new Color(80, 80, 80), "Giỏ hàng");
+        btnGioHang = redButton("Giỏ hàng");
         
         // NUT XAC NHAN
-        btnXacNhan = makeButton(160, 36, new Color(200, 0, 0), "Xác nhận thanh toán");
+        btnXacNhan = greenButton("Xác nhận thanh toán");
 
         // BOTTOM PANEL
         JPanel leftBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
@@ -550,16 +563,32 @@ public class PanelBanHang extends JPanel implements Refresh {
             }
         }       
     }
-    
-    private JButton makeButton(int w, int h, Color bg, String value) {
-        JButton btn = new JButton(value);
-        btn.setPreferredSize(new Dimension(w, h));
-        btn.setMaximumSize(new Dimension(w, h));
-        btn.setBackground(bg);
+    private JButton redButton(String text) {
+        return makeButton(text, new Color(180, 0, 0), new Color(220, 0, 0));
+    }
+    private JButton greenButton(String text) {
+        return makeButton(text, new Color(0, 120, 0), new Color(0, 180, 0));
+    }
+    private JButton grayButton(String text) {
+        return makeButton(text, new Color(100, 100, 100), new Color(140, 140, 140));
+    }
+    private JButton makeButton(String text, Color bgNormal, Color bgHover) {
+        JButton btn = new JButton(text);
+        btn.setBackground(bgNormal);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect – giữ màu theo loại nút
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(bgHover);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(bgNormal);
+            }
+        });
         return btn;
     }
     
@@ -573,7 +602,7 @@ public class PanelBanHang extends JPanel implements Refresh {
             productPanel.setBackground(Color.WHITE);
                   
             JLabel lb = new JLabel(sp.getTenSanPham());
-            lb.setFont(new Font("Arial", Font.PLAIN, 14));
+            lb.setFont(new Font("SegoeUI", Font.PLAIN, 14));
             
             SpinnerNumberModel model = new SpinnerNumberModel(0, 0, null, 1);
             JSpinner sl = new JSpinner(model);
@@ -582,7 +611,7 @@ public class PanelBanHang extends JPanel implements Refresh {
             
             JLabel dg = new JLabel(formatMoney(sp.getDonGia())); 
             dg.setHorizontalAlignment(JLabel.CENTER); 
-            dg.setFont(new Font("Arial", Font.PLAIN, 14));
+            dg.setFont(new Font("SegoeUI", Font.PLAIN, 14));
             productPanel.add(lb);
             productPanel.add(dg);
             productPanel.add(sl);
@@ -629,5 +658,46 @@ public class PanelBanHang extends JPanel implements Refresh {
             MainForm mainForm = new MainForm("Trương Tuấn Tú", "Quản lý", 2);
             mainForm.setVisible(true);
         });
-    }   
+    }  
+    // tạo nút dialog
+    public void msg(String message, String title, int type) {
+        // Tạo nút OK đỏ 
+        JButton btnOK = new JButton("OK");
+        btnOK.setBackground(new Color(180, 0, 0));
+        btnOK.setForeground(Color.WHITE);
+        btnOK.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnOK.setFocusPainted(false);
+        btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnOK.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
+        btnOK.setPreferredSize(new Dimension(90, 30));
+
+        // Hover effect
+        btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(180, 0, 0));
+            }
+        });
+
+        // Tạo JOptionPane chỉ có 1 nút
+        JOptionPane optionPane = new JOptionPane(
+            message,
+            type,
+            JOptionPane.DEFAULT_OPTION,
+            null,
+            new Object[]{btnOK},
+            btnOK
+        );
+
+        // Tạo dialog
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        // Bấm nút OK → đóng dialog
+        btnOK.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
 }

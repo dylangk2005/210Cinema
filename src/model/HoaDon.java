@@ -3,26 +3,26 @@ package model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class DonHang {
-    private int maDonHang;
+public class HoaDon {
+    private int maHoaDon;
     private Integer maNhanVien;
     private Integer maKhachHang;
     private Date thoiGianTao;
     private BigDecimal tongTienPhaiTra;
-    private String trangThaiDonHang;
+    private String PhuongThucThanhToan;
 
-    public DonHang() {}
+    public HoaDon() {}
 
-    public DonHang(Integer maNhanVien, Integer maKhachHang, BigDecimal tongTienPhaiTra, String trangThaiDonHang) {
+    public HoaDon(Integer maNhanVien, Integer maKhachHang, BigDecimal tongTienPhaiTra, String trangThaiDonHang) {
         this.maNhanVien = maNhanVien;
         this.maKhachHang = maKhachHang;
         this.tongTienPhaiTra = tongTienPhaiTra;
-        this.trangThaiDonHang = trangThaiDonHang;
+        this.PhuongThucThanhToan = trangThaiDonHang;
     }
 
     // Getters and Setters
-    public int getMaDonHang() { return maDonHang; }
-    public void setMaDonHang(int maDonHang) { this.maDonHang = maDonHang; }
+    public int getMaHoaDon() { return maHoaDon; }
+    public void setMaHoaDon(int maHoaDon) { this.maHoaDon = maHoaDon; }
 
     public Integer getMaNhanVien() { return maNhanVien; }
     public void setMaNhanVien(Integer maNhanVien) { this.maNhanVien = maNhanVien; }
@@ -36,13 +36,13 @@ public class DonHang {
     public BigDecimal getTongTienPhaiTra() { return tongTienPhaiTra; }
     public void setTongTienPhaiTra(BigDecimal tongTienPhaiTra) { this.tongTienPhaiTra = tongTienPhaiTra; }
 
-    public String getTrangThaiDonHang() { return trangThaiDonHang; }
-    public void setTrangThaiDonHang(String trangThaiDonHang) { this.trangThaiDonHang = trangThaiDonHang; }
+    public String getPhuongThucThanhToan() { return PhuongThucThanhToan; }
+    public void setPhuongThucThanhToan(String PhuongThucThanhToan) { this.PhuongThucThanhToan = PhuongThucThanhToan; }
     
     @Override
     public String toString() {
         return "maNV = " + maNhanVien + ", maKH = " + maKhachHang + ", tongTienPhaiTra = " + tongTienPhaiTra
-                + ", trangThaiDonHang = " + trangThaiDonHang;
+                + ", trangThaiDonHang = " + PhuongThucThanhToan;
     }
 
 }

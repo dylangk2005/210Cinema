@@ -188,7 +188,6 @@ public class PanelPhongChieu extends JPanel implements Refresh {
             msg("Vui lòng chọn phòng cần cập nhật!");
             return;
         }
-
         int maPhong = Integer.parseInt(txtMa.getText());
 
         PhongChieu pc = new PhongChieu();
@@ -215,7 +214,6 @@ public class PanelPhongChieu extends JPanel implements Refresh {
         }
 
         int maPhong = Integer.parseInt(txtMa.getText());
-
         int confirm = thongBao("Xóa phòng chiếu này?\nTất cả ghế và suất chiếu sẽ bị xóa!", "Xác nhận", JOptionPane.QUESTION_MESSAGE, true);
         if (confirm == JOptionPane.YES_OPTION) {
             if (dao.delete(maPhong)) {
@@ -394,7 +392,7 @@ public class PanelPhongChieu extends JPanel implements Refresh {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

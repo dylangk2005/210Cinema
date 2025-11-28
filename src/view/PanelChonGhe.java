@@ -36,7 +36,7 @@ public class PanelChonGhe extends JDialog {
         JPanel blackScreen = new JPanel();
         blackScreen.setBackground(Color.BLACK);
         JLabel lbScreen = new JLabel("MÀN HÌNH CHIẾU PHIM", JLabel.CENTER);
-        lbScreen.setFont(new Font("Arial", Font.BOLD, 20));
+        lbScreen.setFont(new Font("SegoeUI", Font.BOLD, 20));
         lbScreen.setForeground(Color.WHITE);
         blackScreen.setPreferredSize(new Dimension(700, 50));
         blackScreen.setLayout(new BorderLayout());
@@ -56,7 +56,7 @@ public class PanelChonGhe extends JDialog {
             JButton seatBtn = new JButton(seatCode);
             seatBtn.setFocusPainted(false);
             seatBtn.setBackground(Color.LIGHT_GRAY);
-            seatBtn.setFont(new Font("Arial", Font.BOLD, 13));
+            seatBtn.setFont(new Font("SegoeUI", Font.BOLD, 13));
             seatBtn.setForeground(Color.BLACK);
             seatBtn.setPreferredSize(new Dimension(55, 45));
             seatBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -78,7 +78,7 @@ public class PanelChonGhe extends JDialog {
 
         // ====== PANEL DƯỚI ======
         taSelected = new JTextArea("Ghế đã chọn: Chưa chọn");
-        taSelected.setFont(new Font("Arial", Font.BOLD, 16));
+        taSelected.setFont(new Font("SegoeUI", Font.BOLD, 16));
         taSelected.setEditable(false);
         taSelected.setFocusable(false);
         taSelected.setOpaque(true);
@@ -103,15 +103,33 @@ public class PanelChonGhe extends JDialog {
         btnPanel.setBackground(Color.WHITE);
 
         btnConfirm = new JButton("XÁC NHẬN");
-        btnConfirm.setBackground(new Color(0, 150, 0));
+        btnConfirm.setBackground(new Color(0, 120, 0));
         btnConfirm.setForeground(Color.WHITE);
-        btnConfirm.setFont(new Font("Arial", Font.BOLD, 14));
+        btnConfirm.setFont(new Font("SegoeUI", Font.BOLD, 14));
+        btnConfirm.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnConfirm.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnConfirm.setBackground(new Color(0, 180, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnConfirm.setBackground(new Color(0, 120, 0));
+            }
+        });
 
+        
         btnCancel = new JButton("HỦY");
-        btnCancel.setBackground(new Color(200, 0, 0));
+        btnCancel.setBackground(new Color(180, 0, 0));
         btnCancel.setForeground(Color.WHITE);
-        btnCancel.setFont(new Font("Arial", Font.BOLD, 14));
-
+        btnCancel.setFont(new Font("SegoeUI", Font.BOLD, 14));
+        btnCancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnCancel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnCancel.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnCancel.setBackground(new Color(180, 0, 0));
+            }
+        });
         btnPanel.add(btnCancel);
         btnPanel.add(btnConfirm);
         bottomPanel.add(btnPanel, BorderLayout.EAST);
@@ -130,7 +148,7 @@ public class PanelChonGhe extends JDialog {
 
         btnConfirm.addActionListener(e -> {
             if (selectedSeats.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một ghế!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                msg("Vui lòng chọn ít nhất một ghế!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             Set<Integer> listMaGhe = new HashSet<>();
@@ -189,10 +207,50 @@ public class PanelChonGhe extends JDialog {
         p.add(colorBox);
 
         JLabel lb = new JLabel(text);
-        lb.setFont(new Font("Arial", Font.PLAIN, 13));
+        lb.setFont(new Font("SegoeUI", Font.PLAIN, 13));
         p.add(lb);
 
         p.setOpaque(false);
         return p;
+    }
+    public void msg(String message, String title, int type) {
+        // Tạo nút OK đỏ 
+        JButton btnOK = new JButton("OK");
+        btnOK.setBackground(new Color(180, 0, 0));
+        btnOK.setForeground(Color.WHITE);
+        btnOK.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnOK.setFocusPainted(false);
+        btnOK.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnOK.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
+        btnOK.setPreferredSize(new Dimension(90, 30));
+
+        // Hover effect
+        btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnOK.setBackground(new Color(180, 0, 0));
+            }
+        });
+
+        // Tạo JOptionPane chỉ có 1 nút
+        JOptionPane optionPane = new JOptionPane(
+            message,
+            type,
+            JOptionPane.DEFAULT_OPTION,
+            null,
+            new Object[]{btnOK},
+            btnOK
+        );
+
+        // Tạo dialog
+        JDialog dialog = optionPane.createDialog(this, title);
+        dialog.setResizable(false);
+
+        // Bấm nút OK → đóng dialog
+        btnOK.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
     }
 }

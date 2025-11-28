@@ -5,12 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import util.DBConnection;
-import model.DonHang;
+import model.HoaDon;
 
-public class DonHangDAO {
+public class HoaDonDAO {
     
-    public DonHang getDonHangByID(int maDH) {
-        String sql = "SELECT * FROM DonHang WHERE maDonHang = ?";
+    public HoaDon getHoaDonByID(int maDH) {
+        String sql = "SELECT * FROM HoaDon WHERE maHoaDon = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
@@ -18,11 +18,11 @@ public class DonHangDAO {
                 ResultSet rs = ps.executeQuery();
                 
                 if (rs.next()) {
-                    DonHang dh = new DonHang (
+                    HoaDon dh = new HoaDon (
                         rs.getInt("maNhanVien"),
                         rs.getInt("maKhachHang"),
                         rs.getBigDecimal("tongTienPhaiTra"), 
-                        rs.getString("trangThaiDonHang")
+                        rs.getString("phuongThucThanhToan")
                     );
                     return dh;
                 }
@@ -33,8 +33,8 @@ public class DonHangDAO {
         return null;
     }
 
-    public int insertDonHang(DonHang dh) throws Exception {
-        String sql = "INSERT INTO DonHang(maNhanVien, maKhachHang, trangThaiDonHang) "
+    public int insertHoaDon(HoaDon dh) throws Exception {
+        String sql = "INSERT INTO HoaDon(maNhanVien, maKhachHang, phuongThucThanhToan) "
                    + "VALUES (?, ?, ?)";
 
         
@@ -43,7 +43,7 @@ public class DonHangDAO {
 
             ps.setInt(1, dh.getMaNhanVien());
             ps.setObject(2, dh.getMaKhachHang() <= 0 ? null : dh.getMaKhachHang());
-            ps.setString(3, dh.getTrangThaiDonHang());
+            ps.setString(3, dh.getPhuongThucThanhToan());
             ps.executeUpdate();
             
             try (ResultSet rs = ps.getGeneratedKeys()) {

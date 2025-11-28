@@ -217,7 +217,7 @@ public class PanelSuatChieu extends JPanel implements Refresh {
                 sc.getTenPhim(),
                 sc.getTenPhongChieu(),
                 sdf.format(sc.getNgayGioChieu()),
-                String.format("%,.0f VNĐ", sc.getGiaVeCoBan())
+                String.format("%,.0f đ", sc.getGiaVeCoBan())
             });
         }
     }
@@ -310,7 +310,7 @@ public class PanelSuatChieu extends JPanel implements Refresh {
         }
 
         int maSuat = Integer.parseInt(txtMa.getText());
-        int confirm = thongBao("Bạn có chắc muốn xóa suất chiếu này?", "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
+        int confirm = thongBao("Bạn có chắc muốn xóa suất chiếu này?", "Xác nhận", JOptionPane.QUESTION_MESSAGE, true);
         if (confirm == JOptionPane.YES_OPTION) {
             if (dao.delete(maSuat)) {
                 thongBao("Xóa suất chiếu thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
@@ -373,6 +373,14 @@ public class PanelSuatChieu extends JPanel implements Refresh {
         b.setBackground(MAU_DO); b.setForeground(TRANG); b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setPreferredSize(new Dimension(120, 40)); b.setFocusPainted(false); b.setOpaque(true);
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                b.setBackground(new Color(220, 0, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                b.setBackground(new Color(180, 0, 0));
+            }
+        });
         b.addActionListener(a);
         return b;
     }
@@ -445,7 +453,7 @@ public class PanelSuatChieu extends JPanel implements Refresh {
         // Hover 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(200, 0, 0));
+                btn.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(new Color(180, 0, 0));

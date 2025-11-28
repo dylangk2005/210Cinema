@@ -1,5 +1,7 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class ThongKe {
     private String ten;
     private int soLuong;

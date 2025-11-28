@@ -242,10 +242,10 @@ public class MainForm extends JFrame {
         // Hover 
         btnDangXuat.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnDangXuat.setBackground(new Color(200, 0, 0));
+                btnDangXuat.setBackground(new Color(220, 0, 0));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnDangXuat.setBackground(new Color(220, 0, 0));
+                btnDangXuat.setBackground(new Color(180, 0, 0));
             }
         });
         btnHuy.addMouseListener( new java.awt.event.MouseAdapter(){
