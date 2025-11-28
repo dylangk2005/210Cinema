@@ -9,6 +9,7 @@ import util.PdfInvoiceGenerator;
 import dao.*;
 import javax.swing.event.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import model.*;
@@ -19,6 +20,7 @@ public class PanelThanhToan extends JPanel {
     private List<ChiTietDonHang> ctlists = new ArrayList<>();
     private int maKHDaChon, diemTichLuy;
     private String phan_tram_giam;
+    private boolean da_thanh_toan;
     private final Color RED = new Color(200, 0, 0);
     private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 13);
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 13);
@@ -42,6 +44,7 @@ public class PanelThanhToan extends JPanel {
         
         this.maKHDaChon = -1;
         this.phan_tram_giam = "0";
+        this.da_thanh_toan = false;
         // Lop ngoai cung
         this.setLayout(new BorderLayout(15, 15));
         this.setBackground(Color.WHITE);
@@ -221,7 +224,7 @@ public class PanelThanhToan extends JPanel {
 
         // ====== DÒNG 3: Khách đưa ======
         tfKhachDua = new JTextField("0", 10);
-        lbTraLai = new JLabel("0 đ");
+        lbTraLai = new JLabel(formatMoney(totalSauGiamGia.negate())); 
         
         JPanel khachDuaPanel = new JPanel(new GridLayout(1, 2));
         khachDuaPanel.setBackground(Color.WHITE);
@@ -323,6 +326,11 @@ public class PanelThanhToan extends JPanel {
         });
 
         btnIn.addActionListener(e -> {
+            if(lbGheDaChon.trim().equals("-")) {
+                JOptionPane.showMessageDialog(this, "Khách hàng không đặt vé!", 
+                        "Không thể in vé", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             try {
                 String[] suat = lbThoiGianBD.split(" ");
                 String ticketInfo = String.format("Ticket: %s | Tax: 0,000 đ", lbGiaVe);
@@ -341,6 +349,11 @@ public class PanelThanhToan extends JPanel {
         });
         
         btnInHD.addActionListener(e -> {
+            if (!da_thanh_toan) {
+                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán hóa đơn trước!", 
+                        "Không thể in hóa đơn", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             try {
                 String hinhThuc;
                 if (rbTheTinDung.isSelected()) hinhThuc = "Thẻ tín dụng";
@@ -364,7 +377,7 @@ public class PanelThanhToan extends JPanel {
                 List<String[]> items = new ArrayList<>();           
                 int idx = 1;
                 items.add(new String[]{
-                    String.valueOf(idx++), "Vé xem phim (" + lbGheDaChon + ")", "Vé",
+                    String.valueOf(idx++), "Vé xem phim", "Vé",
                     String.valueOf(soGhe), lbGiaVe, formatMoney(tienVe) 
                 });
                         
@@ -409,7 +422,8 @@ public class PanelThanhToan extends JPanel {
         btnXacNhan.addActionListener(e -> {
             BigDecimal num = parseMoney(lbTraLai.getText());
             if(num.compareTo(BigDecimal.ZERO) < 0) {
-                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán đủ tiền!");
+                JOptionPane.showMessageDialog(this, "Vui lòng thanh toán đủ tiền!", 
+                        "Không thể thanh toán", JOptionPane.ERROR_MESSAGE);
                 return;
             } 
             try {
@@ -418,6 +432,7 @@ public class PanelThanhToan extends JPanel {
                 System.getLogger(PanelThanhToan.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
             JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
+            this.da_thanh_toan = true;
         });
         // check SDT nhap vao, ap giam gia va cap nhat tich luy
         btnCheck.addActionListener(e -> {
@@ -514,7 +529,6 @@ public class PanelThanhToan extends JPanel {
         row.setBackground(Color.WHITE);
 
         GridBagConstraints gbc = new GridBagConstraints();
-//        gbc.insets = new Insets(4, 4, 4, 4); // margin các cạnh
         gbc.anchor = GridBagConstraints.WEST; 
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -524,17 +538,17 @@ public class PanelThanhToan extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0;    // không giãn
+        gbc.weightx = 0;
         row.add(lbTitle, gbc);
 
         // Component giá trị
         valueComp.setFont(FONT_VALUE);
         valueComp.setOpaque(true);
         valueComp.setBackground(Color.WHITE);
-        valueComp.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0)); //
+        valueComp.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
 
         gbc.gridx = 1;
-        gbc.weightx = 1;    // component bên phải giãn đầy phần còn lại
+        gbc.weightx = 1;
         row.add(valueComp, gbc);
 
         return row;
@@ -570,8 +584,12 @@ public class PanelThanhToan extends JPanel {
         
         new KhachHangDAO().updateDiemTichLuy(this.maKHDaChon, this.diemTichLuy); 
        
-        BigDecimal giaVe = tienVe.divide(new BigDecimal(soGhe));
-        Set<Integer> listMaVe = new VeDAO().insertVe(maDonHang, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
+        BigDecimal giaVe;
+        Set<Integer> listMaVe = new HashSet<>();
+        if(soGhe != 0) {
+            giaVe = tienVe.divide(new BigDecimal(soGhe));
+            listMaVe = new VeDAO().insertVe(maDonHang, maSuatChieu, listMaGhe, giaVe, "Đã đặt");
+        }
         
         for (ChiTietDonHang ct : ctlists) {
             BigDecimal don_gia_luc_ban = ct.getDonGiaLucBan();

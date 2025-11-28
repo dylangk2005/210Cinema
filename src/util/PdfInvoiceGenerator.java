@@ -190,7 +190,7 @@ public class PdfInvoiceGenerator {
         float metaY = pageSize.getHeight() - 50;
 
         leftText(ct, "Mẫu số: AMENIC/210", font, 10, metaX, metaY);
-        leftText(ct, "Ký hiệu: RR/05E", font, 10, metaX, metaY - 15);
+        leftText(ct, "Ký hiệu: RR/5AE", font, 10, metaX, metaY - 15);
         leftText(ct, "Số: 0000123", font, 10, metaX, metaY - 30);
         
         // Bang hang hoa

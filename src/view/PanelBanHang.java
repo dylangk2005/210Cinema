@@ -54,6 +54,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         for (PhongChieu p : danhSachPhongChieu) {
             cbPhong.addItem(p);
         }
+        reloadlistPanel();
     }
     
     private void initEvents() {
@@ -141,6 +142,11 @@ public class PanelBanHang extends JPanel implements Refresh {
         });        
         
         btnXacNhan.addActionListener(e -> {
+            if(isPaymentNotAllowed()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn hàng hóa để thanh toán!", 
+                        "Không thể thanh toán", JOptionPane.ERROR_MESSAGE); 
+                return;
+            }
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
                                          "Thanh toán", true);
             dialog.setLayout(new BorderLayout());
@@ -177,6 +183,8 @@ public class PanelBanHang extends JPanel implements Refresh {
                     btnXacNhan);
             dlg.setVisible(true);
         });
+        
+        btnLamMoi.addActionListener(e -> clearForm());
     }
     
 // =============== HAM TAO PANEL TOP ==================    
@@ -318,32 +326,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.WHITE);
-
-        List<SanPham> products = new SanPhamDAO().getAll();
-        
-        for (SanPham sp : products) {
-            JPanel productPanel = new JPanel(new GridLayout(1, 3, 10, 0));
-            productPanel.setPreferredSize(new Dimension(10, 30)); // Fixed: h30
-            productPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-            productPanel.setBackground(Color.WHITE);
-                  
-            JLabel lb = new JLabel(sp.getTenSanPham());
-            lb.setFont(new Font("Arial", Font.PLAIN, 14));
-            
-            SpinnerNumberModel model = new SpinnerNumberModel(0, 0, null, 1);
-            JSpinner sl = new JSpinner(model);
-            ((JSpinner.DefaultEditor) sl.getEditor()).getTextField().setHorizontalAlignment(JTextField.CENTER);
-            sl.setPreferredSize(new Dimension(60, 25));
-            
-            JLabel dg = new JLabel(formatMoney(sp.getDonGia())); 
-            dg.setHorizontalAlignment(JLabel.CENTER); 
-            dg.setFont(new Font("Arial", Font.PLAIN, 14));
-            productPanel.add(lb);
-            productPanel.add(dg);
-            productPanel.add(sl);
-            productPanel.putClientProperty("product", sp.getMaSanPham());
-            listPanel.add(productPanel);
-        }
+        loadlistPanel();
         
         // them listpanel vao scroolpanel
         JScrollPane scroll = new JScrollPane(listPanel);
@@ -555,7 +538,7 @@ public class PanelBanHang extends JPanel implements Refresh {
     
 // ================ HAM LAM MOI DU LIEU ================
     private void clearForm() {
-        this.maPhimDaChon = this.maPhongChieuDaChon = this.maSuatChieuDaChon;
+        this.maPhimDaChon = this.maPhongChieuDaChon = this.maSuatChieuDaChon = -1;
         taGheDaChon.setText("-");
         cbPhim.setSelectedItem(null); 
         cbPhong.setSelectedItem(null);
@@ -578,6 +561,59 @@ public class PanelBanHang extends JPanel implements Refresh {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return btn;
+    }
+    
+    private void loadlistPanel() {
+        List<SanPham> products = new SanPhamDAO().getAll();
+        
+        for (SanPham sp : products) {
+            JPanel productPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+            productPanel.setPreferredSize(new Dimension(10, 30)); // Fixed: h30
+            productPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+            productPanel.setBackground(Color.WHITE);
+                  
+            JLabel lb = new JLabel(sp.getTenSanPham());
+            lb.setFont(new Font("Arial", Font.PLAIN, 14));
+            
+            SpinnerNumberModel model = new SpinnerNumberModel(0, 0, null, 1);
+            JSpinner sl = new JSpinner(model);
+            ((JSpinner.DefaultEditor) sl.getEditor()).getTextField().setHorizontalAlignment(JTextField.CENTER);
+            sl.setPreferredSize(new Dimension(60, 25));
+            
+            JLabel dg = new JLabel(formatMoney(sp.getDonGia())); 
+            dg.setHorizontalAlignment(JLabel.CENTER); 
+            dg.setFont(new Font("Arial", Font.PLAIN, 14));
+            productPanel.add(lb);
+            productPanel.add(dg);
+            productPanel.add(sl);
+            productPanel.putClientProperty("product", sp.getMaSanPham());
+            listPanel.add(productPanel);
+        } 
+    }
+    
+    private void reloadlistPanel() {
+        listPanel.removeAll();
+        loadlistPanel();
+        listPanel.revalidate(); 
+        listPanel.repaint();
+    }
+    
+    private boolean isPaymentNotAllowed() {
+        boolean hasProduct = false;
+
+        for (Component c : listPanel.getComponents()) {
+            if (c instanceof JPanel productPanel) {
+                JSpinner sl = (JSpinner) productPanel.getComponent(2);
+                if ((int) sl.getValue() > 0) {
+                    hasProduct = true;
+                    break;
+                }
+            }
+        }
+
+        boolean hasSeat = !taGheDaChon.getText().trim().equals("-");
+
+        return !hasProduct && !hasSeat;
     }
     
 // =============== HAM DINH DANG TIENG VIET =================
