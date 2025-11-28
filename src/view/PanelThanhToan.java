@@ -61,7 +61,7 @@ public class PanelThanhToan extends JPanel {
         ));
         
         infoVePanel.add(makeLabel("Phim", lbTenPhim));
-        infoVePanel.add(makeLabel("Phòng", lbTenPhong));
+        infoVePanel.add(makeLabel("Phòng", lbTenPhong)); 
         infoVePanel.add(makeLabel("Suất chiếu", lbThoiGianBD)); 
         infoVePanel.add(makeLabel("Giá vé", lbGiaVe));
         
@@ -156,17 +156,21 @@ public class PanelThanhToan extends JPanel {
         styleButton(btnCheck, new Color(80, 80, 80));
         styleButton(btnSignup, new Color(180,0,0));
         btnCheck.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnCheck.setBackground(new Color(110, 110, 110));
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnCheck.setBackground(new Color(80, 80, 80));
             }
         });
         btnSignup.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnSignup.setBackground(new Color(220, 0, 0));
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnSignup.setBackground(new Color(180, 0, 0));
             }
@@ -663,9 +667,11 @@ public class PanelThanhToan extends JPanel {
 
         // Hover effect
         btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnOK.setBackground(new Color(220, 0, 0));
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnOK.setBackground(new Color(180, 0, 0));
             }

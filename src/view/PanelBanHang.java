@@ -9,6 +9,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Set;
+import java.text.Normalizer;
 import model.*;
 
 public class PanelBanHang extends JPanel implements Refresh {
@@ -165,13 +166,13 @@ public class PanelBanHang extends JPanel implements Refresh {
             dialog.setLayout(new BorderLayout());
             dialog.setSize(650, 700);
             dialog.setLocationRelativeTo(this);
-
+            
             PanelThanhToan panelThanhToan = new PanelThanhToan(
-                    lbTenPhim.getText(),
-                    lbTenPhong.getText(),
-                    lbThoiGianBD.getText(),
+                    normalize(lbTenPhim.getText()),
+                    normalize(lbTenPhong.getText()),
+                    normalize(lbThoiGianBD.getText()), 
                     taGheDaChon.getText(),
-                    lbGiaVe.getText(),
+                    normalize(lbGiaVe.getText()), 
                     listPanel,
                     listMaGheDaChon,
                     maNhanVien,
@@ -410,7 +411,7 @@ public class PanelBanHang extends JPanel implements Refresh {
         );
 
         scrollSelected.setBorder(null);
-        scrollSelected.setPreferredSize(new Dimension(240, 18));
+        scrollSelected.setPreferredSize(new Dimension(260, 20));
         
         JLabel lb7 = new JLabel("Giá vé:");
         lb7.setFont(labelFont); 
@@ -582,9 +583,11 @@ public class PanelBanHang extends JPanel implements Refresh {
 
         // Hover effect – giữ màu theo loại nút
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btn.setBackground(bgHover);
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(bgNormal);
             }
@@ -597,11 +600,11 @@ public class PanelBanHang extends JPanel implements Refresh {
         
         for (SanPham sp : products) {
             JPanel productPanel = new JPanel(new GridLayout(1, 3, 10, 0));
-            productPanel.setPreferredSize(new Dimension(10, 30)); // Fixed: h30
+            productPanel.setPreferredSize(new Dimension(10, 30));
             productPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
             productPanel.setBackground(Color.WHITE);
                   
-            JLabel lb = new JLabel(sp.getTenSanPham());
+            JLabel lb = new JLabel(normalize(sp.getTenSanPham()));
             lb.setFont(new Font("SegoeUI", Font.PLAIN, 14));
             
             SpinnerNumberModel model = new SpinnerNumberModel(0, 0, null, 1);
@@ -644,6 +647,12 @@ public class PanelBanHang extends JPanel implements Refresh {
 
         return !hasProduct && !hasSeat;
     }
+
+// ====== HAM CHUAN HOA CHUOI TIENG VIET COMBINING UNICODE SANG NFC ====    
+    public static String normalize(String s) {
+        if (s == null) return "";
+        return Normalizer.normalize(s, Normalizer.Form.NFC);
+    }
     
 // =============== HAM DINH DANG TIENG VIET =================
     private String formatMoney(BigDecimal amount) {
@@ -673,9 +682,11 @@ public class PanelBanHang extends JPanel implements Refresh {
 
         // Hover effect
         btnOK.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnOK.setBackground(new Color(220, 0, 0));
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnOK.setBackground(new Color(180, 0, 0));
             }
