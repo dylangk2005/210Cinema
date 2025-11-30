@@ -30,7 +30,7 @@ public class PanelNhanVien extends JPanel implements Refresh {
     private JDateChooser dateChooser;
     private JComboBox<String> cbChucVu;
     private JComboBox<String> cbTieuChi;
-    private JRadioButton rdNam, rdNu;
+    private JRadioButton rdNam, rdNu, rdKhac;
     private JTable table;
     private DefaultTableModel model;
     private final NhanVienDAO dao = new NhanVienDAO();
@@ -78,12 +78,13 @@ public class PanelNhanVien extends JPanel implements Refresh {
         // radio giới tính
         rdNam = new JRadioButton("Nam", true);
         rdNu = new JRadioButton("Nữ");
+        rdKhac = new JRadioButton("Khác");
         ButtonGroup bg = new ButtonGroup();
-        bg.add(rdNam); bg.add(rdNu);
+        bg.add(rdNam); bg.add(rdNu); bg.add(rdKhac);
         
         JPanel gender = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         gender.setBackground(TRANG);
-        gender.add(rdNam); gender.add(rdNu);
+        gender.add(rdNam); gender.add(rdNu);gender.add(rdKhac);
         
         // thêm từng dòng vào form
         int y = 0;
@@ -296,6 +297,7 @@ public class PanelNhanVien extends JPanel implements Refresh {
     
     // lấy thông tin từ form
     private NhanVien layTuForm() {
+       
         String ten = txtHoTen.getText().trim();
         String sdt = txtSDT.getText().trim();
         java.util.Date d = dateChooser.getDate();
@@ -303,7 +305,7 @@ public class PanelNhanVien extends JPanel implements Refresh {
             throw new RuntimeException("Vui lòng nhập đầy đủ thông tin!");
         }
         int maCV = cbChucVu.getSelectedIndex() == 0 ? 1 : 2;
-        NhanVien nv = new NhanVien();
+        NhanVien nv = new NhanVien(); 
         nv.setHoTenNhanVien(ten);
         nv.setNgaySinh(new Date(d.getTime()));
         nv.setGioiTinh(rdNam.isSelected() ? "Nam" : "Nữ");
@@ -311,7 +313,46 @@ public class PanelNhanVien extends JPanel implements Refresh {
         nv.setMaChucVu(maCV);
         return nv;
     }
+    // kiểm tra form hop le
+    private boolean validateForm() {
+        java.util.List<String> errors = new java.util.ArrayList<>();
 
+        String hoTen = txtHoTen.getText().trim();
+        String sdt = txtSDT.getText().trim();
+        java.util.Date ngaySinh = dateChooser.getDate();
+
+        // 1. ht
+        if (hoTen.isEmpty()) {
+            errors.add("• Tên nhân viên không được để trống");
+        } else if (!hoTen.matches("^[A-Za-zÀ-ỿà-ỹ\\s'-]+$")) {
+            errors.add("• Tên nhân viên không được chứa số hoặc ký tự đặc biệt");
+        }
+
+        // 2. sdt
+        if (sdt.isEmpty()) {
+            errors.add("• Số điện thoại không được để trống");
+        } else if (!sdt.matches("^0\\d{9,10}$")) {  
+            errors.add("• Số điện thoại phải bắt đầu bằng 0 và chỉ chứa 10-11 chữ số");
+        }
+       
+        // 3. ngay sinh
+        if (ngaySinh == null) {
+            errors.add("• Vui lòng chọn ngày sinh");
+        } 
+
+        // Hiển thị tất cả lỗi
+        if (!errors.isEmpty()) {
+            StringBuilder msg = new StringBuilder("<html><b>Vui lòng sửa các lỗi sau:</b><br><br>");
+            for (String err : errors) {
+                msg.append("<font color=black> ").append(err).append("</font><br>");
+            }
+            msg.append("</html>");
+            thongBao(msg.toString(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE, false);
+            return false;
+        }
+        return true;
+    }
+    
     // ==================== 5. DIALOG THÔNG BÁO ==================== 
    private int thongBao(String msg, String title, int messageType, boolean coYesNo) {
         JButton btnHuy = taoNutDialog("Hủy", 90, 30);
@@ -382,13 +423,16 @@ public class PanelNhanVien extends JPanel implements Refresh {
             thongBao("Không được thêm tài khoản QUẢN LÝ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE, false);
             return;
         }
-        try {
-            if (dao.add(layTuForm())) {
+        if (validateForm()){
+            NhanVien nv = layTuForm();
+            if (new NhanVienDAO().kiemTraTrungSDT(nv.getSoDienThoai(), -1)){
+                thongBao("Trùng số điện thoại " + nv.getSoDienThoai() + ". Không thể thêm", "Thông báo", JOptionPane.INFORMATION_MESSAGE, false);
+                return;
+            }
+            if (dao.add(nv)) {
                 thongBao("Thêm thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
                 loadDuLieu(); xoaForm();
             }
-        } catch (Exception ex) {
-            thongBao(ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE, false);
         }
     }
 
@@ -406,15 +450,22 @@ public class PanelNhanVien extends JPanel implements Refresh {
             thongBao("Không được nâng cấp thành QUẢN LÝ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE, false);
             return;
         }
-        try {
+        if (validateForm()){
             NhanVien nv = layTuForm();
-            nv.setMaNhanVien(Integer.parseInt(txtMaNV.getText()));
+            int maNV = Integer.parseInt(txtMaNV.getText());
+            nv.setMaNhanVien(maNV);
+            if (new NhanVienDAO().kiemTraTrungSDT(nv.getSoDienThoai(), nv.getMaNhanVien())){
+                thongBao("Trùng số điện thoại " + nv.getSoDienThoai() + ". Không thể cập nhật", "Thông báo", JOptionPane.INFORMATION_MESSAGE, false);
+                return;
+            }
             if (dao.update(nv)) {
                 thongBao("Cập nhật thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
                 loadDuLieu();
+                xoaForm();
             }
-        } catch (Exception ex) {
-            thongBao("Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE, false);
+            else{
+                thongBao("Lỗi. Không thể thêm!", "Lỗi", JOptionPane.INFORMATION_MESSAGE, false);
+            }
         }
     }
 
@@ -428,12 +479,12 @@ public class PanelNhanVien extends JPanel implements Refresh {
             thongBao("Không được xóa tài khoản QUẢN LÝ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE, false);
             return;
         }
-
         int chon = thongBao("Bạn có chắc chắn muốn xóa nhân viên này?", "Xác nhận xóa", JOptionPane.QUESTION_MESSAGE, true);
         if (chon == JOptionPane.YES_OPTION) {
             if (dao.delete((int) model.getValueAt(row, 0))) {
                 thongBao("Xóa thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE, false);
-                loadDuLieu(); xoaForm();
+                loadDuLieu(); 
+                xoaForm();
             }
         }
     }

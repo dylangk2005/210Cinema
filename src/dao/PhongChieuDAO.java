@@ -138,7 +138,25 @@ public class PhongChieuDAO {
             return false;
         }
     }
+    
+    // Kiểm tra trùng sản phẩm
+     public boolean kiemTraTrungPhongChieu(String tenPC, int maPC) {
+        String sql = "SELECT COUNT(*) FROM PhongChieu WHERE tenPhongChieu = ? AND maPhongChieu != ?";
+        try (var conn = DBConnection.getConnection();
+             var ps = conn.prepareStatement(sql)) {
 
+            ps.setString(1, tenPC);
+            ps.setInt(2, maPC);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+     
     // Map ResultSet → PhongChieu
     private PhongChieu mapRow(ResultSet rs) throws SQLException {
         return new PhongChieu(

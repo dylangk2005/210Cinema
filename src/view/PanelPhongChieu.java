@@ -173,7 +173,11 @@ public class PanelPhongChieu extends JPanel implements Refresh {
         pc.setTrangThaiPhong((String) cbTrangThai.getSelectedItem());
         pc.setLoaiManHinh((String) cbManHinh.getSelectedItem());
         pc.setHeThongAmThanh((String) cbAmThanh.getSelectedItem());
-
+        
+        if (new PhongChieuDAO().kiemTraTrungPhongChieu(pc.getTenPhongChieu(), -1)){
+            msg("Trùng tên phòng chiếu. Không thể thêm!");
+            return;
+        }
         if (dao.insert(pc)) {
             msg("Thêm phòng thành công! Đã tự động tạo ghế.");
             loadData();
@@ -197,7 +201,12 @@ public class PanelPhongChieu extends JPanel implements Refresh {
         pc.setTrangThaiPhong((String) cbTrangThai.getSelectedItem());
         pc.setLoaiManHinh((String) cbManHinh.getSelectedItem());
         pc.setHeThongAmThanh((String) cbAmThanh.getSelectedItem());
-
+        
+        if (new PhongChieuDAO().kiemTraTrungPhongChieu(pc.getTenPhongChieu(), pc.getMaPhongChieu())){
+            msg("Trùng tên phòng chiếu. Không thể cập nhật!");
+            return;
+        }
+        
         if (dao.update(pc)) {
             msg("Cập nhật thành công! Ghế đã được điều chỉnh lại.");
             loadData();

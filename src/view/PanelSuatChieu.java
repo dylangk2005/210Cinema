@@ -330,31 +330,50 @@ public class PanelSuatChieu extends JPanel implements Refresh {
     
     // lấy dữ liệu từ form
     private SuatChieu getFormData() {
-    SuatChieu sc = new SuatChieu();
-    sc.setMaPhim(mapPhim.get(cbPhim.getSelectedItem()));
-    sc.setMaPhongChieu(mapPhong.get(cbPhong.getSelectedItem()));
+        SuatChieu sc = new SuatChieu();
+        sc.setMaPhim(mapPhim.get(cbPhim.getSelectedItem()));
+        sc.setMaPhongChieu(mapPhong.get(cbPhong.getSelectedItem()));
 
-    String ngay = new SimpleDateFormat("yyyy-MM-dd").format(dcNgay.getDate());
-    String gio = (String) cbGio.getSelectedItem();
-    String dateTime = ngay + " " + gio + ":00";
+        String ngay = new SimpleDateFormat("yyyy-MM-dd").format(dcNgay.getDate());
+        String gio = (String) cbGio.getSelectedItem();
+        String dateTime = ngay + " " + gio + ":00";
 
-    sc.setNgayGioChieu(Timestamp.valueOf(dateTime));
-    sc.setGiaVeCoBan(new BigDecimal(txtGiaVe.getText().trim().replace(",", "")));
-
+        sc.setNgayGioChieu(Timestamp.valueOf(dateTime));
+        sc.setGiaVeCoBan(new BigDecimal(txtGiaVe.getText().trim().replace(",", "")));
     return sc;
 }
     
     // kiếm tra dữ liệu nhập 
     private boolean validateForm() {
-        if (cbPhim.getSelectedIndex() < 0 || cbPhong.getSelectedIndex() < 0 || dcNgay.getDate() == null || cbGio.getSelectedIndex() < 0 || txtGiaVe.getText().trim().isEmpty()) {
-            msg("Vui lòng điền đầy đủ thông tin!"); 
+        java.util.List<String> errors = new java.util.ArrayList<>();
+
+        if (cbPhim.getSelectedIndex() <= 0) errors.add("• Vui lòng chọn phim");
+        if (cbPhong.getSelectedIndex() <= 0) errors.add("• Vui lòng chọn phòng chiếu");
+        if (dcNgay.getDate() == null) errors.add("• Vui lòng chọn ngày chiếu");
+        if (cbGio.getSelectedIndex() < 0) errors.add("• Vui lòng chọn giờ chiếu");
+        if (txtGiaVe.getText().trim().isEmpty()) errors.add("• Vui lòng nhập giá vé cơ bản");
+
+        String giaStr = txtGiaVe.getText().trim().replace(",", "").replace(".", "");
+        try {
+            BigDecimal giaVe = new BigDecimal(giaStr);
+            if (giaVe.compareTo(BigDecimal.ZERO) <= 0) {
+                errors.add("• Giá vé phải lớn hơn 0");
+            }
+        } catch (Exception e) {
+            errors.add("• Giá vé phải là số hợp lệ và lớn hơn 0");
+        }
+
+        if (!errors.isEmpty()) {
+            StringBuilder msg = new StringBuilder("<html><b>Vui lòng sửa các lỗi sau:</b><br><br>");
+            for (String err : errors) {
+                msg.append("<font color=black> ").append(err).append("</font><br>");
+            }
+            msg.append("</html>");
+            thongBao(msg.toString(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE, false);
             return false;
         }
-      
-        try { new BigDecimal(txtGiaVe.getText().trim()); }
-        catch (Exception e) { msg("Giá vé không hợp lệ!"); return false; }
-        return true;
-    }
+        return true;   
+    }   
 
     // các hàm hỗ trợ giao diện
     private void msg(String s) {

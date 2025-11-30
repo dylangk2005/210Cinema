@@ -1,16 +1,7 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 import model.SanPham;
 import util.DBConnection;
-
-import model.SanPham;
-import util.DBConnection;
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +121,24 @@ public class SanPhamDAO {
         }
         return ds;
     }
+     // Kiểm tra trùng sản phẩm
+     public boolean kiemTraTrungSP(String tenSP, int maSP) {
+        String sql = "SELECT COUNT(*) FROM SanPham WHERE tenSanPham = ? AND maSanPham != ?";
+        try (var conn = DBConnection.getConnection();
+             var ps = conn.prepareStatement(sql)) {
 
+            ps.setString(1, tenSP);
+            ps.setInt(2, maSP);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // nếu đếm được >= 1 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+     
     // ---------------------- MAP ROW ----------------------
     private SanPham mapRow(ResultSet rs) throws SQLException {
         SanPham sp = new SanPham();

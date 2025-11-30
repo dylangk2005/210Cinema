@@ -18,18 +18,18 @@ EXEC sp_addrolemember 'db_datawriter', 'cinema_user';
 -- 1. Chức vụ
 CREATE TABLE ChucVu (
     maChucVu INT IDENTITY(1,1) PRIMARY KEY,
-    tenChucVu NVARCHAR(50),
-    moTaQuyen NVARCHAR(255)
+    tenChucVu NVARCHAR(50) NOT NULL,
+    moTaQuyen NVARCHAR(255) NULL
 );
 GO
 
 -- 2. Nhân viên
 CREATE TABLE NhanVien (
     maNhanVien INT IDENTITY(1,1) PRIMARY KEY,
-    hoTenNhanVien NVARCHAR(100),
-    ngaySinh DATE,
-    gioiTinh NVARCHAR(10),
-    soDienThoai NVARCHAR(15),
+    hoTenNhanVien NVARCHAR(100) NOT NULL,
+    ngaySinh DATE NOT NULL,
+    gioiTinh NVARCHAR(10) NOT NULL,
+    soDienThoai NVARCHAR(15) NOT NULL UNIQUE,
     maChucVu INT NULL,
     FOREIGN KEY (maChucVu)
         REFERENCES ChucVu(maChucVu)
@@ -41,9 +41,9 @@ GO
 -- 3. Tài khoản
 CREATE TABLE TaiKhoan (
     tenDangNhap NVARCHAR(50) PRIMARY KEY,
-    matKhau NVARCHAR(100),
-    email NVARCHAR(100),
-    maNhanVien INT UNIQUE,
+    matKhau NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL,
+    maNhanVien INT NOT NULL UNIQUE,
     FOREIGN KEY (maNhanVien)
         REFERENCES NhanVien(maNhanVien)
         ON UPDATE CASCADE
@@ -54,12 +54,12 @@ GO
 -- 4. Phim
 CREATE TABLE Phim (
     maPhim INT IDENTITY(1,1) PRIMARY KEY,
-    tenPhim NVARCHAR(100),
-    thoiLuong INT,
-    theLoai NVARCHAR(100),
-    gioiHanTuoi NVARCHAR(20),
-    ngayKhoiChieu DATE,
-    moTa NVARCHAR(255)
+    tenPhim NVARCHAR(100) NOT NULL,
+    thoiLuong INT NOT NULL,
+    theLoai NVARCHAR(100) NOT NULL,
+    gioiHanTuoi NVARCHAR(20) NOT NULL,
+    ngayKhoiChieu DATE NOT NULL,
+    moTa NVARCHAR(255) NULL
 );
 GO
 
@@ -67,11 +67,11 @@ GO
 -- 5. Phòng chiếu
 CREATE TABLE PhongChieu (
     maPhongChieu INT IDENTITY(1,1) PRIMARY KEY,
-    tenPhongChieu NVARCHAR(50),
-    soGheNgoi INT,
-    trangThaiPhong NVARCHAR(30),
-    loaiManHinh NVARCHAR(50),
-    heThongAmThanh NVARCHAR(50)
+    tenPhongChieu NVARCHAR(50) NOT NULL,
+    soGheNgoi INT NOT NULL,
+    trangThaiPhong NVARCHAR(30) NOT NULL,
+    loaiManHinh NVARCHAR(50) NOT NULL,
+    heThongAmThanh NVARCHAR(50) NOT NULL
 );
 GO
 
@@ -79,8 +79,8 @@ GO
 CREATE TABLE GheNgoi (
     maGheNgoi INT IDENTITY(1,1) PRIMARY KEY,
     maPhongChieu INT,
-    hangGhe NVARCHAR(10),
-    soGhe NVARCHAR(10),
+    hangGhe NVARCHAR(10) NOT NULL,
+    soGhe NVARCHAR(10) NOT NULL,
     FOREIGN KEY (maPhongChieu)
         REFERENCES PhongChieu(maPhongChieu)
         ON UPDATE CASCADE
@@ -94,8 +94,8 @@ CREATE TABLE SuatChieu (
     maSuatChieu INT IDENTITY(1,1) PRIMARY KEY,
     maPhim INT,
     maPhongChieu INT,
-    ngayGioChieu DATETIME,
-    giaVeCoBan DECIMAL(10,2),
+    ngayGioChieu DATETIME NOT NULL,
+    giaVeCoBan DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (maPhim)
         REFERENCES Phim(maPhim)
         ON UPDATE CASCADE
@@ -110,9 +110,9 @@ GO
 -- 8. Sản phẩm
 CREATE TABLE SanPham (
     maSanPham INT IDENTITY(1,1) PRIMARY KEY,
-    tenSanPham NVARCHAR(100),
-    donGia DECIMAL(10,2),
-    moTa NVARCHAR(255),
+    tenSanPham NVARCHAR(100) NOT NULL,
+    donGia DECIMAL(10,2) NOT NULL,
+    moTa NVARCHAR(255) NULL
 
 );
 GO
@@ -120,14 +120,14 @@ GO
 -- 9. Khách hàng
 CREATE TABLE KhachHang (
     maKhachHang INT IDENTITY(1,1) PRIMARY KEY,
-    hoTenKhachHang NVARCHAR(100),
-    ngaySinh DATE,
-    gioiTinh NVARCHAR(10),
-    soDienThoai NVARCHAR(15),
-    email NVARCHAR(100),
-    hangThanhVien NVARCHAR(30),
+    hoTenKhachHang NVARCHAR(100) NOT NULL,
+    ngaySinh DATE NOT NULL,
+    gioiTinh NVARCHAR(10) NOT NULL,
+    soDienThoai NVARCHAR(15) NOT NULL UNIQUE,
+    email NVARCHAR(100) NOT NULL,
+    hangThanhVien NVARCHAR(30) NOT NULL,
     diemTichLuy INT DEFAULT 0,
-    ngayDangKy DATETIME DEFAULT GETDATE()
+    ngayDangKy DATE DEFAULT GETDATE()
 );
 GO
 
@@ -135,11 +135,11 @@ GO
 -- 10. Hóa đơn
 CREATE TABLE HoaDon (
     maHoaDon INT IDENTITY(1,1) PRIMARY KEY,
-    maNhanVien INT NULL,
-	maKhachHang INT NULL,
+    maNhanVien INT,
+	maKhachHang INT,
     thoiGianTao DATETIME DEFAULT GETDATE(),
     tongTienPhaiTra DECIMAL(10,2),
-    phuongThucThanhToan NVARCHAR(50),
+    phuongThucThanhToan NVARCHAR(50) NOT NULL,
     FOREIGN KEY (maNhanVien)
         REFERENCES NhanVien(maNhanVien)
         ON UPDATE CASCADE
@@ -189,33 +189,23 @@ CREATE TABLE ChiTietHoaDon (
 GO
 
 -- Tạo index cho các bảng để truy vấn
-CREATE INDEX IX_NhanVien_hoTenNV ON NhanVien(hoTenNhanVien);
+CREATE INDEX IX_NhanVien_hoTenNV ON NhanVien(hoTenNhanVien); --Nhân viên : họ tên, số điện thoại
 CREATE INDEX IX_NhanVien_SDT ON NhanVien(soDienThoai);
-
-CREATE INDEX IX_Phim_TenPhim ON Phim(tenPhim);
+CREATE INDEX IX_Phim_TenPhim ON Phim(tenPhim); -- Phim : tên phim, thể loại
 CREATE INDEX IX_Phim_TheLoai ON Phim(theLoai);
-
-CREATE INDEX IX_PhongChieu_TenPhong ON PhongChieu(tenPhongChieu);
+CREATE INDEX IX_PhongChieu_TenPhong ON PhongChieu(tenPhongChieu); -- phòng chiếu : tên phòng chiếu, trạng thái phòng
 CREATE INDEX IX_PhongChieu_TrangThai ON PhongChieu(trangThaiPhong);
-
-CREATE INDEX IX_Ghe_maPhongChieu ON GheNgoi(maPhongChieu);
-
-CREATE INDEX IX_SuatChieu_maPhim ON SuatChieu(maPhim);
+CREATE INDEX IX_Ghe_maPhongChieu ON GheNgoi(maPhongChieu); -- ghế : mã phòng chiếu
+CREATE INDEX IX_SuatChieu_maPhim ON SuatChieu(maPhim); -- suất chiếu : mã phim, mã phòng chiếu, ngày giờ chiếu
 CREATE INDEX IX_SuatChieu_maPhongChieu ON SuatChieu(maPhongChieu);
 CREATE INDEX IX_SuatChieu_ngayGioChieu ON SuatChieu(ngayGioChieu);
-
-CREATE INDEX IX_SanPham_tenSanPham ON SanPham(tenSanPham);
-
-CREATE INDEX IX_KhachHang_TenKH ON KhachHang(hoTenKhachHang);
-CREATE INDEX IX_KhachHang_hoTenKH ON KhachHang(soDienThoai);
-
-CREATE INDEX IX_HoaDon_TGTao ON HoaDon(thoiGianTao);
+CREATE INDEX IX_SanPham_tenSanPham ON SanPham(tenSanPham); -- sản phẩm : tên sản phẩm
+CREATE INDEX IX_KhachHang_TenKH ON KhachHang(hoTenKhachHang); -- khách hàng : họ tên, số điện thoại
+CREATE INDEX IX_KhachHang_sdtKH ON KhachHang(soDienThoai);
+CREATE INDEX IX_HoaDon_TGTao ON HoaDon(thoiGianTao); -- hóa đơn : thời gian tạo, mã nhân viên
 CREATE INDEX IX_HoaDon_maNV ON HoaDon(maNhanVien);
-
-CREATE INDEX IX_Ve_maSuatChieu ON Ve(maSuatChieu);
-
-
-CREATE INDEX IX_CTHoaDon_maHoaDon ON ChiTietHoaDon(maHoaDon);
+CREATE INDEX IX_Ve_maSuatChieu ON Ve(maSuatChieu); -- vé : Mã suất chiếu
+CREATE INDEX IX_CTHoaDon_maHoaDon ON ChiTietHoaDon(maHoaDon); -- Hóa đơn : mã Hóa đơn, mã vé, mã sản phẩm
 CREATE INDEX IX_CTHoaDon_maVe ON ChiTietHoaDon(maVe);
 CREATE INDEX IX_CTHoaDon_maSanPham ON ChiTietHoaDon(maSanPham);
 
@@ -292,9 +282,10 @@ INSERT INTO SanPham (tenSanPham, donGia, moTa) VALUES
 (N'Nước suối 500ml', 15000, N'Nước suối tinh khiết');
 
 INSERT INTO KhachHang (hoTenKhachHang, ngaySinh, gioiTinh, soDienThoai, email, hangThanhVien, diemTichLuy, ngayDangKy) VALUES
-(N'Vũ Minh Châu', '2000-04-12', N'Nữ', '0123456789', 'chau@gmail.com', N'Vàng', 1500, '2020-01-01'),
-(N'Đỗ Hoàng Duy', '1999-08-25', N'Nam', '0987654321', 'duy@gmail.com', N'Bạc', 800, '2023-04-12'),
-(N'Nguyễn Lan Hương', '2001-12-01', N'Nữ', '0135792468', 'huong@gmail.com', N'Kim cương', 3000, '2017-03-18');
+(N'Vũ Minh Châu', '2000-04-12', N'Nữ', '0123456789', 'chau@gmail.com', N'Vàng', 1500, '2020-01-01'),
+(N'Đỗ Hoàng Duy', '1999-08-25', N'Nam', '0987654321', 'duy@gmail.com', N'Bạc', 800, '2023-04-12'),
+(N'Nguyễn Lan Hương', '2001-12-01', N'Nữ', '0135792468', 'huong@gmail.com', N'Kim cương', 3000, '2017-03-18'),
+(N' Phạm Ngọc Thạch', '1999-12-04', N'Nam', '0135412348', 'emchedtcl@gmail.com', N'Vàng', 2990, '2018-01-01');
 
 -- ========================================
 --  TRIGGER TỰ ĐỘNG TÍNH TỔNG

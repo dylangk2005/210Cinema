@@ -202,6 +202,11 @@ public class PanelSanPham extends JPanel implements Refresh {
     // ================== CÁC CHỨC NĂNG ==================
     private void them() {
         if (validateForm()) {
+            String t = txtTen.getText().trim();
+            if (new SanPhamDAO().kiemTraTrungSP(t, -1)){
+                msg("Trùng tên sản phẩm. Không thể thêm");
+                return;
+            }
             SanPham sp = getFormData();
             int id = dao.insert(sp);
             if (id > 0) {
@@ -218,6 +223,10 @@ public class PanelSanPham extends JPanel implements Refresh {
         if (validateForm()) {
             SanPham sp = getFormData();
             sp.setMaSanPham(Integer.parseInt(txtMa.getText()));
+            if (new SanPhamDAO().kiemTraTrungSP(sp.getTenSanPham(), sp.getMaSanPham())){
+                msg("Trùng tên sản phẩm. Không thể cập nhật!");
+                return;
+            }
             if (dao.update(sp)) {
                 msg("Cập nhật thành công!");
                 loadData();
@@ -253,10 +262,47 @@ public class PanelSanPham extends JPanel implements Refresh {
         return sp;
     }
 
-    private boolean validateForm() {
-        if (txtTen.getText().trim().isEmpty()) { msg("Nhập tên sản phẩm!"); return false; }
-        try { new BigDecimal(txtGia.getText().trim().replace(",", "")); }
-        catch (Exception e) { msg("Đơn giá không hợp lệ!"); return false; }
+   private boolean validateForm() {
+        java.util.List<String> errors = new java.util.ArrayList<>();
+
+        String ten = txtTen.getText().trim();
+        String giaStr = txtGia.getText().trim().replace(",", "").replace(".", "");
+
+        // 1. Kiểm tra tên sản phẩm
+        if (ten.isEmpty()) {
+            errors.add("• Tên sản phẩm không được để trống");
+        } else if (!ten.matches("^[A-Za-zÀ-ỿà-ỹ0-9\\s'-,:.]+$")) {
+            errors.add("• Tên sản phẩm không hợp lệ!");
+        }
+        
+        // 2. Kiểm tra đơn giá
+        if (giaStr.isEmpty()) {
+            errors.add("• Vui lòng nhập đơn giá");
+        } else {
+            try {
+                BigDecimal donGia = new BigDecimal(giaStr);
+                if (donGia.compareTo(BigDecimal.ZERO) <= 0) {
+                    errors.add("• Đơn giá phải lớn hơn 0");
+                }
+                if (donGia.scale() > 0) { // có phần thập phân
+                    errors.add("• Đơn giá không được có phần lẻ (chỉ nhập số nguyên)");
+                }
+            } catch (Exception e) {
+                errors.add("• Đơn giá phải là số hợp lệ (ví dụ: 25000)");
+            }
+        }
+
+
+       if (!errors.isEmpty()) {
+            StringBuilder msg = new StringBuilder("<html><b>Vui lòng sửa các lỗi sau:</b><br><br>");
+            for (String err : errors) {
+                msg.append("<font color=black> ").append(err).append("</font><br>");
+            }
+            msg.append("</html>");
+            thongBao(msg.toString(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE, false);
+            return false;
+        }
+
         return true;
     }
     

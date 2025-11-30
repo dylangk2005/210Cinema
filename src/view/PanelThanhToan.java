@@ -499,7 +499,7 @@ public class PanelThanhToan extends JPanel {
             this.maKHDaChon = -1;
             this.phan_tram_giam = "0";
             String sdt = tfSDT.getText().trim();
-            KhachHang kh = new KhachHangDAO().getKhachHangBySDT(sdt);
+            KhachHang kh = new KhachHangDAO().getKhachHangBySDT(sdt, -1);
             if (kh == null) {
                 lbKH_Ten.setText("Tên khách hàng: -");
                 lbKH_GT.setText("Giới tính: -"); 
@@ -519,14 +519,14 @@ public class PanelThanhToan extends JPanel {
             lbKH_Hang.setText("Hạng: " + hang);
             lbKH_Diem.setText("Điểm tích lũy: " + diemTL);
             this.diemTichLuy = diemTL + soGhe * 10;
-            if (hang.equalsIgnoreCase("Bạc")) {
+            if (hang.equalsIgnoreCase("Bạc")) {
                 BigDecimal tienVeGiam = tienVe.multiply(new BigDecimal("0.05"));
                 BigDecimal tienSPGiam = tongTienSP.multiply(new BigDecimal("0.05"));
                 totalSauGiamGia = total.subtract(tienVeGiam).subtract(tienSPGiam);
                 lbGiamGia.setText("Giảm giá: 5% tiền vé + 5% tiền sản phẩm"); 
                 lbTongTien.setText("Tổng tiền: " + formatMoney(totalSauGiamGia)); 
                 this.phan_tram_giam = "0.05";
-            } else if (hang.equalsIgnoreCase("Vàng")) {
+            } else if (hang.equalsIgnoreCase("Vàng")) {
                 BigDecimal tienVeGiam = tienVe.multiply(new BigDecimal("0.1"));
                 BigDecimal tienSPGiam = tongTienSP.multiply(new BigDecimal("0.1"));
                 totalSauGiamGia = total.subtract(tienVeGiam).subtract(tienSPGiam);

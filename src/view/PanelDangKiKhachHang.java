@@ -35,18 +35,18 @@ public class PanelDangKiKhachHang extends JDialog {
         btnXacNhan.addActionListener(e -> {
             KhachHang kh = getKhachHang();
             if (kh == null) {
-                msg("Vui lòng điền đầy đủ thông tin!", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                // getKhachHang() đã tự hiển thị lỗi
                 return;
             }
             try {
                 int maKH = new KhachHangDAO().insertKhachHangAndReturnId(kh);
-                listener.onSignUpDone(maKH); 
+                listener.onSignUpDone(maKH);
+                msg("Đăng ký thành công! Mã khách hàng: " + maKH, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
             } catch (Exception ex) {
-                System.getLogger(PanelDangKiKhachHang.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                ex.printStackTrace();
+                msg("Đã xảy ra lỗi khi đăng ký!", "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
-            msg("Đăng kí thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
         });
     }
 
@@ -182,23 +182,60 @@ public class PanelDangKiKhachHang extends JDialog {
         String ten = txtTen.getText().trim();
         String sdt = txtSoDienThoai.getText().trim();
         String email = txtEmail.getText().trim();
-        Date ns = (Date) dcNgaySinh.getDate();
-        
-        if(ten.isEmpty() || sdt.isEmpty() || email.isEmpty() || ns == null) return null;
-        
-        int diem = Integer.parseInt(txtDiemTichLuy.getText().trim());
-        String hang = txtHangThanhVien.getText().trim();
+        Date ns = dcNgaySinh.getDate();
 
-        String gt;
-        if (rdoNam.isSelected()) {
-            gt = "Nam";
-        } else if (rdoNu.isSelected()) {
-            gt = "Nữ";
-        } else {
-            gt = "Khác";
+        java.util.List<String> errors = new java.util.ArrayList<>();
+      
+        if (ten.isEmpty()) {
+            errors.add("• Tên khách hàng không được để trống");
+        } else if (!ten.matches("^[A-Za-zÀ-ỿà-ỹ\\s'-]+$")) {
+            errors.add("• Tên khách hàng không được chứa số hoặc ký tự đặc biệt");
+        }
+        if (ns == null) {
+            errors.add("• Vui lòng chọn ngày sinh");
         }
 
-        return new KhachHang(0, ten, ns, gt, sdt, email, hang, diem); 
+        if (sdt.isEmpty()) {
+            errors.add("• Số điện thoại không được để trống");
+        } else if (!sdt.matches("^0\\d{9,10}$")) {  // Bắt đầu bằng 0, tổng 10-11 số
+            errors.add("• Số điện thoại phải bắt đầu bằng 0 và chỉ chứa 10-11 chữ số");
+        }
+        else {
+            try {
+                KhachHang temp = new KhachHangDAO().getKhachHangBySDT(sdt, -1);
+                if (temp != null) {
+                    errors.add("• Số điện thoại " + sdt + " đã được đăng ký!");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+         }
+
+        if (email.isEmpty()) {
+            errors.add("• Email không được để trống");
+        } else if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            errors.add("• Email không đúng định dạng (ví dụ: ten@gmail.com)");
+        }
+
+        // Nếu có lỗi → hiển thị tất cả lỗi cùng lúc
+        if (!errors.isEmpty()) {
+            StringBuilder msg = new StringBuilder("<html>Dữ liệu không hợp lệ, vui lòng sửa các lỗi sau:<br>");
+            for (String err : errors) {
+                msg.append(err).append("<br>");
+            }
+            msg.append("</html>");
+
+            msg(msg.toString(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
+        String gt = rdoNam.isSelected() ? "Nam" :
+                    rdoNu.isSelected() ? "Nữ" : "Khác";
+
+        int diem = 0;
+        String hang = "Sắt";
+
+        return new KhachHang(0, ten, ns, gt, sdt, email, hang, diem);
     }
      public void msg(String message, String title, int type) {
         // Tạo nút OK đỏ 

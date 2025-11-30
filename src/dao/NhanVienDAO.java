@@ -141,4 +141,21 @@ public class NhanVienDAO {
         }
         return list;
     }
+    // kiểm tra có trùng số điện thoại không
+    public boolean kiemTraTrungSDT(String sdt, int maNhanVien) {
+        String sql = "SELECT COUNT(*) FROM NhanVien WHERE soDienThoai = ? AND maNhanVien != ?";
+        try (var conn = DBConnection.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, sdt);
+            ps.setInt(2, maNhanVien);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // nếu đếm được >= 1 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

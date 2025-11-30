@@ -200,11 +200,12 @@ public class KhachHangDAO {
     }
      
     // ---------------- LẤY THÔNG TIN KHÁCH HÀNG ------------------
-    public KhachHang getKhachHangBySDT(String soDienThoai) {
-        String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
+    public KhachHang getKhachHangBySDT(String soDienThoai, int maKhachHang) {
+        String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ? AND maKhachHang != ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, soDienThoai);
+                ps.setInt(2, maKhachHang);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     KhachHang kh = new KhachHang(

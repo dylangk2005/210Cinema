@@ -141,4 +141,21 @@ public class PhimDAO {
         }
         return list;
     }
+    // kiểm tra có trùng tên phim không
+    public boolean kiemTraTrungPhim(String tenPhim, int maPhim) {
+        String sql = "SELECT COUNT(*) FROM Phim WHERE tenPhim = ? AND maPhim != ?";
+        try (var conn = DBConnection.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tenPhim);
+            ps.setInt(2, maPhim);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // nếu đếm được >= 1 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

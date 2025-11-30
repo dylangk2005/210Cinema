@@ -1,7 +1,6 @@
 package view;
 
 import dao.PhimDAO;
-import dao.SuatChieuDAO;
 import model.Phim;
 
 import javax.swing.*;
@@ -229,13 +228,20 @@ public class PanelPhim extends JPanel implements Refresh {
     }
     
     // thêm phim
-    private void them() { 
-        if (checkForm()) 
+    private void them(){ 
+        if (checkForm()){
+            String t = txtTen.getText().trim();
+            if (new PhimDAO().kiemTraTrungPhim(t, -1)) {
+                msg("Trùng tên Phim. Không thể thêm!");
+                return;
+            }
             if (dao.insert(getData())){ 
-                msg("Thêm thành công!"); 
+                msg("Thêm phim thành công!"); 
                 loadData(); 
                 clearForm(); 
-            }else msg("Thêm thất bại!"); }
+            }else msg("Thêm thất bại!"); 
+        }
+    }
     
     // update phim
     private void sua() { 
@@ -245,7 +251,11 @@ public class PanelPhim extends JPanel implements Refresh {
         } 
         if (checkForm()){ 
             Phim p = getData(); 
-            p.setMaPhim(Integer.parseInt(txtMa.getText())); 
+            p.setMaPhim(Integer.parseInt(txtMa.getText()));
+            if (new PhimDAO().kiemTraTrungPhim(p.getTenPhim(), p.getMaPhim())){
+                msg("Trùng tên phim. Không thể cập nhật");
+                return;
+            }
             if (dao.update(p)){ 
                 msg("Cập nhật thành công!"); 
                 loadData(); 
@@ -301,11 +311,61 @@ public class PanelPhim extends JPanel implements Refresh {
     
     // kiểm tra dữ liệu nhập
     private boolean checkForm() {
-        if (txtTen.getText().trim().isEmpty() || txtThoiLuong.getText().trim().isEmpty() || txtTheLoai.getText().trim().isEmpty()) {
-            msg("Vui lòng điền đầy đủ thông tin bắt buộc!"); return false;
+        java.util.List<String> errors = new java.util.ArrayList<>();
+
+        String tenPhim = txtTen.getText().trim();
+        String theLoai = txtTheLoai.getText().trim();
+        String thoiLuongStr = txtThoiLuong.getText().trim();
+
+        // 1. Tên phim
+        if (tenPhim.isEmpty()) {
+            errors.add("• Tên phim không được để trống");
+        } else if (!tenPhim.matches("^[A-Za-zÀ-ỿà-ỹ0-9\\s'-:!.]+$")) {
+            errors.add("• Tên phim không hợp lệ!");
         }
-        try { Integer.parseInt(txtThoiLuong.getText().trim()); }
-        catch (Exception e) { msg("Thời lượng phải là số!"); return false; }
+        
+        // 2. Thể loại
+        if (theLoai.isEmpty()) {
+            errors.add("• Thể loại không được để trống");
+        } else if (!theLoai.matches("^[A-Za-zÀ-ỿà-ỹ\\s,]+$")) {
+            errors.add("• Thể loại không hợp lệ!");
+        }
+
+        // 3. Thời lượng
+        if (thoiLuongStr.isEmpty()) {
+            errors.add("• Thời lượng không được để trống");
+        } else {
+            try {
+                int thoiLuong = Integer.parseInt(thoiLuongStr);
+                if (thoiLuong < 60 || thoiLuong > 300) {
+                    errors.add("• Thời lượng phải từ 60 đến 300 phút");
+                }
+            } catch (NumberFormatException e) {
+                errors.add("• Thời lượng phải là số nguyên hợp lệ");
+            }
+        }
+
+        // 4. Ngày khởi chiếu
+        if (dcNgayKhoiChieu.getDate() == null) {
+            errors.add("• Vui lòng chọn ngày khởi chiếu");
+        }
+
+        // 5. Giới hạn tuổi
+        if (cbGioiHanTuoi.getSelectedIndex() == -1) {
+            errors.add("• Vui lòng chọn giới hạn tuổi");
+        }
+
+        // === HIỂN THỊ TẤT CẢ LỖI CÙNG LÚC ===
+        if (!errors.isEmpty()) {
+            StringBuilder msg = new StringBuilder("<html><b>Vui lòng sửa các lỗi sau:</b><br><br>");
+            for (String err : errors) {
+                msg.append("<font color=black> ").append(err).append("</font><br>");
+            }
+            msg.append("</html>");
+            thongBao(msg.toString(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE, false);
+            return false;
+        }
+
         return true;
     }
     
