@@ -30,8 +30,6 @@ Tất cả file `.jar` cần thiết nằm trong thư mục `/src/lib/`
 - Cách 1 - Git clone: `git clone git@github.com:dylangk2005/210Cinema.git`
 - Cách 2 - Download zip: download [tại đây](https://github.com/dylangk2005/210Cinema/archive/refs/heads/main.zip)
 
-**Lưu ý:** Sau khi clone về và cập nhật build path xong (nếu dùng IDE khác)
-
 # 3. Huớng dẫn chạy:
 - Mở SSMS → chạy file CinemaDB.sql trong source code (đã có dữ liệu mẫu)
 - Mở project bằng NetBeans → Clean and Build (Shift+F11)
@@ -41,7 +39,7 @@ Sau khi build xong và chạy bạn sẽ thấy giao diện đăng nhập:
 
 ![Login](src/images/login.jpg)
 
-Đăng nhập bằng tài khoản mẫu dưới đây
+Đăng nhập bằng tài khoản mẫu dưới đây:
 
 |Vai trò|Tài khoản|Mật khẩu|
 |---|--------|----------------------|
