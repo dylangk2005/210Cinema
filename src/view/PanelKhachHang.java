@@ -47,6 +47,7 @@ public class PanelKhachHang extends JPanel implements Refresh {
     @Override
     public void refreshData() {
         loadData();
+        clearForm();
     }
 
     private void taoForm() {
@@ -348,7 +349,7 @@ public class PanelKhachHang extends JPanel implements Refresh {
         if (!errors.isEmpty()) {
             StringBuilder msg = new StringBuilder("<html><b>Vui lòng sửa các lỗi sau:</b><br><br>");
             for (String err : errors) {
-                msg.append("<font color=red>→ ").append(err).append("</font><br>");
+                msg.append("<font color=black> ").append(err).append("</font><br>");
             }
             msg.append("</html>");
             thongBao(msg.toString(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE, false);

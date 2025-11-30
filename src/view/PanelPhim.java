@@ -47,6 +47,7 @@ public class PanelPhim extends JPanel implements Refresh {
     @Override
     public void refreshData(){
         loadData();
+        clearForm();
     }
 
     // form nhập liệu

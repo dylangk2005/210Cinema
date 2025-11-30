@@ -49,6 +49,7 @@ public class PanelNhanVien extends JPanel implements Refresh {
     @Override
     public void refreshData(){
         loadDuLieu();
+        xoaForm();
     }
     
     // ============= 1. FORM NHẬP THÔNG TIN ================

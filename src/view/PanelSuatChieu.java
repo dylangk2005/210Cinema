@@ -64,6 +64,7 @@ public class PanelSuatChieu extends JPanel implements Refresh {
     public void refreshData(){
         loadComboData();
         loadData();
+        clearForm();
     }
     // tạo form nhập thông tin sc
     private void taoForm() {

@@ -39,6 +39,7 @@ public class PanelPhongChieu extends JPanel implements Refresh {
     @Override
     public void refreshData(){
         loadData();
+        clearForm();
     }
     // ================== FORM NHẬP THÔNG TIN PHÒNG ==================
     private void taoForm() {
@@ -163,10 +164,13 @@ public class PanelPhongChieu extends JPanel implements Refresh {
     // ================== CRUD ==================
     private void them() {
         if (txtTen.getText().trim().isEmpty()) {
-            msg("Vui lòng nhập tên phòng!");
+            msg("• Tên phim không được để trống");
+            return;
+        } else if (!txtTen.getText().trim().matches("^[A-Za-zÀ-ỿà-ỹ0-9\\s'-]+$")) {
+            msg("• Tên phim không được chứa hoặc ký tự đặc biệt");
             return;
         }
-
+        
         PhongChieu pc = new PhongChieu();
         pc.setTenPhongChieu(txtTen.getText().trim());
         pc.setSoGheNgoi(Integer.parseInt((String) cbSoGhe.getSelectedItem()));
@@ -192,8 +196,16 @@ public class PanelPhongChieu extends JPanel implements Refresh {
             msg("Vui lòng chọn phòng cần cập nhật!");
             return;
         }
+     
+        if (txtTen.getText().trim().isEmpty()) {
+            msg("• Tên phim không được để trống");
+            return;
+        } else if (!txtTen.getText().trim().matches("^[A-Za-zÀ-ỿà-ỹ0-9\\s'-]+$")) {
+            msg("• Tên phim không được chứa hoặc ký tự đặc biệt");
+            return;
+        }
+        
         int maPhong = Integer.parseInt(txtMa.getText());
-
         PhongChieu pc = new PhongChieu();
         pc.setMaPhongChieu(maPhong);
         pc.setTenPhongChieu(txtTen.getText().trim());

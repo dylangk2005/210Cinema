@@ -69,10 +69,10 @@ public class ThongKeDAO {
                 )
                 SELECT 
                     FORMAT(t.Thang, 'MM/yyyy') AS ThoiGian,
-                    ISNULL(COUNT(DISTINCT dh.maHoaDon), 0) AS SoHD,
+                    ISNULL(COUNT(DISTINCT hd.maHoaDon), 0) AS SoHD,
                     ISNULL(SUM(hd.tongTienPhaiTra), 0) AS DoanhThu
                 FROM ThangSeries t
-                LEFT JOIN HoaDon hd ON FORMAT(dh.thoiGianTao, 'yyyy-MM') = FORMAT(t.Thang, 'yyyy-MM')
+                LEFT JOIN HoaDon hd ON FORMAT(hd.thoiGianTao, 'yyyy-MM') = FORMAT(t.Thang, 'yyyy-MM')
                 GROUP BY t.Thang
                 ORDER BY t.Thang
                 OPTION (MAXRECURSION 0)
@@ -92,7 +92,7 @@ public class ThongKeDAO {
                     ISNULL(COUNT(DISTINCT hd.maHoaDon), 0) AS SoHD,
                     ISNULL(SUM(hd.TongTienPhaiTra), 0) AS DoanhThu
                 FROM NamSeries n
-                LEFT JOIN HoaDon hd ON YEAR(dh.thoiGianTao) = n.Nam
+                LEFT JOIN HoaDon hd ON YEAR(hd.thoiGianTao) = n.Nam
                 GROUP BY n.Nam
                 ORDER BY n.Nam
                 OPTION (MAXRECURSION 0)
@@ -141,7 +141,7 @@ public class ThongKeDAO {
                 ISNULL(SUM(ct.thanhTien), 0) AS DoanhThu
             FROM Phim p
             LEFT JOIN SuatChieu sc ON p.maPhim = sc.maPhim
-            LEFT JOIN Ve v ON sc.maSuatChieu = v.maSuatChieu AND v.trangThai = N'Đã đặt'
+            LEFT JOIN Ve v ON sc.maSuatChieu = v.maSuatChieu
             LEFT JOIN ChiTietHoaDon ct ON v.maVe = ct.maVe
             GROUP BY p.maPhim, p.tenPhim
             ORDER BY DoanhThu DESC, p.tenPhim

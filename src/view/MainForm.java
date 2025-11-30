@@ -76,7 +76,7 @@ public class MainForm extends JFrame {
 
         // Chữ 210CINEMA - đẩy sát trái hơn
         JLabel textLabel = new JLabel("210CINEMA");
-        textLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        textLabel.setFont(new Font("SegoeUI", Font.BOLD, 22));
         textLabel.setForeground(Color.WHITE);
         headerPanel.add(textLabel);
 
@@ -91,11 +91,11 @@ public class MainForm extends JFrame {
 
         JLabel lbRole = new JLabel(chucVu.equals("Quản lý") ? "Quản lý" : "Nhân viên bán vé", JLabel.CENTER);
         lbRole.setForeground(Color.LIGHT_GRAY);
-        lbRole.setFont(new Font("Arial", Font.PLAIN, 14));
+        lbRole.setFont(new Font("SegoeUI", Font.PLAIN, 14));
 
         JLabel lbName = new JLabel(hoTen, JLabel.CENTER);
         lbName.setForeground(Color.WHITE);
-        lbName.setFont(new Font("Arial", Font.BOLD, 16));
+        lbName.setFont(new Font("SegoeUI", Font.BOLD, 16));
 
         userInfo.add(lbRole);
         userInfo.add(lbName);
@@ -168,7 +168,7 @@ public class MainForm extends JFrame {
         ImageIcon icon = loadIcon("/view/icons/" + iconFile, 24, 24);
         JButton btn = new JButton(text, icon);
         btn.setFocusPainted(false);
-        btn.setFont(new Font("Arial", Font.BOLD, 15));
+        btn.setFont(new Font("SegoeUI", Font.BOLD, 15));
         btn.setForeground(Color.WHITE);
         btn.setBackground(new Color(180, 0, 0));
         btn.setBorderPainted(false);
@@ -207,14 +207,14 @@ public class MainForm extends JFrame {
         btnDangXuat.setBackground(new Color(220, 0, 0));
         btnDangXuat.setForeground(Color.WHITE);
         btnDangXuat.setFocusPainted(false);
-        btnDangXuat.setFont(new Font("Arial", Font.BOLD, 14));
+        btnDangXuat.setFont(new Font("SegoeUI", Font.BOLD, 14));
         btnDangXuat.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         JButton btnHuy = new JButton("Hủy");
         btnHuy.setBackground(new Color(70, 70, 70));
         btnHuy.setForeground(Color.WHITE);
         btnHuy.setFocusPainted(false);
-        btnHuy.setFont(new Font("Arial", Font.BOLD, 14));
+        btnHuy.setFont(new Font("SegoeUI", Font.BOLD, 14));
         btnHuy.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         // Tạo JOptionPane tùy chỉnh
@@ -223,7 +223,7 @@ public class MainForm extends JFrame {
             JOptionPane.QUESTION_MESSAGE,
             JOptionPane.DEFAULT_OPTION,
             null,
-            new Object[] { btnDangXuat, btnHuy }, // 2 nút
+            new Object[] { btnHuy, btnDangXuat }, // 2 nút
             btnHuy // nút mặc định
         );
 

@@ -42,6 +42,7 @@ public class PanelSanPham extends JPanel implements Refresh {
     @Override
     public void refreshData(){
         loadData();
+        clearForm();
     }
     
     // ================== 1. TẠO FORM NHẬP THÔNG TIN SP ==================
