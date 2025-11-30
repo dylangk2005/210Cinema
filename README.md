@@ -27,9 +27,10 @@ Tất cả file `.jar` cần thiết nằm trong thư mục `/src/lib/`
 → Nếu dùng IDE khác: cần thêm toàn bộ file trong `/src/lib/` vào **Project Libraries/Classpath**
 
 ## 2.3 Lấy source code - 2 cách:**
-Cách 1 - Git clone: `git clone git@github.com:dylangk2005/210Cinema.git`
-Cách 2 - Download zip: download [tại đây](https://github.com/dylangk2005/210Cinema/archive/refs/heads/main.zip)
-**Sau khi clone về và cập nhật build path xong (nếu dùng ide khác): chạy file `CinemaDB.sql` 
+- Cách 1 - Git clone: `git clone git@github.com:dylangk2005/210Cinema.git`
+- Cách 2 - Download zip: download [tại đây](https://github.com/dylangk2005/210Cinema/archive/refs/heads/main.zip)
+
+**Lưu ý:** Sau khi clone về và cập nhật build path xong (nếu dùng IDE khác)
 
 # 3. Huớng dẫn chạy:
 - Mở SSMS → chạy file CinemaDB.sql trong source code (đã có dữ liệu mẫu)
@@ -47,7 +48,9 @@ Sau khi build xong và chạy bạn sẽ thấy giao diện đăng nhập:
 |Quản lý|tu_ql|1234567|
 |Nhân viên bán vé|duc_nv|1234567|
 
+Sau khi đăng nhập thành công thì giao diện trang chủ sẽ hiện ra: 
 
+![trangChu](src/images/trangChu.jpg)
 
 **Lưu ý: Nếu không chạy được:**
 - Kiểm tra SQL Server Authentication đã bật
