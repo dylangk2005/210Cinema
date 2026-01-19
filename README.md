@@ -26,7 +26,7 @@ Tất cả file `.jar` cần thiết nằm trong thư mục `/src/lib/`
 → Nếu dùng NetBeans: chạy luôn được  
 → Nếu dùng IDE khác: cần thêm toàn bộ file trong `/src/lib/` vào **Project Libraries/Classpath**
 
-## 2.3 Lấy source code - 2 cách:**
+## 2.3 Lấy source code - 2 cách:
 - Cách 1 - Git clone: `git clone git@github.com:dylangk2005/210Cinema.git`
 - Cách 2 - Download zip: download [tại đây](https://github.com/dylangk2005/210Cinema/archive/refs/heads/main.zip)
 
